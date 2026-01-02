@@ -22,7 +22,7 @@ public class Role {
     @Column(length = 20, name = "role_name")
     private Roles roleName;
 
-    public Role(AppRole roleName) {
+    public Role(Roles roleName) {
         this.roleName = roleName;
     }
 }
