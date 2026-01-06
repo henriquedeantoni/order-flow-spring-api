@@ -2,6 +2,8 @@ package com.orderflow.orderflow_api.secutiry.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.web.util.WebUtils;
 
 import java.security.Key;
 import java.util.Date;
@@ -49,5 +52,22 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(
                 Decoders.BASE64.decode(jwtSecret)
         );
+    }
+
+    public String getJwtFromCookies(HttpServletRequest req) {
+        Cookie cookie = WebUtils.getCookie(req, jwtCookie);
+        if(cookie != null){
+            System.out.println("Cookie: " + cookie.getValue());
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    public ResponseCookie getCleanJwtCookie(){
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
+                .path("/api")
+                .build();
+        return cookie;
     }
 }
