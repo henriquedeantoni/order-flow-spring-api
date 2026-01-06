@@ -8,6 +8,7 @@ import com.orderflow.orderflow_api.repositories.UserRepository;
 import com.orderflow.orderflow_api.secutiry.jwt.JwtUtils;
 import com.orderflow.orderflow_api.secutiry.request.LoginRequest;
 import com.orderflow.orderflow_api.secutiry.request.SignupRequest;
+import com.orderflow.orderflow_api.secutiry.response.MessageResponse;
 import com.orderflow.orderflow_api.secutiry.response.UserInfoResponse;
 import com.orderflow.orderflow_api.secutiry.services.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -150,5 +151,12 @@ public class AuthController {
         UserInfoResponse userResponse = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles);
 
         return ResponseEntity.ok().body(userResponse);
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> signoutUser(Authentication authentication) {
+        ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("Bye! You've been logged out successfully!"));
     }
 }
