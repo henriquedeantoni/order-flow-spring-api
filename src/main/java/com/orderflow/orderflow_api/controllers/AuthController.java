@@ -3,6 +3,7 @@ package com.orderflow.orderflow_api.controllers;
 import com.orderflow.orderflow_api.models.Role;
 import com.orderflow.orderflow_api.models.Roles;
 import com.orderflow.orderflow_api.models.User;
+import com.orderflow.orderflow_api.payload.AuthenticationResult;
 import com.orderflow.orderflow_api.repositories.RoleRepository;
 import com.orderflow.orderflow_api.repositories.UserRepository;
 import com.orderflow.orderflow_api.secutiry.jwt.JwtUtils;
@@ -11,6 +12,7 @@ import com.orderflow.orderflow_api.secutiry.request.SignupRequest;
 import com.orderflow.orderflow_api.secutiry.response.MessageResponse;
 import com.orderflow.orderflow_api.secutiry.response.UserInfoResponse;
 import com.orderflow.orderflow_api.secutiry.services.UserDetailsImpl;
+import com.orderflow.orderflow_api.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -33,6 +35,9 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -46,6 +51,8 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticationUser(@RequestBody LoginRequest request){
+        AuthenticationResult authenticationResult = authService.login(request);
+
         Authentication authentication;
         try{
             authentication = authenticationManager.authenticate(
