@@ -41,10 +41,22 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    public User(String username, String email, String password) {
+    @NotBlank
+    @Size(max=25)
+    @Column(name = "firstname")
+    private String firstName;
+
+    @NotBlank
+    @Size(max=25)
+    @Column(name = "lastname")
+    private String lastName;
+
+    public User(String username, String email, String password, String firstName, String lastName) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Getter
