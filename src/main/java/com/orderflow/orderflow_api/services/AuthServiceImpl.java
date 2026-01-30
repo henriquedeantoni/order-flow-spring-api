@@ -58,7 +58,9 @@ public class AuthServiceImpl implements AuthService {
         User user = new User(
                 request.getUsername(),
                 request.getEmail(),
-                request.getPassword()
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName()
         );
 
         Set<String> strRoles = request.getRoles();

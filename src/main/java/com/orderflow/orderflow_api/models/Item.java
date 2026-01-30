@@ -22,7 +22,7 @@ public class Item {
     private String itemName;
 
     @NotBlank
-    @Size(max=500)
+    @Size(max=1024)
     @Column(name = "description")
     private String description;
 
@@ -39,4 +39,8 @@ public class Item {
     private int discount;
 
     private int timePrepareMinutes;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
