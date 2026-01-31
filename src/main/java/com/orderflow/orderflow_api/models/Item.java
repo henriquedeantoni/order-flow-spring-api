@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
@@ -38,9 +39,17 @@ public class Item {
     @Column(name = "discount")
     private int discount;
 
-    private int timePrepareMinutes;
-
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    private String itemSize;
+
+    private int timePrepareMinutes;
+
+    private String itemStatus;
+
+    @ToString.Exclude
+    @OneToOne(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private ItemImage itemImage;
 }
