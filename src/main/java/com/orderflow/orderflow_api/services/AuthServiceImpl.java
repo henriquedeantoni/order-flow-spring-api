@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<MessageResponse> register(SignupRequest request) {
-        if(userRepository.existsByUserName(request.getUsername())){
+        if(userRepository.existsByUsername(request.getUsername())){
             return ResponseEntity.badRequest()
                     .body( new MessageResponse("Error: Username already exists"));
         }
