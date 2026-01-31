@@ -1,4 +1,4 @@
-package com.orderflow.orderflow_api.secutiry.response;
+package com.orderflow.orderflow_api.security.response;
 
 import java.util.List;
 

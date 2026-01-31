@@ -1,6 +1,6 @@
 package com.orderflow.orderflow_api.payload;
 
-import com.orderflow.orderflow_api.secutiry.response.UserInfoResponse;
+import com.orderflow.orderflow_api.security.response.UserInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.ResponseCookie;

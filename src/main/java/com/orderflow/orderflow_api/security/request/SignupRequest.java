@@ -1,6 +1,5 @@
-package com.orderflow.orderflow_api.secutiry.request;
+package com.orderflow.orderflow_api.security.request;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

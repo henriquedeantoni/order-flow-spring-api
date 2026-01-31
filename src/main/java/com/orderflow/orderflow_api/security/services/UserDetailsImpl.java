@@ -1,18 +1,20 @@
-package com.orderflow.orderflow_api.secutiry.services;
+package com.orderflow.orderflow_api.security.services;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.orderflow.orderflow_api.models.User;
-import org.jspecify.annotations.Nullable;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
+@Data
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -23,7 +25,7 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private static Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(
             Long id,
@@ -38,7 +40,7 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    public UserDetailsImpl build(User user) {
+    public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> grantedAuthorities = user
                 .getRoles()
                 .stream()

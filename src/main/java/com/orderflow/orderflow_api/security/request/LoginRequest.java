@@ -1,4 +1,4 @@
-package com.orderflow.orderflow_api.secutiry.request;
+package com.orderflow.orderflow_api.security.request;
 
 import jakarta.validation.constraints.NotBlank;
 
