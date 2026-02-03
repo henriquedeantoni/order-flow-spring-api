@@ -1,6 +1,7 @@
 package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.models.Item;
+import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,10 @@ public class ItemServiceImpl implements ItemService {
         return itemResponse;
     }
 
+    @Override
+    public ItemDTO addItem(Long categoryId, ItemDTO itemDTO) {
+        return null;
+    }
 
 
 }
