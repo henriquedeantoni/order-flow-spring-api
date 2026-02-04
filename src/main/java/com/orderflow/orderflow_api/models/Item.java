@@ -58,4 +58,8 @@ public class Item {
 
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private List<AlbumImage> albumImages = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
