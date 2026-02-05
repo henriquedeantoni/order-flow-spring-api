@@ -61,11 +61,9 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = modelMapper.map(itemDTO, Item.class);
         item.setCategory(category);
-        item.setUser(authUtil.UserOnLoggedSessio());
+        item.setUser(authUtil.userOnLoggedSession());
 
         Item savedItem = itemRepository.save(item);
         return modelMapper.map(savedItem, ItemDTO.class);
     }
-
-
 }

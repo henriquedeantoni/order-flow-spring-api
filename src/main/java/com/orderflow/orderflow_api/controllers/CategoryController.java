@@ -5,6 +5,8 @@ import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.payload.CategoryResponse;
 import com.orderflow.orderflow_api.services.CategoryService;
+import jakarta.validation.Valid;
+import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,18 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> addCategory(@RequestBody CategoryDTO categoryDTO) {
         CategoryDTO createdCategoryDTO = categoryService.addCategory(categoryDTO);
         return new ResponseEntity<>(createdCategoryDTO, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/admin/categories/{categoryId}")
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {
+        CategoryDTO categoryDeleted = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(categoryDeleted, HttpStatus.OK);
+    }
+
+    @PutMapping("/admin/categories/{categoryId}")
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId,@Valid @RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO savedCategoryDTO = categoryService.updateCategory(categoryDTO, categoryId);
+        return new ResponseEntity<>(savedCategoryDTO, HttpStatus.OK);
     }
 
 }

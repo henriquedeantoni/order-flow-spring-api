@@ -21,12 +21,21 @@ public class AuthUtil {
         return user.getEmail();
     }
 
-    public User UserOnLoggedSessio(){
+    public User userOnLoggedSession(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found, username: " + authentication.getName()));
 
         return user;
+    }
+
+    public String usernameOnLoggedSession(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found, username: " + authentication.getName()));
+
+        return user.getUsername();
     }
 }
