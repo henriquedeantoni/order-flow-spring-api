@@ -2,14 +2,15 @@ package com.orderflow.orderflow_api.controllers;
 
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.models.Category;
+import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.payload.CategoryResponse;
 import com.orderflow.orderflow_api.services.CategoryService;
+import jakarta.validation.Valid;
+import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,10 +21,29 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping
+    @GetMapping("/public/categories")
     public ResponseEntity<CategoryResponse> getAllCategories() {
         CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse = categoryService.getAllCategories();
         return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
+
+    @PostMapping("/admin/categories")
+    public ResponseEntity<CategoryDTO> addCategory(@RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO createdCategoryDTO = categoryService.addCategory(categoryDTO);
+        return new ResponseEntity<>(createdCategoryDTO, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/admin/categories/{categoryId}")
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {
+        CategoryDTO categoryDeleted = categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(categoryDeleted, HttpStatus.OK);
+    }
+
+    @PutMapping("/admin/categories/{categoryId}")
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId,@Valid @RequestBody CategoryDTO categoryDTO) {
+        CategoryDTO savedCategoryDTO = categoryService.updateCategory(categoryDTO, categoryId);
+        return new ResponseEntity<>(savedCategoryDTO, HttpStatus.OK);
+    }
+
 }
