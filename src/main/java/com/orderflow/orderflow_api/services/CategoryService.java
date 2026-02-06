@@ -6,7 +6,7 @@ import com.orderflow.orderflow_api.payload.CategoryResponse;
 import jakarta.validation.Valid;
 
 public interface CategoryService {
-    CategoryResponse getAllCategories() throws APIException;
+    CategoryResponse getAllCategories(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) throws APIException;
 
     CategoryDTO addCategory(CategoryDTO categoryDTO);
 
