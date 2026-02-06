@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.controllers;
 
+import com.orderflow.orderflow_api.config.AppConsts;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
@@ -22,9 +23,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryResponse> getAllCategories() {
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
+            @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
+    ) {
         CategoryResponse categoryResponse = new CategoryResponse();
-        categoryResponse = categoryService.getAllCategories();
+        categoryResponse = categoryService.getAllCategories(pageSize, pageNumber, sortBy, sortOrder);
         return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
 

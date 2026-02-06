@@ -6,15 +6,17 @@ import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.payload.CategoryResponse;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -26,8 +28,14 @@ public class CategoryServiceImpl implements CategoryService {
     private ModelMapper modelMapper;
 
     @Override
-    public CategoryResponse getAllCategories(){
-        List<Category> categoryList = categoryRepository.findAll();
+    public CategoryResponse getAllCategories(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder){
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        List<Category> categoryList = categoryPage.getContent();
 
         if(categoryList.isEmpty() || categoryList == null)
             throw new APIException("Any category has created by now.");
@@ -38,6 +46,12 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse.setContent(categoriesDTO);
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalPages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
+        categoryResponse.setTimestamp(LocalDateTime.now(ZoneId.of("UTC")));
 
         return categoryResponse;
     }
