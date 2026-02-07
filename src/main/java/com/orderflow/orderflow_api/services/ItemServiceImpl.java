@@ -11,9 +11,15 @@ import com.orderflow.orderflow_api.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -33,7 +39,12 @@ public class ItemServiceImpl implements ItemService {
     private AuthUtil authUtil;
 
     @Override
-    public ItemResponse getAllItems(String keyword, String category) {
+    public ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        Sort sortByIdAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByIdAndOrder);
 
         Specification<Item> specification = Specification.allOf(List.of());
 
@@ -47,10 +58,25 @@ public class ItemServiceImpl implements ItemService {
                     -> criteriabuilder.like(root.get("category").get("categoryName"), category));
         }
 
-        List<Item> items = itemRepository.findAll(specification);
+        Page<Item> itemsPage = itemRepository.findAll(specification, pageDetails);
 
+        List<Item> items = itemsPage.getContent();
+
+        List<ItemDTO> itemDTOS = items
+                .stream()
+                .map(item ->{
+                    ItemDTO itemDTO = modelMapper.map(item, ItemDTO.class);
+                    //ItemDTO.setImage();
+                    return itemDTO;
+                }).toList();
         ItemResponse itemResponse = new ItemResponse();
-        itemResponse.setContent(items);
+        itemResponse.setContent(itemDTOS);
+        itemResponse.setPageNumber(itemsPage.getNumber());
+        itemResponse.setPageSize(itemsPage.getSize());
+        itemResponse.setTotalPages(itemsPage.getTotalPages());
+        itemResponse.setTotalElements(itemsPage.getTotalElements());
+        itemResponse.setLastPage(itemsPage.isLast());
+        itemResponse.setTimestamp(LocalDateTime.now(ZoneId.of("UTC")));
         return itemResponse;
     }
 
