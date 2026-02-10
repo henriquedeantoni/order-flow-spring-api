@@ -40,7 +40,7 @@ public class Item {
     @NotBlank
     @Size(max=100)
     @Column(name = "discount")
-    private int discount;
+    private double discount;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
