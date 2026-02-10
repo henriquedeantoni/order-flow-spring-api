@@ -11,7 +11,8 @@ public class ItemDTO {
     private Long itemId;
     private String itemName;
     private String description;
-    private String quantity;
+    private Integer quantity;
+    private String itemSize;
     private double price;
     private double discount;
 }
