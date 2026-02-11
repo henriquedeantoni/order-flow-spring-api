@@ -166,8 +166,32 @@ public class ItemServiceTest {
 
         when(modelMapper.map(savedItem, ItemDTO.class)).thenReturn(itemOutputDTO);
 
-        // ------------ ARRANGE --------------
+        // ------------ ACT --------------
 
-        
+        ItemDTO resultItemDTO = itemService.addItem(categoryId, itemInputDTO);
+
+        // ------------ ASSERT --------------
+
+        assertNotNull(resultItemDTO);
+
+        assertEquals(1L, resultItemDTO.getItemId());
+
+        assertEquals("rice bowl", resultItemDTO.getItemName());
+
+        verify(categoryRepository, times(1))
+                .findById(categoryId);
+
+        verify(modelMapper, times(1))
+                .map(itemInputDTO, Item.class);
+
+        verify(authUtil, times(1))
+                .userOnLoggedSession();
+
+        verify(itemRepository, times(1))
+                .save(any(Item.class));
+
+        verify(modelMapper, times(1))
+                .map(savedItem, ItemDTO.class);
+
     }
 }
