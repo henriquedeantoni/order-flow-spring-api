@@ -1,4 +1,7 @@
 package com.orderflow.orderflow_api.repositories;
 
-public interface ItemImageRepository {
+import com.orderflow.orderflow_api.models.ItemImage;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ItemImageRepository extends JpaRepository<ItemImage, String> {
 }
