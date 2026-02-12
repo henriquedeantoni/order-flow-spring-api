@@ -7,33 +7,27 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="album_images")
-public class AlbumImage {
+@Table(name="simple_images")
+public class SimpleImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long albumImageid;
+    private Long simpleImageId;
+
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "url")
+    private String url;
 
     @NotBlank
     @Size(max = 100)
     @Column(name = "title")
     private String title;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(name = "description")
-    private String description;
-
-    @OneToOne
-    @JoinColumn(name = "item_id")
-    private Item item;
-
-    @OneToMany(mappedBy = "albumImage", cascade = CascadeType.ALL)
-    private List<SimpleImage> simpleImages;
-
+    @ManyToOne
+    @JoinColumn(name = "album_image_id")
+    private AlbumImage albumImage;
 }

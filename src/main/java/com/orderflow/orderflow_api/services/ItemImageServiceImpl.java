@@ -54,6 +54,20 @@ public class ItemImageServiceImpl implements ItemImageService {
         return modelMapper.map(savedItemImage, ItemImageDTO.class);
     }
 
+    @Override
+    public ItemImageDTO updateImageFile(Long itemImageId, MultipartFile fileImage) throws IOException {
+        ItemImage itemImageFromDB = itemImageRepository.findById(itemImageId)
+                .orElseThrow(() -> new ResourceNotFoundException("ItemImage", "itemImageId", itemImageId));
+
+        String fileName = fileService.uploadImageFile(path, fileImage);
+
+        itemImageFromDB.setUrl(fileName);
+
+        ItemImage savedItemImage = itemImageRepository.save(itemImageFromDB);
+
+        return modelMapper.map(savedItemImage, ItemImageDTO.class);
+    }
+
     private String imageUrlContruct(String imageTitle){
         return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageTitle : imageBaseUrl + "/" + imageTitle;
     }
