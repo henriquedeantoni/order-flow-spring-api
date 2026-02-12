@@ -56,8 +56,9 @@ public class Item {
     @OneToOne(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private ItemImage itemImage;
 
-    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    private List<AlbumImage> albumImages = new ArrayList<>();
+    @ToString.Exclude
+    @OneToOne(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private AlbumImage albumImage;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

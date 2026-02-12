@@ -8,4 +8,6 @@ import java.io.IOException;
 
 public interface ItemImageService {
     ItemImageDTO addItemImage(Long itemId, ItemImageRequestDTO itemImageRequestDTO, MultipartFile file) throws IOException;
+
+    ItemImageDTO updateImageFile(Long itemImageId, MultipartFile file) throws IOException;
 }

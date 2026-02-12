@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name="item_images")
 public class ItemImage {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemImageId;
