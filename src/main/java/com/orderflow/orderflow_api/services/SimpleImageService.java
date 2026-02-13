@@ -6,8 +6,10 @@ import com.orderflow.orderflow_api.payload.SimpleImageDTO;
 import com.orderflow.orderflow_api.payload.SimpleImageRequestDTO;
 import org.springframework.web.multipart.MultipartFile;
 
-public interface SimpleImageService {
-    SimpleImageDTO addItemImage(Long itemId, SimpleImageRequestDTO simpleImageRequestDTO, MultipartFile file);
+import java.io.IOException;
 
-    SimpleImageDTO updateImageFile(Long simpleImageId, MultipartFile file);
+public interface SimpleImageService {
+    SimpleImageDTO addImage(Long albumImageId, SimpleImageRequestDTO simpleImageRequestDTO, MultipartFile file) throws IOException;
+
+    SimpleImageDTO updateImageFile(Long simpleImageId, MultipartFile file) throws IOException;
 }

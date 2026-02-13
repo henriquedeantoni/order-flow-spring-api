@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -33,7 +35,7 @@ public class AlbumImage {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @OneToMany(mappedBy = "albumImage", cascade = CascadeType.ALL)
-    private List<SimpleImage> simpleImages;
+    @OneToMany(mappedBy = "albumImage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SimpleImage> simpleImages = new HashSet<>();
 
 }

@@ -28,6 +28,6 @@ public class SimpleImage {
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "album_image_id")
+    @JoinColumn(name = "album_image_id", nullable = false)
     private AlbumImage albumImage;
 }

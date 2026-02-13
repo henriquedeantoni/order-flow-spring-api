@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimpleImageRequestDTO {
-    private String Title;
+public class AlbumImageDTO {
+    private Long albumImageid;
+    private String title;
+    private String description;
 }

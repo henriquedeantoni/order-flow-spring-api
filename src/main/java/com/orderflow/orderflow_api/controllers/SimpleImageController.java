@@ -26,7 +26,7 @@ public class SimpleImageController {
             @PathVariable Long albumImageId,
             @RequestBody SimpleImageRequestDTO simpleImageRequestDTO,
             @RequestParam("file") MultipartFile file) throws IOException {
-        SimpleImageDTO simpleImageDTO = simpleImageService.addItemImage(albumImageId, simpleImageRequestDTO, file);
+        SimpleImageDTO simpleImageDTO = simpleImageService.addImage(albumImageId, simpleImageRequestDTO, file);
         return new ResponseEntity<>(simpleImageDTO,  HttpStatus.CREATED);
     }
 
