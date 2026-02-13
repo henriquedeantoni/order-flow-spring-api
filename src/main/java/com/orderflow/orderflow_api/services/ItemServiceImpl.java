@@ -3,9 +3,11 @@ package com.orderflow.orderflow_api.services;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.Item;
+import com.orderflow.orderflow_api.models.ItemImage;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
+import com.orderflow.orderflow_api.repositories.ItemImageRepository;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
@@ -28,6 +30,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private ItemImageRepository itemImageRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -83,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTO addItem(Long categoryId, ItemDTO itemDTO) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         Item item = modelMapper.map(itemDTO, Item.class);
         item.setCategory(category);
@@ -96,7 +101,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTO updateItem(ItemDTO itemDTO, Long itemId) {
         Item itemFromDb = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item", "ItemId", itemId));
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
 
         itemFromDb.setItemSize(itemDTO.getItemSize());
         itemFromDb.setItemName(itemDTO.getItemName());
@@ -116,10 +121,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDTO updateItemAndCategory(ItemDTO itemDTO, Long itemId, Long categoryId) {
         Item itemFromDb = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item", "ItemId", itemId));
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
 
         Category categoryFromDb = categoryRepository.findById(categoryId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+                        .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         itemFromDb.setItemSize(itemDTO.getItemSize());
         itemFromDb.setItemName(itemDTO.getItemName());
@@ -135,5 +140,32 @@ public class ItemServiceImpl implements ItemService {
         Item savedItem = itemRepository.save(itemFromDb);
 
         return modelMapper.map(savedItem, ItemDTO.class);
+    }
+
+    @Override
+    public ItemDTO updateItemStatus(Long itemId, String status) {
+        Item itemFromDb = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        itemFromDb.setItemStatus(status);
+        Item savedItem = itemRepository.save(itemFromDb);
+
+        return modelMapper.map(savedItem, ItemDTO.class);
+    }
+
+    @Override
+    public ItemDTO updatedItemImage(Long itemId, Long imageId) {
+        Item itemFromDb =  itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        ItemImage newItemImageFromDB = itemImageRepository.findById(imageId)
+                .orElseThrow(() -> new ResourceNotFoundException("ItemImage", "itemId", itemId));
+
+        newItemImageFromDB.setItemImageId(imageId);
+        itemFromDb.setItemImage(newItemImageFromDB);
+
+        itemImageRepository.save(newItemImageFromDB);
+        itemRepository.save(itemFromDb);
+        return modelMapper.map(itemFromDb, ItemDTO.class);
     }
 }
