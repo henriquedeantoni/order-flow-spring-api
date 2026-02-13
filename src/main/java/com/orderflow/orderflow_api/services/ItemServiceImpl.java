@@ -112,4 +112,28 @@ public class ItemServiceImpl implements ItemService {
 
         return modelMapper.map(savedItem, ItemDTO.class);
     }
+
+    @Override
+    public ItemDTO updateItemAndCategory(ItemDTO itemDTO, Long itemId, Long categoryId) {
+        Item itemFromDb = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "ItemId", itemId));
+
+        Category categoryFromDb = categoryRepository.findById(categoryId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Category", "CategoryId", categoryId));
+
+        itemFromDb.setItemSize(itemDTO.getItemSize());
+        itemFromDb.setItemName(itemDTO.getItemName());
+        itemFromDb.setItemStatus(itemDTO.getItemStatus());
+        itemFromDb.setPrice(itemDTO.getPrice());
+        itemFromDb.setQuantity(itemDTO.getQuantity());
+        itemFromDb.setItemStatus(itemDTO.getItemStatus());
+        itemFromDb.setDescription(itemDTO.getDescription());
+        itemFromDb.setTimePrepareMinutes(itemDTO.getTimePrepareMinutes());
+        itemFromDb.setDiscount(itemDTO.getDiscount());
+        itemFromDb.setCategory(categoryFromDb);
+
+        Item savedItem = itemRepository.save(itemFromDb);
+
+        return modelMapper.map(savedItem, ItemDTO.class);
+    }
 }

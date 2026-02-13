@@ -9,4 +9,6 @@ public interface ItemService {
     ItemDTO addItem(Long categoryId, ItemDTO itemDTO);
 
     ItemDTO updateItem(ItemDTO itemDTO, Long itemId);
+
+    ItemDTO updateItemAndCategory(ItemDTO itemDTO, Long itemId, Long categoryId);
 }
