@@ -15,4 +15,6 @@ public class ItemDTO {
     private String itemSize;
     private double price;
     private double discount;
+    private String itemStatus;
+    private int timePrepareMinutes;
 }
