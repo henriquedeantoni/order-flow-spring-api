@@ -37,4 +37,6 @@ public class ItemController {
         ItemDTO savedItemDTO = itemService.addItem(categoryId, itemDTO);
         return new ResponseEntity<>(savedItemDTO, HttpStatus.CREATED);
     }
+
+    PutMapping updateItem(ItemDTO itemDTO){}
 }
