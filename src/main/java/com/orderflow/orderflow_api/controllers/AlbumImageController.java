@@ -26,7 +26,7 @@ public class AlbumImageController {
         return new ResponseEntity<>(savedAlbumImageDTO, HttpStatus.CREATED);
     }
 
-    @PostMapping("/admin/album-images/{albumImageId}/information")
+    @PutMapping("/admin/album-images/{albumImageId}/information")
     public ResponseEntity<AlbumImageDTO> updateAlbumImageInformation(
             @RequestBody AlbumImageDTO albumImageDTO,
             @PathVariable Long albumImageId){
@@ -34,7 +34,7 @@ public class AlbumImageController {
         return new ResponseEntity<>(updatedAlbumImageDTO, HttpStatus.OK);
     }
 
-    @PostMapping("/admin/album-images/{albumImageId}/image/{urlImage}")
+    @PutMapping("/admin/album-images/{albumImageId}/image/{urlImage}")
     public ResponseEntity<AlbumImageDTO> updateAlbumImageInfoAndFile(
             @RequestBody AlbumImageDTO albumImageDTO,
             @PathVariable Long albumImageId,
