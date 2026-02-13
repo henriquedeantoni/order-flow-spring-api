@@ -38,5 +38,12 @@ public class ItemController {
         return new ResponseEntity<>(savedItemDTO, HttpStatus.CREATED);
     }
 
-    PutMapping updateItem(ItemDTO itemDTO){}
+    @PutMapping("/admin/categories/{itemId}/item")
+    public ResponseEntity<ItemDTO> updateItem(
+            @RequestBody ItemDTO itemDTO,
+            @RequestParam Long itemId){
+        ItemDTO updatedItemDTO = itemService.updateItem(itemDTO, itemId);
+
+        return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
+    }
 }

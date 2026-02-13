@@ -7,4 +7,6 @@ public interface ItemService {
     ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 
     ItemDTO addItem(Long categoryId, ItemDTO itemDTO);
+
+    ItemDTO updateItem(ItemDTO itemDTO, Long itemId);
 }
