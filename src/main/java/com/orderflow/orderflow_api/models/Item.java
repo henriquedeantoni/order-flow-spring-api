@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +53,9 @@ public class Item {
     private int timePrepareMinutes;
 
     private String itemStatus;
+
+    @Column(name = "included_at")
+    private OffsetDateTime includedDate = OffsetDateTime.now(ZoneOffset.UTC);
 
     @ToString.Exclude
     @OneToOne(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
