@@ -11,4 +11,8 @@ public interface ItemService {
     ItemDTO updateItem(ItemDTO itemDTO, Long itemId);
 
     ItemDTO updateItemAndCategory(ItemDTO itemDTO, Long itemId, Long categoryId);
+
+    ItemDTO updateItemStatus(Long itemId, String status);
+
+    ItemDTO updatedItemImage(Long itemId, Long imageId);
 }

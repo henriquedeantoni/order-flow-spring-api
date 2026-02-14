@@ -30,7 +30,7 @@ public class ItemController {
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/admin/categories/{categoryId}/item")
+    @PostMapping("/admin/items/{categoryId}/item")
     public ResponseEntity<ItemDTO> createItem(
             @RequestBody ItemDTO itemDTO,
             @PathVariable Long categoryId){
@@ -38,7 +38,7 @@ public class ItemController {
         return new ResponseEntity<>(savedItemDTO, HttpStatus.CREATED);
     }
 
-    @PutMapping("/admin/categories/{itemId}/item")
+    @PutMapping("/admin/items/{itemId}/item")
     public ResponseEntity<ItemDTO> updateItem(
             @RequestBody ItemDTO itemDTO,
             @RequestParam Long itemId){
@@ -47,7 +47,7 @@ public class ItemController {
         return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
     }
 
-    @PutMapping("/admin/categories/{itemId}/item/{categoryId}")
+    @PutMapping("/admin/items/{itemId}/item/{categoryId}")
     public ResponseEntity<ItemDTO> updateItemAndCategory(
             @RequestBody ItemDTO itemDTO,
             @RequestParam Long itemId,
@@ -56,4 +56,26 @@ public class ItemController {
 
         return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
     }
+
+    @PutMapping("/admin/items/{itemId}/item/{status}")
+    public ResponseEntity<ItemDTO> updateItemStatus(
+            @RequestParam Long itemId,
+            @RequestParam String status
+    ){
+        ItemDTO updatedItemDTO = itemService.updateItemStatus(itemId, status);
+
+        return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("/admin/items/{itemId}/image/{imageId}")
+    public ResponseEntity<ItemDTO> updatedItemImage(
+            @RequestParam Long itemId,
+            @RequestParam Long imageId){
+        ItemDTO updateItem = itemService.updatedItemImage(itemId, imageId);
+
+        return new ResponseEntity<>(updateItem, HttpStatus.OK);
+    }
+
+
+
 }

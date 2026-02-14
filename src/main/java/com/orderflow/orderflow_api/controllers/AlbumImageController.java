@@ -43,4 +43,6 @@ public class AlbumImageController {
         AlbumImageDTO updatedAlbumImageDTO = albumImageService.updateAlbumImageInfoAndFile(albumImageDTO, albumImageId, image, urlImage);
         return new ResponseEntity<>(updatedAlbumImageDTO, HttpStatus.OK);
     }
+
+
 }
