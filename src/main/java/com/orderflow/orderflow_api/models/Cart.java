@@ -20,7 +20,7 @@ public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long cartId;
 
     @Column(name = "created_at")
     private OffsetDateTime createDate = OffsetDateTime.now(ZoneOffset.UTC);

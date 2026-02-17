@@ -76,6 +76,14 @@ public class ItemController {
         return new ResponseEntity<>(updateItem, HttpStatus.OK);
     }
 
+    @GetMapping("/admin/items/{itemId}")
+    public ResponseEntity<ItemDTO> getItemById(
+            @RequestParam Long itemId){
+        ItemDTO itemDTO = itemService.findById(itemId);
+
+        return new ResponseEntity<>(itemDTO, HttpStatus.FOUND);
+    }
+
 
 
 }
