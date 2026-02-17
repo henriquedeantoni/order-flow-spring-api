@@ -15,4 +15,8 @@ public interface ItemService {
     ItemDTO updateItemStatus(Long itemId, String status);
 
     ItemDTO updatedItemImage(Long itemId, Long imageId);
+
+    ItemDTO findById(Long itemId);
+
+    ItemResponse getAllItemsByCategoryId(Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 }

@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.Item;
@@ -74,6 +75,7 @@ public class ItemServiceImpl implements ItemService {
                     //ItemDTO.setImage();
                     return itemDTO;
                 }).toList();
+
         ItemResponse itemResponse = new ItemResponse();
         itemResponse.setContent(itemDTOS);
         itemResponse.setPageNumber(itemsPage.getNumber());
@@ -168,4 +170,48 @@ public class ItemServiceImpl implements ItemService {
         itemRepository.save(itemFromDb);
         return modelMapper.map(itemFromDb, ItemDTO.class);
     }
+
+    @Override
+    public ItemDTO findById(Long itemId) {
+        Item itemFromDb = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        return modelMapper.map(itemFromDb, ItemDTO.class);
+    }
+
+    @Override
+    public ItemResponse getAllItemsByCategoryId(Long categoryId, Integer pageSize, Integer pageNumber,  String sortBy, String sortOrder) {
+        Category categoryFromDb = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Item> pageItems = itemRepository.findByCategoryOrderByPriceAsc(categoryFromDb, pageDetails);
+
+        List<Item> items = pageItems.getContent();
+        if(items.isEmpty()) {
+            throw new APIException("Items not found with categoryId: "
+                    + categoryId.toString() + " and categoryName: " + categoryFromDb.getCategoryName());
+        }
+
+        List<ItemDTO> itemDTOs = items
+                .stream()
+                .map(p -> modelMapper.map(p, ItemDTO.class))
+                .toList();
+
+        ItemResponse itemResponse = new ItemResponse();
+        itemResponse.setContent(itemDTOs);
+        itemResponse.setTotalElements(pageItems.getTotalElements());
+        itemResponse.setTotalPages(pageItems.getTotalPages());
+        itemResponse.setPageNumber(pageDetails.getPageNumber());
+        itemResponse.setPageSize(pageDetails.getPageSize());
+        itemResponse.setLastPage(pageItems.isLast());
+
+        return itemResponse;
+    }
+
+
 }
