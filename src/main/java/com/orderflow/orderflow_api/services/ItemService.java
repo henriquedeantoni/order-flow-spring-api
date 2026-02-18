@@ -19,4 +19,6 @@ public interface ItemService {
     ItemDTO findById(Long itemId);
 
     ItemResponse getAllItemsByCategoryId(Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+
+    ItemResponse getAllItemsByKeywordAndCategoryId(String keyword, Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 }
