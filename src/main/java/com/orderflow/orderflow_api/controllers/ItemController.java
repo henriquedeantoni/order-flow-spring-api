@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1")
 public class ItemController {
@@ -84,6 +86,33 @@ public class ItemController {
         return new ResponseEntity<>(itemDTO, HttpStatus.FOUND);
     }
 
+    @GetMapping("/admin/items/{categoryId}")
+    public ResponseEntity<ItemResponse> getAllItemsByCategoryId(
+            @RequestParam(name = "categoryId", required = false) Long categoryId,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
+            @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
+    ){
 
+        ItemResponse itemResponse = itemService.getAllItemsByCategoryId( categoryId, pageSize, pageNumber, sortBy, sortOrder);
+
+        return new ResponseEntity<>(itemResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/admin/items/{categoryId}")
+    public ResponseEntity<ItemResponse> getAllItemsByKeywordAndCategoryId(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "categoryId", required = false) Long categoryId,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
+            @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
+    ){
+
+        ItemResponse itemResponse = itemService.getAllItemsByKeywordAndCategoryId(keyword, categoryId, pageSize, pageNumber, sortBy, sortOrder);
+
+        return new ResponseEntity<>(itemResponse, HttpStatus.OK);
+    }
 
 }

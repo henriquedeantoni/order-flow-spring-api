@@ -213,5 +213,38 @@ public class ItemServiceImpl implements ItemService {
         return itemResponse;
     }
 
+    @Override
+    public ItemResponse getAllItemsByKeywordAndCategoryId(String keyword, Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
 
+        Category categoryFromDb = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Item> pageItems = itemRepository.findByCategoryOrderByPriceDescAndKeyword('%' + keyword + '%' , categoryFromDb, pageDetails);
+
+        List<Item> items = pageItems.getContent();
+        if(items.isEmpty()) {
+            throw new APIException("Items not found with categoryId: "
+                    + categoryId.toString() + " and categoryName: " + categoryFromDb.getCategoryName());
+        }
+
+        List<ItemDTO> itemDTOs = items
+                .stream()
+                .map(p -> modelMapper.map(p, ItemDTO.class))
+                .toList();
+
+        ItemResponse itemResponse = new ItemResponse();
+        itemResponse.setContent(itemDTOs);
+        itemResponse.setTotalElements(pageItems.getTotalElements());
+        itemResponse.setTotalPages(pageItems.getTotalPages());
+        itemResponse.setPageNumber(pageDetails.getPageNumber());
+        itemResponse.setPageSize(pageDetails.getPageSize());
+        itemResponse.setLastPage(pageItems.isLast());
+
+        return itemResponse;
+    }
 }
