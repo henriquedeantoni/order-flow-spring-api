@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -214,22 +215,17 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponse getAllItemsByKeywordAndCategoryId(String keyword, Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
-
-        Category categoryFromDb = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-
+    public ItemResponse getAllItemsByKeyword(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Item> pageItems = itemRepository.findByCategoryOrderByPriceDescAndKeyword('%' + keyword + '%' , categoryFromDb, pageDetails);
+        Page<Item> pageItems = itemRepository.findByItemNameLikeIgnoreCase('%' + keyword + '%' , pageDetails);
 
         List<Item> items = pageItems.getContent();
         if(items.isEmpty()) {
-            throw new APIException("Items not found with categoryId: "
-                    + categoryId.toString() + " and categoryName: " + categoryFromDb.getCategoryName());
+            throw new APIException("Items not found.");
         }
 
         List<ItemDTO> itemDTOs = items
@@ -239,6 +235,40 @@ public class ItemServiceImpl implements ItemService {
 
         ItemResponse itemResponse = new ItemResponse();
         itemResponse.setContent(itemDTOs);
+        itemResponse.setTotalElements(pageItems.getTotalElements());
+        itemResponse.setTotalPages(pageItems.getTotalPages());
+        itemResponse.setPageNumber(pageDetails.getPageNumber());
+        itemResponse.setPageSize(pageDetails.getPageSize());
+        itemResponse.setLastPage(pageItems.isLast());
+
+        return itemResponse;
+    }
+
+    @Override
+    public ItemResponse getItemsCreatedInInterval(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+
+        if(!firstDate.isBefore(lastDate)) {
+            throw  new APIException("First Date must be before Last Date");
+        }
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Item> pageItems = itemRepository.findByIncludedDateGreaterThanLessThanEqual(firstDate, lastDate, pageDetails);
+
+        List<Item> itemsFromContent = pageItems.getContent();
+
+        if(itemsFromContent.isEmpty()) {
+            throw new APIException("Any Item found on interval criteria.");
+        }
+
+        List<ItemDTO> itemDTOS = itemsFromContent.stream()
+                .map( item -> modelMapper.map(item, ItemDTO.class))
+                .toList();
+
+        ItemResponse itemResponse = new ItemResponse();
+        itemResponse.setContent(itemDTOS);
         itemResponse.setTotalElements(pageItems.getTotalElements());
         itemResponse.setTotalPages(pageItems.getTotalPages());
         itemResponse.setPageNumber(pageDetails.getPageNumber());

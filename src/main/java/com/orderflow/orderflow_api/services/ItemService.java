@@ -2,6 +2,7 @@ package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
+import java.time.Instant;
 
 public interface ItemService {
     ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
@@ -20,5 +21,7 @@ public interface ItemService {
 
     ItemResponse getAllItemsByCategoryId(Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 
-    ItemResponse getAllItemsByKeywordAndCategoryId(String keyword, Long categoryId, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+    ItemResponse getAllItemsByKeyword(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+
+    ItemResponse getItemsCreatedInInterval(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 }
