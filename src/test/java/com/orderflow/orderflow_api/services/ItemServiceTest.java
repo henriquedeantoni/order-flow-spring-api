@@ -194,4 +194,85 @@ public class ItemServiceTest {
                 .map(savedItem, ItemDTO.class);
 
     }
+
+    @Test
+    @DisplayName("Should delete a existent item with success")
+    void shouldDeleteItemSuccessfully() {
+
+        // ------------ ARRANGE --------------
+        Long categoryId = 1L;
+
+        ItemDTO itemInputDTO = new ItemDTO();
+        itemInputDTO.setItemName("rice bowl");
+        itemInputDTO.setPrice(20.0);
+        itemInputDTO.setDiscount(10.0);
+        itemInputDTO.setQuantity(10);
+        itemInputDTO.setItemSize("normal");
+        itemInputDTO.setDescription("Bowl of baked rice and spicy");
+
+        Category category = new Category();
+        category.setCategoryId(categoryId);
+        category.setItems(new ArrayList<>());
+
+        Item mappedItem = new Item();
+        mappedItem.setItemName("rice bowl");
+        mappedItem.setPrice(20.0);
+        mappedItem.setDiscount(10);
+        mappedItem.setQuantity(10);
+        mappedItem.setItemSize("normal");
+        mappedItem.setDescription("Bowl of baked rice and spicy");
+
+        User user = new User();
+
+        Item savedItem = new Item();
+        savedItem.setItemId(1L);
+        savedItem.setItemName("rice bowl");
+        savedItem.setPrice(20.0);
+        savedItem.setDiscount(10);
+        savedItem.setQuantity(10);
+        savedItem.setItemSize("normal");
+        savedItem.setDescription("Bowl of baked rice and spicy");
+
+        ItemDTO itemOutputDTO = new ItemDTO();
+        itemOutputDTO.setItemId(1L);
+        itemOutputDTO.setItemName("rice bowl");
+
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+
+        when(modelMapper.map(itemInputDTO, Item.class)).thenReturn(mappedItem);
+
+        when(authUtil.userOnLoggedSession()).thenReturn(user);
+
+        when(itemRepository.save(any(Item.class))).thenReturn(savedItem);
+
+        when(modelMapper.map(savedItem, ItemDTO.class)).thenReturn(itemOutputDTO);
+
+        // ------------ ACT --------------
+
+        ItemDTO resultItemDTO = itemService.addItem(categoryId, itemInputDTO);
+
+        // ------------ ASSERT --------------
+
+        assertNotNull(resultItemDTO);
+
+        assertEquals(1L, resultItemDTO.getItemId());
+
+        assertEquals("rice bowl", resultItemDTO.getItemName());
+
+        verify(categoryRepository, times(1))
+                .findById(categoryId);
+
+        verify(modelMapper, times(1))
+                .map(itemInputDTO, Item.class);
+
+        verify(authUtil, times(1))
+                .userOnLoggedSession();
+
+        verify(itemRepository, times(1))
+                .save(any(Item.class));
+
+        verify(modelMapper, times(1))
+                .map(savedItem, ItemDTO.class);
+
+    }
 }
