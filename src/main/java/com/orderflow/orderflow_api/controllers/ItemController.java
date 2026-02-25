@@ -5,10 +5,12 @@ import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
 import com.orderflow.orderflow_api.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -101,18 +103,30 @@ public class ItemController {
     }
 
     @GetMapping("/admin/items/{categoryId}")
-    public ResponseEntity<ItemResponse> getAllItemsByKeywordAndCategoryId(
+    public ResponseEntity<ItemResponse> getAllItemsByKeyword(
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "categoryId", required = false) Long categoryId,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
     ){
 
-        ItemResponse itemResponse = itemService.getAllItemsByKeywordAndCategoryId(keyword, categoryId, pageSize, pageNumber, sortBy, sortOrder);
+        ItemResponse itemResponse = itemService.getAllItemsByKeyword(keyword, pageSize, pageNumber, sortBy, sortOrder);
 
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/admin/items/date-created/between")
+    public ResponseEntity<ItemResponse> getItemsByDateIntervalCreated(
+            @RequestParam(name = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant firstDate,
+            @RequestParam(name = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant lastDate,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
+            @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder)
+        {
+            ItemResponse itemResponse = itemService.getItemsCreatedInInterval(firstDate, lastDate, pageSize, pageNumber, sortBy, sortOrder);
+            return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
 
 }

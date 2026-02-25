@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Entity
@@ -25,4 +27,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Item> items;
+
+    @Column(name = "included_at")
+    private OffsetDateTime includedDate = OffsetDateTime.now(ZoneOffset.UTC);
 }
