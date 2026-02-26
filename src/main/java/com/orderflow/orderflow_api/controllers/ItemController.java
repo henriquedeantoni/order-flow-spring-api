@@ -129,4 +129,9 @@ public class ItemController {
             return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
 
+    @DeleteMapping("/admin/items/{itemId}")
+    public ResponseEntity<ItemDTO> deleteItemById(@PathVariable Long itemId){
+        return new ResponseEntity<>(itemService.deleteItem(itemId), HttpStatus.OK);
+    }
+
 }

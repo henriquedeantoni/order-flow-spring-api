@@ -277,4 +277,13 @@ public class ItemServiceImpl implements ItemService {
 
         return itemResponse;
     }
+
+    @Override
+    public ItemDTO deleteItem(Long itemId) {
+        Item itemFromDb = itemRepository.findById(itemId)
+                .orElseThrow(() -> new APIException("Item not found with id: " + itemId));
+        itemRepository.delete(itemFromDb);
+
+        return modelMapper.map(itemFromDb, ItemDTO.class);
+    }
 }

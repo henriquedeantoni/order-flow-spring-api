@@ -24,4 +24,6 @@ public interface ItemService {
     ItemResponse getAllItemsByKeyword(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 
     ItemResponse getItemsCreatedInInterval(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+
+    ItemDTO deleteItem(Long itemId);
 }
