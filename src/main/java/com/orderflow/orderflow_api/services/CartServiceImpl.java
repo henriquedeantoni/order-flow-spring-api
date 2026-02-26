@@ -1,10 +1,17 @@
 package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.exceptions.APIException;
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Cart;
+import com.orderflow.orderflow_api.models.CartItem;
+import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.payload.CartDTO;
+import com.orderflow.orderflow_api.payload.CartItemDTO;
 import com.orderflow.orderflow_api.payload.ItemDTO;
+import com.orderflow.orderflow_api.repositories.CartItemRepository;
 import com.orderflow.orderflow_api.repositories.CartRepository;
+import com.orderflow.orderflow_api.repositories.ItemRepository;
+import com.orderflow.orderflow_api.security.util.AuthUtil;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +28,16 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository
+
+    @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private AuthUtil authUtil;
 
     @Override
     public List<CartDTO> getAllCarts() {
@@ -48,5 +64,43 @@ public class CartServiceImpl implements CartService {
         return cartDTOs;
     }
 
+    @Override
+    public String createCartWithItems(List<CartItemDTO> cartItemsDTO) {
+        String email = authUtil.emailOnLoggedSession();
 
+        Cart existingUserCart = cartRepository.findCartByEmail(email);
+        if(existingUserCart == null){
+            existingUserCart = new Cart();
+            existingUserCart.setTotalPrice(0.0);
+            existingUserCart.setUser(authUtil.userOnLoggedSession());
+            existingUserCart = cartRepository.save(existingUserCart);
+        } else {
+            cartRepository.deleteAllByCartId(existingUserCart.getCartId()); //clear all cart items from current cart
+        }
+
+        double totalPrice = 0.0;
+
+        for (CartItemDTO cartItemDTO : cartItemsDTO) {
+            Long itemId = cartItemDTO.getItemId();
+            Integer quantity = cartItemDTO.getQuantity();
+
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+            totalPrice += item.getPrice()*quantity;
+
+            CartItem cartItem = new CartItem();
+            cartItem.setItem(item);
+            cartItem.setCart(existingUserCart);
+            cartItem.setItemPrice(item.getPrice());
+            cartItem.setQuantity(quantity);
+            cartItemRepository.save(cartItem);
+        }
+
+        existingUserCart.setTotalPrice(totalPrice);
+        cartRepository.save(existingUserCart);
+
+        return "Cart created or updated successfully";
+    }
+    
 }
