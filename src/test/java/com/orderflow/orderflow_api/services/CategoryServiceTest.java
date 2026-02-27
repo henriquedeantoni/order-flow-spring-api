@@ -90,4 +90,39 @@ public class CategoryServiceTest {
         verify(modelMapper, times(1))
                 .map(savedCategory, Category.class);
     }
+
+    @Test
+    @DisplayName("Should update a category with success")
+    void shouldUpdateCategorySuccessfully()
+    {
+        // ------------ ARRANGE --------------
+        Long categoryId = 1L;
+
+        Category existingCategory = new Category();
+        existingCategory.setCategoryId(categoryId);
+        existingCategory.setCategoryName("Old category Name");
+
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setCategoryId(categoryId);
+        categoryDTO.setCategoryName("New category Name");
+
+        when(categoryRepository.findById(categoryId))
+                .thenReturn(Optional.of(existingCategory));
+
+        when(modelMapper.map(categoryDTO, Category.class))
+                .thenReturn(new Category());
+
+        when(categoryRepository.save(any(Category.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(modelMapper.map(existingCategory, CategoryDTO.class))
+                .thenReturn(categoryDTO);
+
+        // ------------ ACT --------------
+        CategoryDTO categoryResult = categoryService.updateCategory(categoryDTO, categoryId);
+
+        // ------------ ASSERT --------------
+        assertEquals("New category Name", categoryResult.getCategoryName());
+        verify(categoryRepository, times(1)).save(existingCategory);
+    }
 }
