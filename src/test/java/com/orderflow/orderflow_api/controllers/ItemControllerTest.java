@@ -24,8 +24,8 @@ public class ItemControllerTest {
     private ItemService itemService;
 
     @Test
-    @DisplayName("Should not do nothing on delete case")
-    void shouldDeletarItem() throws Exception {
+    @DisplayName("Should not do nothing on delete case, when with success")
+    void shouldDeleteItemWhenSuccess() throws Exception {
         // ------------ ARRANGE --------------
         Long itemId = 1L;
 
