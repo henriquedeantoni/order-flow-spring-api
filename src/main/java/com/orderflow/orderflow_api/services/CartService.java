@@ -11,7 +11,7 @@ public interface CartService {
 
     String createCartWithItems(List<CartItemDTO> cartItemsDTO);
 
-    CartDTO addItemToCart(String itemId, Integer quantity);
+    CartDTO addItemToCart(Long itemId, Integer quantity);
 
     Cart findCartByEmail(String emailId);
 

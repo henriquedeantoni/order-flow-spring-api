@@ -37,7 +37,7 @@ public class CartController {
 
     @PostMapping("/carts/items/{itemId}/quantity/{quantity}")
     public ResponseEntity<CartDTO> addItemToCart(
-            @PathVariable("itemId") String itemId,
+            @PathVariable("itemId") Long itemId,
             @PathVariable("quantity") Integer quantity) {
         CartDTO cartDTO = cartService.addItemToCart(itemId, quantity);
         return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);

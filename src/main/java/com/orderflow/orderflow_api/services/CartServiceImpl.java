@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -104,8 +105,54 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartDTO addItemToCart(String itemId, Integer quantity) {
-        return null;
+    public CartDTO addItemToCart(Long itemId, Integer quantity) {
+        Cart cart = createCartOrUpdateCart();
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        CartItem cartItem = cartItemRepository.findCartItemByItemIdAndCartId(cart.getCartId(), itemId);
+
+        if (cartItem != null){
+            throw new APIException("Item" + item.getItemName() + " already exists in this cart.");
+        }
+
+        if (item.getQuantity() == 0){
+            throw new APIException(item.getItemName() + " is not avaliable.");
+        }
+
+        if (item.getQuantity() < quantity){
+            throw new APIException(item.getItemName() + " is not avaliable.");
+        }
+
+        CartItem newCartItem = new CartItem();
+        newCartItem.setItem(item);
+        newCartItem.setCart(cart);
+        newCartItem.setQuantity(quantity);
+        newCartItem.setItemPrice(item.getPrice());
+        newCartItem.setQuantity(quantity);
+
+        cartItemRepository.save(newCartItem);
+
+        item.setQuantity(item.getQuantity());
+
+        cart.setTotalPrice(item.getPrice()*quantity);
+
+        cartRepository.save(cart);
+
+        CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+        List<CartItem> cartItems = cart.getCartItems();
+
+        Stream<ItemDTO> itemStream = cartItems.stream().map(it -> {
+            ItemDTO map = modelMapper.map(it.getItem(), ItemDTO.class);
+            map.setQuantity(it.getQuantity());
+            return map;
+        });
+
+        cartDTO.setItems(itemStream.collect(Collectors.toList()));
+
+        return cartDTO;
     }
 
     @Override
