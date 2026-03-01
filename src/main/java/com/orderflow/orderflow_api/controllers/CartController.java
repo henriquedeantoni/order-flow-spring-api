@@ -1,8 +1,10 @@
 package com.orderflow.orderflow_api.controllers;
 
+import com.orderflow.orderflow_api.models.Cart;
 import com.orderflow.orderflow_api.payload.CartDTO;
 import com.orderflow.orderflow_api.payload.CartItemDTO;
 import com.orderflow.orderflow_api.repositories.CartRepository;
+import com.orderflow.orderflow_api.security.util.AuthUtil;
 import com.orderflow.orderflow_api.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,9 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+    @Autowired
+    private AuthUtil authUtil;
+
     @GetMapping("/admin/carts")
     public ResponseEntity<List<CartDTO>>  getCarts() {
         List<CartDTO> cartList = cartService.getAllCarts();
@@ -28,6 +33,23 @@ public class CartController {
     public ResponseEntity<String>  createCart(@RequestBody List<CartItemDTO> cartItemsDTO) {
         String response = cartService.createCartWithItems(cartItemsDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/carts/items/{itemId}/quantity/{quantity}")
+    public ResponseEntity<CartDTO> addItemToCart(
+            @PathVariable("itemId") Long itemId,
+            @PathVariable("quantity") Integer quantity) {
+        CartDTO cartDTO = cartService.addItemToCart(itemId, quantity);
+        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/carts/users/cart")
+    public ResponseEntity<CartDTO>  getCartsByUserId() {
+        String email = authUtil.emailOnLoggedSession();
+        Cart cart = cartService.findCartByEmail(email);
+        Long cartId = cart.getCartId();
+        CartDTO cartDTO = cartService.getCart(email, cartId);
+        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.OK);
     }
 }
 
