@@ -31,7 +31,7 @@ public class CartServiceImpl implements CartService {
     private ItemRepository itemRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository
+    private CartItemRepository cartItemRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -75,7 +75,7 @@ public class CartServiceImpl implements CartService {
             existingUserCart.setUser(authUtil.userOnLoggedSession());
             existingUserCart = cartRepository.save(existingUserCart);
         } else {
-            cartRepository.deleteAllByCartId(existingUserCart.getCartId()); //clear all cart items from current cart
+            cartItemRepository.deleteAllByCartId(existingUserCart.getCartId()); //clear all cart items from current cart
         }
 
         double totalPrice = 0.0;

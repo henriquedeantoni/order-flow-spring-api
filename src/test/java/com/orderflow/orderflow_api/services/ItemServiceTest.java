@@ -1,10 +1,12 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.models.CartItem;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
+import com.orderflow.orderflow_api.repositories.CartRepository;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +45,9 @@ public class ItemServiceTest {
 
     @Mock
     CategoryRepository categoryRepository;
+
+    @Mock
+    CartRepository cartRepository;
 
     @Mock
     private AuthUtil authUtil;
@@ -274,5 +280,52 @@ public class ItemServiceTest {
         verify(modelMapper, times(1))
                 .map(savedItem, ItemDTO.class);
 
+    }
+
+    @Test
+    @DisplayName("Should update item succesfully")
+    void shouldUpdateItemSuccessfully() throws Exception {
+        // ------------ ARRANGE --------------
+        Long itemId = 1L;
+
+        Item existingItem = new Item();
+        existingItem.setItemId(itemId);
+        existingItem.setItemName("Original item name");
+        existingItem.setItemStatus("Enable");
+        existingItem.setItemSize("Normal");
+        existingItem.setPrice(13.99);
+        existingItem.setDiscount(2.00);
+        existingItem.setDescription("Description 1");
+
+        ItemDTO itemDTO = new ItemDTO();
+        itemDTO.setItemId(itemId);
+        itemDTO.setItemName("New item name");
+        itemDTO.setItemStatus("Enable");
+        itemDTO.setItemSize("Big");
+        itemDTO.setPrice(33.99);
+        itemDTO.setDiscount(5.00);
+
+        when(itemRepository.findById(itemId))
+                .thenReturn(Optional.of(existingItem));
+
+        when(modelMapper.map(itemDTO, ItemDTO.class))
+                .thenReturn(itemDTO);
+
+        when(itemRepository.save(any(Item.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(cartRepository.findCartsByItemId(itemId))
+                .thenReturn(Collections.emptyList());
+
+        when(modelMapper.map(existingItem, ItemDTO.class))
+                .thenReturn(itemDTO);
+
+        // ------------ ACT --------------
+
+        ItemDTO result = itemService.updateItem(itemDTO, itemId);
+
+        // ------------ ASSERT --------------
+        assertEquals("New item name", result.getItemName());
+        verify(itemRepository).save(any(Item.class));
     }
 }
