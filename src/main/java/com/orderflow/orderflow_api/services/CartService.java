@@ -16,4 +16,6 @@ public interface CartService {
     Cart findCartByEmail(String emailId);
 
     CartDTO getCart(String email, Long cartId);
+
+    CartDTO updateItemQuantityInCart(Long itemId, Integer quantity);
 }
