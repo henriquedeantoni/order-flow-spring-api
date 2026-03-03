@@ -12,6 +12,7 @@ import com.orderflow.orderflow_api.repositories.CartItemRepository;
 import com.orderflow.orderflow_api.repositories.CartRepository;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -104,6 +105,25 @@ public class CartServiceImpl implements CartService {
         return "Cart created or updated successfully";
     }
 
+    @Transactional
+    @Override
+    public String deleteItemFromCart(Long cartId, Long itemId){
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
+
+        CartItem cartItem = cartItemRepository.findCartItemByItemIdAndCartId(cartId, itemId);
+
+        if(cartItem == null){
+            throw new ResourceNotFoundException("Cart", "cartId", cartId);
+        }
+
+        cart.setTotalPrice(cart.getTotalPrice() - cartItem.getItemPrice()*cartItem.getQuantity());
+
+        cartItemRepository.deleteCartItemByItemIdAndCartId(itemId, cartId);
+
+        return "Item " + cartItem.getItem().getItemName() + " has been deleted successfully";
+    }
+
     @Override
     public CartDTO addItemToCart(Long itemId, Integer quantity) {
         Cart cart = createCartOrUpdateCart();
@@ -175,6 +195,66 @@ public class CartServiceImpl implements CartService {
                 .map(ci -> modelMapper.map(ci.getItem(), ItemDTO.class)).toList();
 
         cartDTO.setItems(items);
+
+        return cartDTO;
+    }
+
+    @Override
+    public CartDTO updateItemQuantityInCart(Long itemId, Integer quantity) {
+        String email = authUtil.emailOnLoggedSession();
+        Cart userCart = cartRepository.findCartByEmail(email);
+
+        Long cartId = userCart.getCartId();
+
+        Cart cartFromDb = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "cartId", cartId));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        if(item.getQuantity() == 0){
+            throw new APIException(item.getItemName() + " is not avaliable.");
+        }
+
+        if(item.getQuantity() < quantity){
+            throw new APIException("Item " + item.getItemName()
+                    + " has a stock quantity less than or equal to " + quantity + ". Please choose another quantity.");
+        }
+
+        CartItem cartItem = cartItemRepository.findCartItemByItemIdAndCartId(cartFromDb.getCartId(), itemId);
+
+        int newQuantity = cartItem.getQuantity() + quantity;
+
+        if (newQuantity < 0){
+            throw new APIException("Error: the resulting quantity cannot be negative.");
+        }
+
+        if (newQuantity == 0){
+            deleteItemFromCart(cartId, itemId);
+        } else {
+            cartItem.setQuantity(newQuantity);
+            cartItem.setItemPrice(item.getPrice()*quantity);
+            cartItem.setDiscount(item.getDiscount());
+            cartFromDb.setTotalPrice(cartFromDb.getTotalPrice() + (cartItem.getItemPrice()*quantity));
+            cartRepository.save(cartFromDb);
+        }
+
+        CartItem updatedCartItem = cartItemRepository.save(cartItem);
+        if(updatedCartItem.getQuantity() == 0){
+            cartItemRepository.deleteById(updatedCartItem.getCartItemId());
+        }
+
+        CartDTO cartDTO = modelMapper.map(cartFromDb, CartDTO.class);
+
+        List<CartItem> cartItems = cartFromDb.getCartItems();
+
+        Stream<ItemDTO> itemStream = cartItems.stream().map(it -> {
+                   ItemDTO itemDTO = modelMapper.map(it.getItem(), ItemDTO.class);
+                   itemDTO.setQuantity(it.getQuantity());
+                   return itemDTO;
+                });
+
+        cartDTO.setItems(itemStream.collect(Collectors.toList()));
 
         return cartDTO;
     }
