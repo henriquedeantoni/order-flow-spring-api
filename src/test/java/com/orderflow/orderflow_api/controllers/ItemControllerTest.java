@@ -1,10 +1,12 @@
 package com.orderflow.orderflow_api.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.services.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -13,7 +15,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ItemController.class)
@@ -23,6 +26,40 @@ public class ItemControllerTest {
 
     @MockitoBean
     private ItemService itemService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    @DisplayName("Should create a new item with success")
+    void shouldCreateNewItemWithSuccess() throws Exception{
+        // ------------ ARRANGE --------------
+        ItemDTO itemDTO = new ItemDTO();
+        itemDTO.setItemName("Item Name");
+        itemDTO.setItemStatus("Item Status");
+        itemDTO.setItemSize("Item Size");
+        itemDTO.setDescription("Item Description");
+        itemDTO.setQuantity(10);
+        itemDTO.setPrice(1.99);
+        itemDTO.setDiscount(0.99);
+        itemDTO.setTimePrepareMinutes(15);
+
+        when(itemService.addItem(eq(1L), eq(itemDTO))).thenReturn(itemDTO);
+
+        // ------------ ACT ASSERT --------------
+
+        mockMvc.perform(post("/v1/admin/items/1/item")
+                .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                .content(objectMapper.writeValueAsString(itemDTO)))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.itemName").value("Item Name"))
+                        .andExpect(jsonPath("$.itemStatus").value("Item Status"))
+                        .andExpect(jsonPath("$.itemDescription").value("Item Description"))
+                        .andExpect(jsonPath("$.itemQuantity").value(10))
+                        .andExpect(jsonPath("$.itemPrice").value(1.99))
+                        .andExpect(jsonPath("$.itemDiscount").value(0.99))
+                        .andExpect(jsonPath("$.itemTimePrepareMinutes").value(15));
+    }
 
     @Test
     @DisplayName("Should not do nothing on delete case, when with success")
@@ -40,8 +77,10 @@ public class ItemControllerTest {
         itemDTO.setDiscount(2.00);
         itemDTO.setDescription("Description 1");
 
-        // ------------ ACT --------------
+
         when(itemService.deleteItem(itemId)).thenReturn(itemDTO);
+
+        // ------------ ACT --------------
         mockMvc.perform(MockMvcRequestBuilders.delete("/admin/items/{itemId}", itemId))
                 .andExpect(status().isOk())
                 .andExpect((ResultMatcher) jsonPath("$.itemId").value(itemId))
