@@ -7,11 +7,13 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 
+@Component
 public class ChartEngine {
 
 

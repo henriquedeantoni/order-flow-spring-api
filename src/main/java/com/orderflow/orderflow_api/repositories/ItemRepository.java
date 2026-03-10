@@ -17,5 +17,5 @@ public interface ItemRepository extends JpaRepository<Item,Long>, JpaSpecificati
 
     Page<Item> findByItemNameLikeIgnoreCase(String s, Pageable pageDetails);
 
-    Page<Item> findByIncludedDateGreaterThanLessThanEqual(Instant firstDate, Instant lastDate, Pageable pageDetails);
+    Page<Item> findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(Instant firstDate, Instant lastDate, Pageable pageDetails);
 }

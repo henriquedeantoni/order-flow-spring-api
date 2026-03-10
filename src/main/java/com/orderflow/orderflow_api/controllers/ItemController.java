@@ -102,9 +102,9 @@ public class ItemController {
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/items/{categoryId}")
+    @GetMapping("/admin/items/{categoryId}/{keyword}")
     public ResponseEntity<ItemResponse> getAllItemsByKeyword(
-            @RequestParam(name = "keyword", required = false) String keyword,
+            @PathVariable String keyword,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
@@ -133,5 +133,5 @@ public class ItemController {
     public ResponseEntity<ItemDTO> deleteItemById(@PathVariable Long itemId){
         return new ResponseEntity<>(itemService.deleteItem(itemId), HttpStatus.OK);
     }
-    
+
 }

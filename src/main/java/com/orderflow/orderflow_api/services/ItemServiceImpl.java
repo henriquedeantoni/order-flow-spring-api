@@ -255,7 +255,7 @@ public class ItemServiceImpl implements ItemService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Item> pageItems = itemRepository.findByIncludedDateGreaterThanLessThanEqual(firstDate, lastDate, pageDetails);
+        Page<Item> pageItems = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate, pageDetails);
 
         List<Item> itemsFromContent = pageItems.getContent();
 
