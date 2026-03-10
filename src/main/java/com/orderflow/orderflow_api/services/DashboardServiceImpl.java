@@ -23,10 +23,10 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public String getDashboardExampleWithSize(int width, int height) throws IOException {
+    public String getDashboardExampleWithSize(int width, int height, String theme) throws IOException {
         ChartEngine chartEngine = new ChartEngine();
 
-        chartEngine.generateChartSizeCustom(width, height);
+        chartEngine.generateChartSizeCustom(width, height, theme);
 
         return "Your chart example is here";
     }

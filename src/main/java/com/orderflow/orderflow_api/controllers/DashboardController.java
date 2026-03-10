@@ -24,13 +24,14 @@ public class DashboardController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/admin/charts/example/{width}/{height}", produces = "image/svg+xml")
+    @GetMapping(value = "/admin/charts/example/{width}/{height}/{theme}", produces = "image/svg+xml")
     public ResponseEntity<String> getDashboardExampleWithSize(
             @PathVariable int width,
-            @PathVariable int height
+            @PathVariable int height,
+            @PathVariable String theme
 
     ) throws IOException {
-        String response = dashboardService.getDashboardExampleWithSize(width, height);
+        String response = dashboardService.getDashboardExampleWithSize(width, height, theme);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -10,4 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface LocalRepository extends JpaRepository<Local, Long> , JpaSpecificationExecutor<Local> {
     Page<Local> findByUser(User user, Pageable pageDetails);
+
+    Page<Local> findAllByCity(String city, Pageable pageDetails);
+
+    Page<Local> findAllByState(String state, Pageable pageDetails);
 }

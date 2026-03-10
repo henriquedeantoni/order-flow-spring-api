@@ -1,5 +1,8 @@
 package com.orderflow.orderflow_api.GraphicEngine.Charts;
 
+import com.orderflow.orderflow_api.GraphicEngine.Styles.ChartStyle;
+import com.orderflow.orderflow_api.GraphicEngine.Styles.ChartTheme;
+import com.orderflow.orderflow_api.GraphicEngine.Styles.Constants.StylesAppConsts;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -10,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class ChartEngine {
+
+
     public void generateChartExample() throws IOException {
 
         try {
@@ -37,6 +42,8 @@ public class ChartEngine {
             int width = 800;
             int height = 600;
 
+            ChartStyle.applyBarStyleToChart(chart, StylesAppConsts.DARK_THEME);
+
             SVGGraphics2D svgGraphics2D = new SVGGraphics2D(width, height);
 
             chart.draw(svgGraphics2D, new Rectangle(width, height));
@@ -54,7 +61,7 @@ public class ChartEngine {
         }
     }
 
-    public void generateChartSizeCustom(int width, int height) throws IOException {
+    public void generateChartSizeCustom(int width, int height, String theme) throws IOException {
         try {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             dataset.addValue(46, "Sells", "Jan");
@@ -77,20 +84,35 @@ public class ChartEngine {
                     dataset
             );
 
+            ChartStyle.applyBarStyleToChart(chart, StylesAppConsts.DARK_THEME);
+
             SVGGraphics2D svgGraphics2D = new SVGGraphics2D(width, height);
 
             chart.draw(svgGraphics2D, new Rectangle(width, height));
 
             String svgElement = svgGraphics2D.getSVGElement();
 
-            FileWriter out = new FileWriter("chart-exemplo.svg");
+            FileWriter out = new FileWriter("/images/chart-exemplo.svg");
             out.write(svgElement);
             out.close();
 
-            System.out.println("SVG gerado na raiz do projeto");
+            System.out.println("SVG gerado na pasta images");
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    public static ChartTheme getChartTheme(String themeName) {
+
+        switch (themeName.toUpperCase()) {
+            case "DARK_MODE":
+                return StylesAppConsts.DARK_THEME;
+            case "LIGHT_MODE":
+                return StylesAppConsts.LIGHT_THEME;
+            default:
+                return StylesAppConsts.LIGHT_THEME;
         }
     }
 
