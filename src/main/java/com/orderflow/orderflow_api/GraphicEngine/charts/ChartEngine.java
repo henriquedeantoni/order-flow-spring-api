@@ -1,8 +1,8 @@
-package com.orderflow.orderflow_api.GraphicEngine.Charts;
+package com.orderflow.orderflow_api.GraphicEngine.charts;
 
-import com.orderflow.orderflow_api.GraphicEngine.Styles.ChartStyle;
-import com.orderflow.orderflow_api.GraphicEngine.Styles.ChartTheme;
-import com.orderflow.orderflow_api.GraphicEngine.Styles.Constants.StylesAppConsts;
+import com.orderflow.orderflow_api.GraphicEngine.styles.ChartStyle;
+import com.orderflow.orderflow_api.GraphicEngine.styles.ChartTheme;
+import com.orderflow.orderflow_api.GraphicEngine.styles.constants.StylesAppConsts;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;

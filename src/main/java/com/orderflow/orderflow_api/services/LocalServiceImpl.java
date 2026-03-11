@@ -229,4 +229,19 @@ public class LocalServiceImpl implements LocalService{
 
         return modelMapper.map(savedLocal, LocalDTO.class);
     }
+
+    @Override
+    public LocalDTO deleteLocal(Long localId) {
+        Local localFromDB = localRepository.findById(localId)
+                .orElseThrow(() -> new ResourceNotFoundException("Local", "localId", localId));
+
+        LocalDTO localDTO = modelMapper.map(localFromDB, LocalDTO.class);
+        localRepository.delete(localFromDB);
+        return localDTO;
+    }
+
+    @Override
+    public String createDashboardLocalByState(String state, String country, Integer qtyLayers) {
+        List<Local> localsFromDB = localRepository.findAllByStateAndByCountry(state, country);
+    }
 }

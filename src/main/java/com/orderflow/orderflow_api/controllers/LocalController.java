@@ -35,7 +35,7 @@ public class LocalController {
             @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
     ){
         LocalResponse localResponse = localService.findAllLocals(pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(localResponse, HttpStatus.OK);
+        return new ResponseEntity<>(localResponse, HttpStatus.FOUND);
     }
 
     @PostMapping("/public/locals")
@@ -49,7 +49,7 @@ public class LocalController {
             @PathVariable("localId") Long localId
     ) {
         LocalDTO localDTO = localService.findLocalById(localId);
-        return new ResponseEntity<>(localDTO, HttpStatus.OK);
+        return new ResponseEntity<>(localDTO, HttpStatus.FOUND);
     }
 
     @GetMapping("/admin/locals/{city}")
@@ -85,5 +85,21 @@ public class LocalController {
         return new ResponseEntity<>(savedLocalDTO, HttpStatus.OK);
     }
 
+    @DeleteMapping("/public/locals/{localId}")
+    public ResponseEntity<LocalDTO> deleteLocal(
+            @PathVariable Long localId
+    ) {
+        LocalDTO localDTO = localService.deleteLocal(localId);
+        return new ResponseEntity<>(localDTO, HttpStatus.OK);
+    }
 
+    @GetMapping(value = "/admin/dashboard/bar/locals/{state}/{country}", produces = "image/svg+xml")
+    public ResponseEntity<String> getDashboardLocalsByState(
+            @PathVariable String state,
+            @PathVariable String country,
+            @RequestParam(name = "quantityLayers", defaultValue = AppConsts.QUANTITY_LAYERS, required = false) Integer qtyLayers
+    ){
+        String response = localService.createDashboardLocalByState(state, country, qtyLayers);
+        return new ResponseEntity<>("", HttpStatus.OK);
+    }
 }
