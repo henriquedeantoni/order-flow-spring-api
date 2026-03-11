@@ -243,5 +243,9 @@ public class LocalServiceImpl implements LocalService{
     @Override
     public String createDashboardLocalByState(String state, String country, Integer qtyLayers) {
         List<Local> localsFromDB = localRepository.findAllByStateAndByCountry(state, country);
+
+
+
+        return "";
     }
 }

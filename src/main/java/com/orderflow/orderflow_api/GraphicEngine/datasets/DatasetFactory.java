@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DatasetFactory {
 
 
-    public static <T, R> void processDTOsToCategoryDataset(List<T> list, Function<T, R> extractor) {
+    public static <T, R> Map<String, Integer> processDTOsToCategoryDataset(List<T> list, Function<T, R> extractor) {
 
         Boolean isStringCategory = true;
 
@@ -35,9 +35,11 @@ public class DatasetFactory {
                 throw new APIException("Error on build dataset: " + ex.getMessage());
             }
         }
+
+        return sortMap(mapCategoriesDataset);
     }
 
-    private Map<String, Integer> sortMap(Map<String, Integer> map) {
+    private static Map<String, Integer> sortMap(Map<String, Integer> map) {
         return map.entrySet()
                 .stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
@@ -46,7 +48,7 @@ public class DatasetFactory {
                     Map.Entry::getValue,
                         (e1, e2) -> e1,
                         LinkedHashMap::new
-                ));
+        ));
     }
 
     public DefaultCategoryDataset createDataset() {
