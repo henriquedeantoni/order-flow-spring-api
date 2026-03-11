@@ -20,4 +20,8 @@ public interface LocalService{
     LocalResponse findLocalsByPostalCode(String postalCode, Integer pageNumber, Integer pageSize,  String sortBy, String sortOrder);
 
     LocalDTO updateLocal(Long localId, LocalDTO localDTO);
+
+    LocalDTO deleteLocal(Long localId);
+
+    String createDashboardLocalByState(String state, String country, Integer qtyLayers);
 }

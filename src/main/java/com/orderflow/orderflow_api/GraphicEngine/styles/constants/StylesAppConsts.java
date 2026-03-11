@@ -1,6 +1,6 @@
-package com.orderflow.orderflow_api.GraphicEngine.Styles.Constants;
+package com.orderflow.orderflow_api.GraphicEngine.styles.constants;
 
-import com.orderflow.orderflow_api.GraphicEngine.Styles.ChartTheme;
+import com.orderflow.orderflow_api.GraphicEngine.styles.ChartTheme;
 
 import java.awt.*;
 

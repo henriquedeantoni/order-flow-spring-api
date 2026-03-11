@@ -1,4 +1,4 @@
-package com.orderflow.orderflow_api.GraphicEngine.Styles;
+package com.orderflow.orderflow_api.GraphicEngine.styles;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
