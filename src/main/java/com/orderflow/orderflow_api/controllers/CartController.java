@@ -59,6 +59,12 @@ public class CartController {
         CartDTO cartDTO = cartService.updateItemQuantityInCart(itemId, operation.equalsIgnoreCase("delete") ? -1 : 1);
         return new ResponseEntity<>(cartDTO, HttpStatus.OK);
     }
+
+    @DeleteMapping("/carts/{cartId}/items/{itemId}")
+    public ResponseEntity<String> deleteItemFromCart(@PathVariable Long cartId, @PathVariable Long itemId) {
+        String response = cartService.deleteItemFromCart(cartId, itemId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
 
 

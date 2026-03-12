@@ -44,5 +44,16 @@ public class AlbumImageController {
         return new ResponseEntity<>(updatedAlbumImageDTO, HttpStatus.OK);
     }
 
+    @PutMapping("/admin/album-images/{albumImageId}/image/{urlImage}/remove")
+    public ResponseEntity<String> removeImageInfoFromAlbumImage(
+            @PathVariable Long albumImageId,
+            @PathVariable String urlImage
+    )
+    {
+        String response = albumImageService.removeImageInfoFromAlbumImage(albumImageId, urlImage);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 
 }
