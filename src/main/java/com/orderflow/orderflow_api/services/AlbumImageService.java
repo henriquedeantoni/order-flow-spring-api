@@ -13,4 +13,6 @@ public interface AlbumImageService {
     AlbumImageDTO updateAlbumImageInfo(AlbumImageDTO albumImageDTO, Long albumImageId);
 
     AlbumImageDTO updateAlbumImageInfoAndFile(AlbumImageDTO albumImageDTO, Long albumImageId, MultipartFile image, String urlImage) throws IOException;
+
+    String removeImageInfoFromAlbumImage(Long albumImageId, String urlImage);
 }

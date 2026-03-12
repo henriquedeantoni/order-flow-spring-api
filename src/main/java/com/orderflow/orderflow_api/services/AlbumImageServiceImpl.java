@@ -103,4 +103,32 @@ public class AlbumImageServiceImpl implements AlbumImageService {
         return modelMapper.map(albumImageFromDB, AlbumImageDTO.class);
     }
 
+    @Override
+    public String removeImageInfoFromAlbumImage(Long albumImageId, String urlImage) {
+        AlbumImage albumImageFromDB = albumImageRepository.findById(albumImageId)
+                .orElseThrow(() -> new ResourceNotFoundException("AlbumImage", "albumImageId", albumImageId));
+
+        Set<SimpleImage> listImages = albumImageFromDB.getSimpleImages();
+
+        SimpleImage simpleImage = listImages.stream()
+                .filter(image -> image.getUrl().equals(urlImage)).findFirst().orElse(null);
+
+        if(simpleImage == null){
+            throw new APIException("This album has no image with url: " + urlImage);
+        }
+
+        Long simpleImageId = simpleImage.getSimpleImageId();
+
+        simpleImage.setAlbumImage(null);
+        simpleImageRepository.save(simpleImage);
+
+        listImages.remove(simpleImage);
+
+        albumImageFromDB.setSimpleImages(listImages);
+
+        albumImageRepository.save(albumImageFromDB);
+
+        return "Album image has been removed successfully image " + urlImage;
+    }
+
 }
