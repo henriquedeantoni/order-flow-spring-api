@@ -1,10 +1,12 @@
 package com.orderflow.orderflow_api.GraphicEngine.charts;
 
+import com.orderflow.orderflow_api.GraphicEngine.datasets.DatasetFactory;
 import com.orderflow.orderflow_api.GraphicEngine.styles.ChartStyle;
 import com.orderflow.orderflow_api.GraphicEngine.styles.ChartTheme;
 import com.orderflow.orderflow_api.GraphicEngine.styles.constants.StylesAppConsts;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class ChartEngine {
@@ -103,6 +107,27 @@ public class ChartEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static <T, R> JFreeChart createBarChartSvg(
+            List<T> list,
+            Function<T, R> extractor,
+            Integer qntyCategories,
+            String chartName,
+            String categoryAxisLabel,
+            String valueAxisLabel
+            ){
+
+        DefaultCategoryDataset dataset = DatasetFactory.createDefaultCategoryDatasetFromMap(list, extractor, qntyCategories, chartName);
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                chartName,
+                categoryAxisLabel,
+                valueAxisLabel,
+                dataset
+        );
+
+        return chart;
     }
 
 

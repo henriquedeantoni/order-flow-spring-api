@@ -97,9 +97,12 @@ public class LocalController {
     public ResponseEntity<String> getDashboardLocalsByState(
             @PathVariable String state,
             @PathVariable String country,
-            @RequestParam(name = "quantityLayers", defaultValue = AppConsts.QUANTITY_LAYERS, required = false) Integer qtyLayers
-    ){
-        String response = localService.createDashboardLocalByState(state, country, qtyLayers);
+            @RequestParam(name = "quantityLayers", defaultValue = AppConsts.QUANTITY_LAYERS, required = true) Integer qtyLayers,
+            @RequestParam(name = "axisLabelName", required = true) String axisLabelName,
+            @RequestParam(name = "valuesLabelName", required = true) String valuesLabelName,
+            @RequestParam(name = "chartTitleName", required = true) String chartTitleName
+            ){
+        String response = localService.createDashboardLocalByState(state, country, qtyLayers, axisLabelName, valuesLabelName, chartTitleName);
         return new ResponseEntity<>("", HttpStatus.OK);
     }
 }

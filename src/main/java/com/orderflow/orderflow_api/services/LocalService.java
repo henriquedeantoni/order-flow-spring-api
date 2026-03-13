@@ -23,5 +23,5 @@ public interface LocalService{
 
     LocalDTO deleteLocal(Long localId);
 
-    String createDashboardLocalByState(String state, String country, Integer qtyLayers);
+    String createDashboardLocalByState(String state, String country, Integer qtyLayers, String axisLabelName, String valuesLabelName, String chartTitleName);
 }

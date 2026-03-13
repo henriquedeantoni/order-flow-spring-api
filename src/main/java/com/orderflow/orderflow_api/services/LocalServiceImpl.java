@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.GraphicEngine.charts.ChartEngine;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Local;
@@ -8,6 +9,11 @@ import com.orderflow.orderflow_api.payload.LocalDTO;
 import com.orderflow.orderflow_api.payload.LocalResponse;
 import com.orderflow.orderflow_api.repositories.LocalRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +23,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -241,11 +250,40 @@ public class LocalServiceImpl implements LocalService{
     }
 
     @Override
-    public String createDashboardLocalByState(String state, String country, Integer qtyLayers) {
+    public String createDashboardLocalByState(String state, String country, Integer qtyLayers, String axisLabelName, String valuesLabelName, String chartTitleName) {
         List<Local> localsFromDB = localRepository.findAllByStateAndByCountry(state, country);
 
+        if(localsFromDB.isEmpty()){
+            throw new APIException("Any local with this state " + state + " and country " + country + " was found");
+        }
 
+        List<LocalDTO> localsDTO = localsFromDB.stream().map( local -> {
+            LocalDTO localDTO = modelMapper.map(local, LocalDTO.class);
+            return localDTO;
+        }).toList();
 
-        return "";
+        JFreeChart chart = ChartEngine.createBarChartSvg(localsDTO, LocalDTO::getState, qtyLayers, axisLabelName, valuesLabelName, chartTitleName);
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        /*
+
+        renderer.setSeriesPaint(0, new Color(75,125,175));
+        renderer.setSeriesPaint(1, new Color(225,25,64));
+
+         */
+
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.GRAY);
+
+        int width = 800;
+        int height = 600;
+
+        SVGGraphics2D svg = new SVGGraphics2D(width, height);
+
+        chart.draw(svg, new Rectangle2D.Double(0, 0, width, height));
+
+        return svg.getSVGElement();
     }
 }
