@@ -93,7 +93,7 @@ public class LocalController {
         return new ResponseEntity<>(localDTO, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/admin/dashboard/bar/locals/{state}/{country}", produces = "image/svg+xml")
+    @GetMapping(value = "/admin/dashboard/barchart/locals/{state}/{country}", produces = "image/svg+xml")
     public ResponseEntity<String> getDashboardLocalsByState(
             @PathVariable String state,
             @PathVariable String country,

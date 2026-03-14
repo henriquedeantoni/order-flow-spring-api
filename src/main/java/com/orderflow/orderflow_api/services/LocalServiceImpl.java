@@ -262,7 +262,13 @@ public class LocalServiceImpl implements LocalService{
             return localDTO;
         }).toList();
 
-        JFreeChart chart = ChartEngine.createBarChartSvg(localsDTO, LocalDTO::getState, qtyLayers, axisLabelName, valuesLabelName, chartTitleName);
+        JFreeChart chart = ChartEngine.createBarChartSvg(
+                localsDTO,
+                LocalDTO::getState,
+                qtyLayers,
+                axisLabelName,
+                valuesLabelName,
+                chartTitleName);
 
         CategoryPlot plot = chart.getCategoryPlot();
 

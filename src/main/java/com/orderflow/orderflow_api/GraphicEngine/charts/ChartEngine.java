@@ -8,6 +8,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.springframework.stereotype.Component;
 
@@ -126,7 +127,24 @@ public class ChartEngine {
                 valueAxisLabel,
                 dataset
         );
+        return chart;
+    }
 
+    public static <T, R> JFreeChart createPieChartSvg(
+            List<T> list,
+            Function<T, R> extractor,
+            Integer qntyCategories,
+            String chartName
+        ){
+        DefaultPieDataset dataset = DatasetFactory.createDefaultPieDatasetFromMap(list, extractor, qntyCategories, chartName);
+
+        JFreeChart chart = ChartFactory.createPieChart(
+                chartName,
+                dataset,
+                true,
+                true,
+                false
+        );
         return chart;
     }
 

@@ -26,4 +26,8 @@ public interface ItemService {
     ItemResponse getItemsCreatedInInterval(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 
     ItemDTO deleteItem(Long itemId);
+
+    String createDashboardBarItemByCategories(Integer qtyLayers, String axisLabelName, String valuesLabelName, String chartTitleName);
+
+    String createDashboardPieItemByCategories(Integer qtyLayers, String chartTitleName);
 }
