@@ -1,10 +1,13 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.GraphicEngine.charts.ChartEngine;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
+import com.orderflow.orderflow_api.mappers.ItemMapper;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.ItemImage;
+import com.orderflow.orderflow_api.payload.ItemCategoryDTO;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
@@ -12,6 +15,11 @@ import com.orderflow.orderflow_api.repositories.ItemImageRepository;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +29,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,6 +54,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     private AuthUtil authUtil;
+
+    private final ItemMapper mapper;
+
+    public ItemServiceImpl(ItemMapper mapper) {
+        this.mapper = mapper;
+    }
 
     @Override
     public ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
@@ -287,5 +303,69 @@ public class ItemServiceImpl implements ItemService {
         return modelMapper.map(itemFromDb, ItemDTO.class);
     }
 
+    @Override
+    public String createDashboardBarItemByCategories(Integer qtyLayers, String axisLabelName, String valuesLabelName, String chartTitleName) {
+        List<Item> items = itemRepository.findAll();
+        if(items.isEmpty()) {
+            throw new APIException("Items not found.");
+        }
+
+        List<ItemCategoryDTO> itemDTOS = items.stream()
+                .map(mapper::toItemCategoryDTO).toList();
+
+        JFreeChart chart = ChartEngine.createBarChartSvg(
+                itemDTOS,
+                ItemCategoryDTO::getCategoryName,
+                qtyLayers,
+                axisLabelName,
+                valuesLabelName,
+                chartTitleName);
+
+        CategoryPlot plot = chart.getCategoryPlot();
+
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setRangeGridlinePaint(Color.GRAY);
+
+        int width = 800;
+        int height = 600;
+
+        SVGGraphics2D svg = new SVGGraphics2D(width, height);
+
+        chart.draw(svg, new Rectangle2D.Double(0, 0, width, height));
+
+        return svg.getSVGElement();
+    }
+
+    @Override
+    public String createDashboardPieItemByCategories(Integer qtyLayers, String chartTitleName) {
+        List<Item> items = itemRepository.findAll();
+        if(items.isEmpty()) {
+            throw new APIException("Items not found.");
+        }
+
+        List<ItemCategoryDTO> itemDTOS = items.stream()
+                .map(mapper::toItemCategoryDTO).toList();
+
+        JFreeChart chart = ChartEngine.createPieChartSvg(itemDTOS,ItemCategoryDTO::getCategoryName, qtyLayers, chartTitleName);
+
+        PiePlot plot = (PiePlot) chart.getPlot();
+
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setCircular(true);
+        plot.setOutlineVisible(false);
+        plot.setIgnoreZeroValues(true);
+        plot.setIgnoreNullValues(true);
+
+        int width = 600;
+        int height = 600;
+
+        SVGGraphics2D svg = new SVGGraphics2D(width, height);
+
+        chart.draw(svg, new Rectangle2D.Double(0, 0, width, height));
+
+        return svg.getSVGElement();
+    }
 
 }

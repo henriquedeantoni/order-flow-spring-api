@@ -134,4 +134,24 @@ public class ItemController {
         return new ResponseEntity<>(itemService.deleteItem(itemId), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/admin/dashboard/barchart/items/categories")
+    public ResponseEntity<String> getDashboardBarItemByCategories(
+            @RequestParam(name = "quantityLayers", defaultValue = AppConsts.QUANTITY_LAYERS, required = true) Integer qtyLayers,
+            @RequestParam(name = "axisLabelName", required = true) String axisLabelName,
+            @RequestParam(name = "valuesLabelName", required = true) String valuesLabelName,
+            @RequestParam(name = "chartTitleName", required = true) String chartTitleName
+    ){
+        String response = itemService.createDashboardBarItemByCategories(qtyLayers, axisLabelName, valuesLabelName, chartTitleName);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/admin/dashboard/piechart/items/categories")
+    public ResponseEntity<String> getDashboardPieItemByCategories(
+            @RequestParam(name = "quantityLayers", defaultValue = AppConsts.QUANTITY_LAYERS, required = true) Integer qtyLayers,
+            @RequestParam(name = "chartTitleName", required = true) String chartTitleName
+    ){
+        String response = itemService.createDashboardPieItemByCategories(qtyLayers, chartTitleName);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
