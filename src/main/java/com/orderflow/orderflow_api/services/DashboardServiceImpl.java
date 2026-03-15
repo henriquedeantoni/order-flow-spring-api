@@ -1,6 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
-import com.orderflow.orderflow_api.GraphicEngine.charts.ChartEngine;
+import com.orderflow.orderflow_api.graphicEngine.charts.ChartEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

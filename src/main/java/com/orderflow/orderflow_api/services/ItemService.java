@@ -30,4 +30,8 @@ public interface ItemService {
     String createDashboardBarItemByCategories(Integer qtyLayers, String axisLabelName, String valuesLabelName, String chartTitleName);
 
     String createDashboardPieItemByCategories(Integer qtyLayers, String chartTitleName);
+
+    String createDashboardTimeSeriesMonthlyItem(Instant firstDate, Instant lastDate);
+
+    String createDashboardTimeSeriesYearItem(Instant firstDate, Instant lastDate);
 }
