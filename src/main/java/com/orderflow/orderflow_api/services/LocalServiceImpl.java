@@ -1,6 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
-import com.orderflow.orderflow_api.GraphicEngine.charts.ChartEngine;
+import com.orderflow.orderflow_api.graphicEngine.charts.ChartEngine;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Local;
@@ -9,7 +9,6 @@ import com.orderflow.orderflow_api.payload.LocalDTO;
 import com.orderflow.orderflow_api.payload.LocalResponse;
 import com.orderflow.orderflow_api.repositories.LocalRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

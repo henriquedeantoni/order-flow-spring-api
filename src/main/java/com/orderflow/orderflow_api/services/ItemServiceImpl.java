@@ -1,6 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
-import com.orderflow.orderflow_api.GraphicEngine.charts.ChartEngine;
+import com.orderflow.orderflow_api.graphicEngine.charts.ChartEngine;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.mappers.ItemMapper;
@@ -31,9 +31,11 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -366,6 +368,32 @@ public class ItemServiceImpl implements ItemService {
         chart.draw(svg, new Rectangle2D.Double(0, 0, width, height));
 
         return svg.getSVGElement();
+    }
+
+    @Override
+    public String createDashboardTimeSeriesMonthlyItem(Instant firstDate, Instant lastDate) {
+        if(!firstDate.isBefore(lastDate)) {
+            throw  new APIException("First Date must be before Last Date");
+        }
+        long months = ChronoUnit.MONTHS.between(firstDate, lastDate);
+        if(months > 1) {
+            throw  new APIException("The time duration must be less or equal 1 month");
+        }
+
+        return "";
+    }
+
+    @Override
+    public String createDashboardTimeSeriesYearItem(Instant firstDate, Instant lastDate) {
+        if(!firstDate.isBefore(lastDate)) {
+            throw  new APIException("First Date must be before Last Date");
+        }
+        Duration duration = Duration.between(firstDate, lastDate);
+        if(duration.toDays() > 365) {
+            throw  new APIException("The time duration must be less or equal 1 year");
+        }
+
+        return "";
     }
 
 }

@@ -1,4 +1,4 @@
-package com.orderflow.orderflow_api.GraphicEngine.styles;
+package com.orderflow.orderflow_api.graphicEngine.styles;
 
 import java.awt.*;
 

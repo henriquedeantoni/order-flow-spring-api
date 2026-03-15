@@ -1,14 +1,13 @@
-package com.orderflow.orderflow_api.GraphicEngine.datasets;
+package com.orderflow.orderflow_api.graphicEngine.datasets;
 
 import com.orderflow.orderflow_api.exceptions.APIException;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.general.PieDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,8 +48,6 @@ public class DatasetFactory {
 
     public static <T, R> Map<String, Integer> processDTOsToMap(List<T> list, Function<T, R> extractor) {
 
-        Boolean isStringCategory = true;
-
         Map<String, Integer> mapCategoriesDataset = new HashMap<>();
 
         for (T cat : list) {
@@ -63,7 +60,7 @@ public class DatasetFactory {
                     Integer newValue = mapCategoriesDataset.get(value) + 1;
                     mapCategoriesDataset.put((String)value, newValue);
                 } else {
-                    isStringCategory = false;
+                    throw new APIException("error on build dataset: " + value.toString());
                 }
             } catch (RuntimeException ex) {
                 throw new APIException("Error on build dataset: " + ex.getMessage());
@@ -73,12 +70,48 @@ public class DatasetFactory {
         return sortMap(mapCategoriesDataset);
     }
 
-    public static <T, R> Map<String, Integer> processTimeDTOsToMap(List<T> list, Function<T, R> extractor, Integer qntyCategories, String chartName) {
-        Map<String, Integer> mapCategoriesDataset = new HashMap<>();
+    public static <T, R> Map<OffsetDateTime, Integer> processTimeDTOsToMap(
+            List<T> list,
+            Function<T, R> extractor,
+            String period) {
 
-        // TODO implement
+        Map<OffsetDateTime, Integer> mapDateTimeDataset = new HashMap<>();
 
-        return null;
+        for (T time : list) {
+            R value = extractor.apply(time);
+            try{
+                if(!mapDateTimeDataset.containsKey(time) && value instanceof OffsetDateTime) {
+                    mapDateTimeDataset.put((OffsetDateTime)value, 1);
+                } else if(mapDateTimeDataset.containsKey(time) && value instanceof OffsetDateTime) {
+                    Integer newValue = mapDateTimeDataset.get(value) + 1;
+                    mapDateTimeDataset.put((OffsetDateTime)value, newValue);
+                } else {
+                    throw new APIException("error on build dataset: " + value.toString());
+                }
+            }  catch (RuntimeException ex) {
+                throw new APIException("Error on build dataset: " + ex.getMessage());
+            }
+        }
+
+        if (period.equals("month")) {
+            return compressTimesSeriesMonthPeriod(mapDateTimeDataset);
+        } else if (period.equals("year")) {
+            return compressTimesSeriesYearPeriod(mapDateTimeDataset);
+        } else {
+            throw new APIException("error on build dataset: " + period);
+        }
+    }
+
+    private static Map<OffsetDateTime, Integer> compressTimesSeriesMonthPeriod(Map<OffsetDateTime, Integer> mapDateTimeDataset)
+    {
+        // TODO
+        return mapDateTimeDataset;
+    }
+
+    private static Map<OffsetDateTime, Integer> compressTimesSeriesYearPeriod(Map<OffsetDateTime, Integer> mapDateTimeDataset)
+    {
+        // TODO
+        return mapDateTimeDataset;
     }
 
     private static Map<String, Integer> sortMap(Map<String, Integer> map) {

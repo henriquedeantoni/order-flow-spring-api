@@ -1,12 +1,11 @@
-package com.orderflow.orderflow_api.GraphicEngine.charts;
+package com.orderflow.orderflow_api.graphicEngine.charts;
 
-import com.orderflow.orderflow_api.GraphicEngine.datasets.DatasetFactory;
-import com.orderflow.orderflow_api.GraphicEngine.styles.ChartStyle;
-import com.orderflow.orderflow_api.GraphicEngine.styles.ChartTheme;
-import com.orderflow.orderflow_api.GraphicEngine.styles.constants.StylesAppConsts;
+import com.orderflow.orderflow_api.graphicEngine.datasets.DatasetFactory;
+import com.orderflow.orderflow_api.graphicEngine.styles.ChartStyle;
+import com.orderflow.orderflow_api.graphicEngine.styles.ChartTheme;
+import com.orderflow.orderflow_api.graphicEngine.styles.constants.StylesAppConsts;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
@@ -146,6 +145,16 @@ public class ChartEngine {
                 false
         );
         return chart;
+    }
+
+    public static <T, R> JFreeChart createTimeSeriesChartSvg(
+            List<T> list,
+            Function<T, R> extractor,
+            Integer qntyCategories,
+            String chartName
+    ) {
+        // TODO
+        return null;
     }
 
 
