@@ -4,7 +4,9 @@ import com.orderflow.orderflow_api.exceptions.APIException;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.time.Day;
+import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -43,6 +45,36 @@ public class DatasetFactory {
             String key = entry.getKey();
             dataset.setValue(key, value);
         }
+        return dataset;
+    }
+
+    public static <T, R> TimeSeriesCollection createTimeSeriesCollection(List<T> list, Function<T, R> extractor, String chartName, String period) {
+        Map<OffsetDateTime, Integer> map = processTimeDTOsToMap(list, extractor, period);
+
+        Map<Day, Integer> mapDays = new HashMap<>();
+
+        TimeSeries series = new TimeSeries(chartName);
+
+        for (Map.Entry<OffsetDateTime, Integer> entry : map.entrySet()) {
+            OffsetDateTime offsetDateTime = entry.getKey();
+            Integer day = offsetDateTime.getDayOfMonth();
+            Integer month = offsetDateTime.getMonthValue();
+            Integer year = offsetDateTime.getYear();
+            Day newDay = new Day(day, month, year);
+            if(mapDays.containsKey(newDay)) {
+                mapDays.put(newDay, mapDays.get(newDay) + 1);
+            } else {
+                mapDays.put(newDay, 1);
+            }
+        }
+
+        for (Map.Entry<Day, Integer> entry : mapDays.entrySet()) {
+            series.addOrUpdate(entry.getKey(), entry.getValue());
+        }
+
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        dataset.addSeries(series);
+
         return dataset;
     }
 

@@ -8,6 +8,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.springframework.stereotype.Component;
 
@@ -150,11 +152,24 @@ public class ChartEngine {
     public static <T, R> JFreeChart createTimeSeriesChartSvg(
             List<T> list,
             Function<T, R> extractor,
-            Integer qntyCategories,
-            String chartName
+            String chartName,
+            String axisTitleName,
+            String valuesTitleName,
+            String period
     ) {
-        // TODO
-        return null;
+        TimeSeriesCollection dataset = DatasetFactory.createTimeSeriesCollection(list, extractor, chartName, period);
+
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+                chartName,
+                axisTitleName,
+                valuesTitleName,
+                dataset,
+                false,
+                true,
+                false
+        );
+
+        return chart;
     }
 
 

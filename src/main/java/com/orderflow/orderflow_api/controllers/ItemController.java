@@ -154,13 +154,15 @@ public class ItemController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/admin/dashboard/timeseries/items")
-    public ResponseEntity<String> getDashboardTimeSeriesItem(
+    @GetMapping(value = "/admin/dashboard/timeseries/monthly/items")
+    public ResponseEntity<String> getDashboardTimeSeriesMonthlyItem(
             @RequestParam(name = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant firstDate,
             @RequestParam(name = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant lastDate,
-            @RequestParam(name = "chartTitleName", required = true) String chartTitleName
+            @RequestParam(name = "chartTitleName", required = true) String chartTitleName,
+            @RequestParam(name = "axisLabelName", required = true) String axisLabelName,
+            @RequestParam(name = "valuesLabelName", required = true) String valuesLabelName
     ){
-        String response = itemService.createDashboardTimeSeriesMonthlyItem(firstDate, lastDate);
+        String response = itemService.createDashboardTimeSeriesMonthlyItem(firstDate, lastDate, chartTitleName, axisLabelName, valuesLabelName);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
