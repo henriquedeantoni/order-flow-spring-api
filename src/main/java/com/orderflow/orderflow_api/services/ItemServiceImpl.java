@@ -10,15 +10,18 @@ import com.orderflow.orderflow_api.models.ItemImage;
 import com.orderflow.orderflow_api.payload.ItemCategoryDTO;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.ItemResponse;
+import com.orderflow.orderflow_api.payload.ItemTimeDTO;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
 import com.orderflow.orderflow_api.repositories.ItemImageRepository;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
 import jakarta.transaction.Transactional;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.data.time.TimeSeries;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -371,7 +374,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public String createDashboardTimeSeriesMonthlyItem(Instant firstDate, Instant lastDate) {
+    public String createDashboardTimeSeriesMonthlyItem(
+            Instant firstDate,
+            Instant lastDate,
+            String chartTitleName,
+            String axisTitleName,
+            String valuesTitleName)
+    {
         if(!firstDate.isBefore(lastDate)) {
             throw  new APIException("First Date must be before Last Date");
         }
@@ -380,11 +389,31 @@ public class ItemServiceImpl implements ItemService {
             throw  new APIException("The time duration must be less or equal 1 month");
         }
 
-        return "";
+        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+
+        List<ItemTimeDTO> itemTimeDTOS = items.stream()
+                .map( item ->{
+                    return modelMapper.map(item, ItemTimeDTO.class);
+                }).toList();
+
+        JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(itemTimeDTOS, ItemTimeDTO::getIncludedDate, chartTitleName, axisTitleName, valuesTitleName, "month" );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+
+        SVGGraphics2D svg = new SVGGraphics2D(800, 600);
+        chart.draw(svg, svg.getClipBounds());
+
+        return svg.getSVGElement();
     }
 
     @Override
-    public String createDashboardTimeSeriesYearItem(Instant firstDate, Instant lastDate) {
+    public String createDashboardTimeSeriesYearItem(
+            Instant firstDate,
+            Instant lastDate,
+            String chartTitleName,
+            String axisTitleName,
+            String valuesTitleName)
+    {
         if(!firstDate.isBefore(lastDate)) {
             throw  new APIException("First Date must be before Last Date");
         }
@@ -393,7 +422,21 @@ public class ItemServiceImpl implements ItemService {
             throw  new APIException("The time duration must be less or equal 1 year");
         }
 
-        return "";
+        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+
+        List<ItemTimeDTO> itemTimeDTOS = items.stream()
+                .map( item ->{
+                    return modelMapper.map(item, ItemTimeDTO.class);
+                }).toList();
+
+        JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(itemTimeDTOS, ItemTimeDTO::getIncludedDate, chartTitleName, axisTitleName, valuesTitleName, "year" );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+
+        SVGGraphics2D svg = new SVGGraphics2D(800, 600);
+        chart.draw(svg, svg.getClipBounds());
+
+        return svg.getSVGElement();
     }
 
 }

@@ -54,6 +54,13 @@ public class AlbumImageController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    @DeleteMapping("/admin/album-images/{albumImageId}")
+    public ResponseEntity<AlbumImageDTO> deleteAlbumImage(
+            @PathVariable Long albumImageId
+    )
+    {
+        AlbumImageDTO albumImageDTO  = albumImageService.deleteImageAlbum(albumImageId);
+        return new ResponseEntity<>(albumImageDTO, HttpStatus.OK);
+    }
 
 }

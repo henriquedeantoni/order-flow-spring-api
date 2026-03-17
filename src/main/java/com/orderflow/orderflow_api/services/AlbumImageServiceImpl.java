@@ -131,4 +131,16 @@ public class AlbumImageServiceImpl implements AlbumImageService {
         return "Album image has been removed successfully image " + urlImage;
     }
 
+    @Override
+    public AlbumImageDTO deleteImageAlbum(Long albumImageId) {
+        AlbumImage albumImageFromDB =  albumImageRepository.findById(albumImageId)
+                .orElseThrow(() -> new ResourceNotFoundException("AlbumImage", "albumImageId", albumImageId));
+
+        AlbumImageDTO albumImageDTO = modelMapper.map(albumImageFromDB, AlbumImageDTO.class);
+
+        albumImageRepository.delete(albumImageFromDB);
+
+        return albumImageDTO;
+    }
+
 }
