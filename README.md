@@ -59,7 +59,6 @@ há a função de criptografia e definida pelo encoder BCryptPasswordEncoder que
 Tambem é configurado os filtros de acesso e encadeamento no método ```springSecFilterChain``` o que é permitido para qualquer usuário, público ou admin.
 
 
-
 ## Endpoints
 
 Para começar, deve-se autenticar o usuário caso já tenha credencial criada senão criar um usuário e em seguida fazer o signin.
@@ -110,6 +109,36 @@ O JWT fica salvo nos cookies.
 <tr>
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">Listar todos os itens</td>
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /v1/public/items`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">``/`ItemResponse`</td>
+</tr>
+<tr style="background-color: #f8f8f8;">
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Criar item</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`POST /v1/admin/items/{categoryId}/item`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`itemDTO` / `savedItemDTO`</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Atualizar item e categoria</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`PUT /admin/items/{itemId}/item/{categoryId}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">``ItemDTO/`ItemDTO`</td>
+</tr>
+<tr style="background-color: #f8f8f8;">
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Atualizar status de items</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`PUT /v1/admin/items/{itemId}/item/{status}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`ItemDTO` / `ItemDTO`</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Atualizar imagem do item</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`PUT /admin/items/{itemId}/image/{imageId}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">``ItemDTO/`ItemDTO`</td>
+</tr>
+<tr style="background-color: #f8f8f8;">
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item pelo seu ID</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /v1/admin/items/{categoryId}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`` / `ItemResponse`</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item por trecho da descrição</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /admin/items/{categoryId}/{keyword}`</td>
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">``/`ItemResponse`</td>
 </tr>
 </tbody>
