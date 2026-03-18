@@ -5,7 +5,7 @@
 Order Flow é um serviço de ordem, cadastro, envio, e agendamento de pedidos,
 feito para atender micro e pequenas empresas do setor gastronômico.
 Este repositório é a parte back end do projeto e foi desenvolvido em
-Spring Boot, Security , Jpa ,com conexão ao banco de dados MySql.
+Spring Boot, Security , Jpa ,com conexão ao banco de dados MySQL.
 
 Há a divisão de acesso entre perfis de clientes e perfis de administradores.
 A divisão é realizada com uma politica de Roles e Authorization e separadas nos endpoints em "/admin" e "/public".
@@ -130,6 +130,26 @@ O JWT fica salvo nos cookies.
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">Atualizar imagem do item</td>
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">`PUT /admin/items/{itemId}/image/{imageId}`</td>
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">``ItemDTO/`ItemDTO`</td>
+</tr>
+<tr style="background-color: #f8f8f8;">
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item pelo seu ID</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /v1/admin/items/{categoryId}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`` / `ItemResponse`</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item por trecho da descrição</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /admin/items/{categoryId}/{keyword}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">``/`ItemResponse`</td>
+</tr>
+<tr style="background-color: #f8f8f8;">
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item pelo seu ID</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /v1/admin/items/{categoryId}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`` / `ItemResponse`</td>
+</tr>
+<tr>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item por trecho da descrição</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">`GET /admin/items/{categoryId}/{keyword}`</td>
+<td style="padding: 10px; border: 1px solid #ddd; color: #555;">``/`ItemResponse`</td>
 </tr>
 <tr style="background-color: #f8f8f8;">
 <td style="padding: 10px; border: 1px solid #ddd; color: #555;">Consultar item pelo seu ID</td>
