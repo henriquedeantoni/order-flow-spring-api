@@ -21,6 +21,7 @@ public class SupplyController {
             @RequestBody SupplyDTO supplyDTO
     ){
         SupplyDTO savedSupply = supplyService.registerSupply(supplyDTO);
-        return new ResponseEntity<>(savedSupply, HttpStatus.OK);
+        return new ResponseEntity<>(savedSupply, HttpStatus.CREATED);
     }
+
 }
