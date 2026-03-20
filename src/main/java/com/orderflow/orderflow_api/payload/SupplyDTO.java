@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class SupplyDTO {
     private Long supplyId;
     private String supplyName;
+    private String supplyReference;
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;

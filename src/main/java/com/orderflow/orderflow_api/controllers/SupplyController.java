@@ -21,6 +21,15 @@ public class SupplyController {
             @RequestBody SupplyDTO supplyDTO
     ){
         SupplyDTO savedSupply = supplyService.registerSupply(supplyDTO);
-        return new ResponseEntity<>(savedSupply, HttpStatus.OK);
+        return new ResponseEntity<>(savedSupply, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/admin/supplies/{supplyId}")
+    public ResponseEntity<SupplyDTO> updateSupply(
+            @PathVariable Long supplyId,
+            @RequestBody SupplyDTO supplyDTO
+    ){
+        SupplyDTO supplyUpdateDTO = supplyService.updateSupply(supplyId, supplyDTO);
+        return new ResponseEntity<>(supplyUpdateDTO, HttpStatus.OK);
     }
 }
