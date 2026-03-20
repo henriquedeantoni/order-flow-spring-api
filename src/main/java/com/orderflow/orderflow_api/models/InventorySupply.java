@@ -3,6 +3,7 @@ package com.orderflow.orderflow_api.models;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
@@ -22,7 +23,10 @@ public class InventorySupply {
     @OneToOne
     @JoinColumn(name = "supply_id")
     private Supply supply;
-    private Integer quantity;
+
+    @Getter
+    private Integer quantity=0;
+
     private String codeBar;
     private String section;
 
