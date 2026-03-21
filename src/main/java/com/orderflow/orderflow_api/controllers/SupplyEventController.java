@@ -32,7 +32,7 @@ public class SupplyEventController {
             @RequestParam(name = "axisLabelName", required = true) String axisLabelName,
             @RequestParam(name = "valuesLabelName", required = true) String valuesLabelName
     ){
-        String response = supplyEventService.createDashboardTimeSeriesMonthlyItem(firstDate, lastDate, chartTitleName, axisLabelName, valuesLabelName);
+        String response = supplyEventService.createDashboardTimeSeriesMonthlySupply(firstDate, lastDate, chartTitleName, axisLabelName, valuesLabelName);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

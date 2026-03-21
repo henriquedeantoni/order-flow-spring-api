@@ -104,7 +104,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
     }
 
     @Override
-    public String createDashboardTimeSeriesMonthlyItem(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName) {
+    public String createDashboardTimeSeriesMonthlySupply(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName) {
         return "";
     }
 
