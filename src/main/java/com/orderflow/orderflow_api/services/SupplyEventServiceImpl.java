@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -74,8 +75,15 @@ public class SupplyEventServiceImpl implements SupplyEventService {
     }
 
     @Override
-    public List<SupplyEvent> getSupplyEventList(Long supplyId) {
-        return List.of();
+    public List<SupplyEventResponseDTO> getSupplyEventList(Long supplyId) {
+        List<SupplyEvent> supplyEventsList = supplyEventRepository.findAllBySupplyId(supplyId);
+
+        List<SupplyEventResponseDTO> response = supplyEventsList.stream()
+                .map( supply -> {
+                    return modelMapper.map(supply, SupplyEventResponseDTO.class);
+                }).toList();
+
+        return response;
     }
 
     public Integer getActualQuantityMovedEvent(Long supplyId) {
@@ -93,6 +101,11 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         }
 
         return quantityAtDate;
+    }
+
+    @Override
+    public String createDashboardTimeSeriesMonthlyItem(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName) {
+        return "";
     }
 
 }
