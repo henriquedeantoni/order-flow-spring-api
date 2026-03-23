@@ -4,12 +4,12 @@ import com.orderflow.orderflow_api.exceptions.APIException;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.time.Day;
-import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -136,14 +136,36 @@ public class DatasetFactory {
 
     private static Map<OffsetDateTime, Integer> compressTimesSeriesMonthPeriod(Map<OffsetDateTime, Integer> mapDateTimeDataset)
     {
-        // TODO
-        return mapDateTimeDataset;
+        // compress to days
+        Map<OffsetDateTime, Integer> mapDates = new HashMap<>();
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapDateTimeDataset.entrySet()) {
+            OffsetDateTime newDate = entry.getKey().truncatedTo(ChronoUnit.DAYS);
+
+            if(mapDates.containsKey(newDate)) {
+                mapDates.compute(newDate, (k,v)-> v+1);
+            } else {
+                mapDates.put(newDate, 1);
+            }
+        }
+
+        return mapDates;
     }
 
     private static Map<OffsetDateTime, Integer> compressTimesSeriesYearPeriod(Map<OffsetDateTime, Integer> mapDateTimeDataset)
     {
-        // TODO
-        return mapDateTimeDataset;
+        // compress to weeks
+        Map<OffsetDateTime, Integer> mapDates = new HashMap<>();
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapDateTimeDataset.entrySet()) {
+            OffsetDateTime newDate = entry.getKey().truncatedTo(ChronoUnit.WEEKS);
+
+            if(mapDates.containsKey(newDate)) {
+                mapDates.compute(newDate, (k,v)-> v+1);
+            } else {
+                mapDates.put(newDate, 1);
+            }
+        }
+
+        return mapDates;
     }
 
     private static Map<String, Integer> sortMap(Map<String, Integer> map) {
