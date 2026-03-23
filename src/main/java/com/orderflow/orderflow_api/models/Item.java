@@ -68,4 +68,8 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    private List<CartItem> items = new ArrayList<>();
+
 }
