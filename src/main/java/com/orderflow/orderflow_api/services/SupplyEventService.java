@@ -3,6 +3,7 @@ package com.orderflow.orderflow_api.services;
 import com.orderflow.orderflow_api.models.SupplyEvent;
 import com.orderflow.orderflow_api.payload.SupplyEventResponseDTO;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface SupplyEventService {
@@ -12,5 +13,9 @@ public interface SupplyEventService {
 
     SupplyEventResponseDTO decreaseQuantityMovedEvent(Long supplyId, Integer quantityMoved);
 
-    List<SupplyEvent> getSupplyEventList(Long supplyId);
+    List<SupplyEventResponseDTO> getSupplyEventList(Long supplyId);
+
+    String createDashboardTimeSeriesMonthlySupply(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName);
+
+    String createDashboardTimeSeriesYearlySupply(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName);
 }

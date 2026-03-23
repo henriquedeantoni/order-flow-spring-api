@@ -105,4 +105,6 @@ public class LocalController {
         String response = localService.createDashboardLocalByState(state, country, qtyLayers, axisLabelName, valuesLabelName, chartTitleName);
         return new ResponseEntity<>("", HttpStatus.OK);
     }
+
+
 }
