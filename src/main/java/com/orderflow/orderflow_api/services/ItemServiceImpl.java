@@ -415,7 +415,7 @@ public class ItemServiceImpl implements ItemService {
             String valuesTitleName)
     {
         if(!firstDate.isBefore(lastDate)) {
-            throw  new APIException("First Date must be before Last Date");
+            throw  new APIException("First Date must starts before Last Date");
         }
         Duration duration = Duration.between(firstDate, lastDate);
         if(duration.toDays() > 365) {

@@ -16,4 +16,6 @@ public interface SupplyEventService {
     List<SupplyEventResponseDTO> getSupplyEventList(Long supplyId);
 
     String createDashboardTimeSeriesMonthlySupply(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName);
+
+    String createDashboardTimeSeriesYearlySupply(Instant firstDate, Instant lastDate, String chartTitleName, String axisLabelName, String valuesLabelName);
 }
