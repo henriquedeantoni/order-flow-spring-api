@@ -60,11 +60,6 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private AuthUtil authUtil;
 
-    private final ItemMapper mapper;
-
-    public ItemServiceImpl(ItemMapper mapper) {
-        this.mapper = mapper;
-    }
 
     @Override
     public ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
@@ -316,7 +311,9 @@ public class ItemServiceImpl implements ItemService {
         }
 
         List<ItemCategoryDTO> itemDTOS = items.stream()
-                .map(mapper::toItemCategoryDTO).toList();
+                .map(item -> {
+                    return modelMapper.map(item, ItemCategoryDTO.class);
+                }).toList();
 
         JFreeChart chart = ChartEngine.createBarChartSvg(
                 itemDTOS,
@@ -351,7 +348,9 @@ public class ItemServiceImpl implements ItemService {
         }
 
         List<ItemCategoryDTO> itemDTOS = items.stream()
-                .map(mapper::toItemCategoryDTO).toList();
+                .map(item -> {
+                    return modelMapper.map(item, ItemCategoryDTO.class);
+                }).toList();
 
         JFreeChart chart = ChartEngine.createPieChartSvg(itemDTOS,ItemCategoryDTO::getCategoryName, qtyLayers, chartTitleName);
 

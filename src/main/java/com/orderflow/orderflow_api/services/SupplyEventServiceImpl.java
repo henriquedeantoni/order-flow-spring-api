@@ -128,7 +128,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
             throw  new APIException("The time duration must be less or equal 1 month");
         }
 
-        List<SupplyEvent> supplyEventsList = supplyEventRepository.findByEventDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+        List<SupplyEvent> supplyEventsList = supplyEventRepository.findByEventDateGreaterThanEqualAndEventDateLessThanEqual(firstDate, lastDate);
 
         List<SupplyEventResponseDTO> supplyEventResponseDTOS = supplyEventsList
                 .stream().map(supply ->{
@@ -162,7 +162,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
             throw  new APIException("The time duration must be less or equal 1 year");
         }
 
-        List<SupplyEvent> supplyEventsList = supplyEventRepository.findByEventDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+        List<SupplyEvent> supplyEventsList = supplyEventRepository.findByEventDateGreaterThanEqualAndEventDateLessThanEqual(firstDate, lastDate);
 
         List<SupplyEventResponseDTO> supplyEventResponseDTOS = supplyEventsList
                 .stream().map(supply ->{
