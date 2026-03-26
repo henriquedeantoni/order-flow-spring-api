@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +36,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    PasswordEncoder encoder;
 
     @Autowired
     private UserRepository userRepository;
@@ -57,11 +61,11 @@ public class AuthServiceImpl implements AuthService {
         User user = new User(
                 request.getUsername(),
                 request.getEmail(),
-                request.getPassword(),
+                encoder.encode(request.getPassword()),
                 request.getFirstName(),
                 request.getLastName()
-        );
 
+        );
         Set<String> strRoles = request.getRoles();
         Set<Role> roles = new HashSet<>();
 
@@ -144,7 +148,10 @@ public class AuthServiceImpl implements AuthService {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        UserInfoResponse response = new UserInfoResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), roles);
+        UserInfoResponse response = new UserInfoResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), userDetails.getEmail(), roles);
+
+        System.out.println(jwtCookie.toString());
+        System.out.println("UserInfoResponse, response: " + response);
 
         return new AuthenticationResult(response, jwtCookie);
     }
