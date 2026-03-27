@@ -70,7 +70,7 @@ public class JwtUtils {
 
     public ResponseCookie getCleanJwtCookie(){
         ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
-                .path("/api")
+                .path("/v1")
                 .build();
         return cookie;
     }
