@@ -1,6 +1,7 @@
 package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.payload.AuthenticationResult;
+import com.orderflow.orderflow_api.payload.UserListResponse;
 import com.orderflow.orderflow_api.security.request.LoginRequest;
 import com.orderflow.orderflow_api.security.request.SignupRequest;
 import com.orderflow.orderflow_api.security.response.MessageResponse;
@@ -17,4 +18,6 @@ public interface AuthService {
     UserInfoResponse getUserDetails(Authentication authentication);
 
     ResponseCookie logOutUser();
+
+    UserListResponse getAllUsers(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 }

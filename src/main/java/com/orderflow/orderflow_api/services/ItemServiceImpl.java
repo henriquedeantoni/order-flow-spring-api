@@ -110,6 +110,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
         Item item = modelMapper.map(itemDTO, Item.class);
+        System.out.println(item.toString());
         item.setCategory(category);
         item.setUser(authUtil.userOnLoggedSession());
 

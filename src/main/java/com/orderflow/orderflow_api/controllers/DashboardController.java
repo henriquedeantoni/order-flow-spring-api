@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/auth")
 public class DashboardController {
 
     @Autowired
