@@ -4,6 +4,8 @@ import com.orderflow.orderflow_api.models.Role;
 import com.orderflow.orderflow_api.models.Roles;
 import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.AuthenticationResult;
+import com.orderflow.orderflow_api.payload.UserDTO;
+import com.orderflow.orderflow_api.payload.UserListResponse;
 import com.orderflow.orderflow_api.repositories.RoleRepository;
 import com.orderflow.orderflow_api.repositories.UserRepository;
 import com.orderflow.orderflow_api.security.jwt.JwtUtils;
@@ -13,7 +15,12 @@ import com.orderflow.orderflow_api.security.response.MessageResponse;
 import com.orderflow.orderflow_api.security.response.UserInfoResponse;
 import com.orderflow.orderflow_api.security.services.UserDetailsImpl;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +31,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +54,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public ResponseEntity<MessageResponse> register(SignupRequest request) {
@@ -111,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
                 .stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        UserInfoResponse userResponse = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), roles);
+        UserInfoResponse userResponse = new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
         return userResponse;
     }
 
@@ -150,9 +162,40 @@ public class AuthServiceImpl implements AuthService {
 
         UserInfoResponse response = new UserInfoResponse(userDetails.getId(), jwtCookie.toString(), userDetails.getUsername(), userDetails.getEmail(), roles);
 
-        System.out.println(jwtCookie.toString());
-        System.out.println("UserInfoResponse, response: " + response);
-
         return new AuthenticationResult(response, jwtCookie);
+    }
+
+    @Override
+    public UserListResponse getAllUsers(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        Sort sortByAndOrder =  sortOrder.equals("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        PageRequest pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Specification<User> specification = Specification.allOf(List.of());
+
+        if(keyword != null && !keyword.isEmpty()){
+            specification = specification.and((root, query, criteriaBuilder)
+                    -> criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<User> pageUsers = userRepository.findAll(specification, pageDetails);
+
+        List<User> usersPage = pageUsers.getContent();
+
+        List<UserDTO> userDTOs = usersPage.stream().map(user -> {
+            return modelMapper.map(user, UserDTO.class);
+        }).collect(Collectors.toList());
+
+        UserListResponse userListResponse = new UserListResponse();
+        userListResponse.setContent(userDTOs);
+        userListResponse.setPageNumber(pageUsers.getNumber());
+        userListResponse.setPageSize(pageUsers.getSize());
+        userListResponse.setTotalPages(pageUsers.getTotalPages());
+        userListResponse.setTotalElements(pageUsers.getTotalElements());
+        userListResponse.setLastPage(pageUsers.isLast());
+        userListResponse.setTimestamp(LocalDateTime.now(ZoneId.of("UTC")));
+        return userListResponse;
     }
 }

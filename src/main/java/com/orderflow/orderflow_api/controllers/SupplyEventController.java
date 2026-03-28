@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/auth")
 public class SupplyEventController {
     @Autowired
     SupplyEventService supplyEventService;

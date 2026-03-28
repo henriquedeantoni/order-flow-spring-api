@@ -1,6 +1,8 @@
 package com.orderflow.orderflow_api.controllers;
 
+import com.orderflow.orderflow_api.config.AppConsts;
 import com.orderflow.orderflow_api.payload.AuthenticationResult;
+import com.orderflow.orderflow_api.payload.UserListResponse;
 import com.orderflow.orderflow_api.security.request.LoginRequest;
 import com.orderflow.orderflow_api.security.request.SignupRequest;
 import com.orderflow.orderflow_api.security.response.MessageResponse;
@@ -9,6 +11,7 @@ import com.orderflow.orderflow_api.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,8 +27,6 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticationUser(@RequestBody LoginRequest request){
         AuthenticationResult authenticationResult = authService.login(request);
-        System.out.println("authenticationResult: "+authenticationResult);
-        System.out.println("getJWT: "+ authenticationResult.getJwtResponseCookie().toString());
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, authenticationResult.getJwtResponseCookie().toString()).body(authenticationResult.getUserInfoResponse());
     }
 
@@ -53,5 +54,17 @@ public class AuthController {
     public ResponseEntity<?> signoutUser(Authentication authentication) {
         ResponseCookie cookie = authService.logOutUser();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new MessageResponse("You've been logged out successfully!"));
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<UserListResponse> getAllUsers(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
+            @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_USERS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_ORDERS_BY, required = false) String sortOrder
+            ){
+        UserListResponse response = authService.getAllUsers(keyword, pageSize, pageNumber, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

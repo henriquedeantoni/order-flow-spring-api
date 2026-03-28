@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/auth")
 public class InventorySupplyController {
     @Autowired
     private InventorySupplyService inventorySupplyService;

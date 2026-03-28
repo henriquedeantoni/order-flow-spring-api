@@ -2,6 +2,7 @@ package com.orderflow.orderflow_api.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class Item {
     private Long itemId;
 
     @NotBlank
-    @Size(max=25)
+    @Size(max=100)
     @Column(name = "name")
     private String itemName;
 
@@ -32,15 +33,14 @@ public class Item {
     @Column(name = "description")
     private String description;
 
-    @NotBlank
+    @NotNull
     private int quantity;
 
-    @NotBlank
+    @NotNull
     @Column(name = "price")
     private double price;
 
-    @NotBlank
-    @Size(max=100)
+    @NotNull
     @Column(name = "discount")
     private double discount;
 

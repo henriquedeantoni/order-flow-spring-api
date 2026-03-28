@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.swing.text.html.parser.Entity;
 
 @RestController
-@RequestMapping("/V1")
+@RequestMapping("/V1/auth")
 public class SupplyController {
     @Autowired
     private SupplyService supplyService;

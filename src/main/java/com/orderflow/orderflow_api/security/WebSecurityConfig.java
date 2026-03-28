@@ -125,6 +125,7 @@ public class WebSecurityConfig {
                 userRepository.save(admin);
             }
 
+            /*
             // Update roles for existing users
             userRepository.findByUsername("user1").ifPresent(user -> {
                 user.setRoles(userRoles);
@@ -134,12 +135,12 @@ public class WebSecurityConfig {
             /*userRepository.findByUserName("seller1").ifPresent(seller -> {
                 seller.setRoles(sellerRoles);
                 userRepository.save(seller);
-            });*/
+            });
 
             userRepository.findByUsername("admin").ifPresent(admin -> {
                 admin.setRoles(adminRoles);
                 userRepository.save(admin);
-            });
+            });*/
         };
     }
 }

@@ -61,7 +61,6 @@ public class ChartEngine {
             FileWriter out = new FileWriter("chart-exemplo.svg");
             out.write(svgElement);
             out.close();
-
             System.out.println("SVG gerado na raiz do projeto");
 
         } catch (IOException e) {
