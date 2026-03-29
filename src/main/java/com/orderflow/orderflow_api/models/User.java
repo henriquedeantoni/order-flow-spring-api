@@ -3,9 +3,12 @@ package com.orderflow.orderflow_api.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,11 +68,20 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     private Cart cart;
 
+    @Column(name = "createdDate")
+    private LocalDate createdDate;
+
+    @Column(name = "status")
+    @Pattern(regexp = "ACTIVE|INACTIVE", message = "Error: Wrong status created")
+    private String status;
+
     public User(String username, String email, String password, String firstName, String lastName) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.status = "ACTIVE";
+        this.createdDate = LocalDate.now(ZoneId.of("UTC"));
     }
 }
