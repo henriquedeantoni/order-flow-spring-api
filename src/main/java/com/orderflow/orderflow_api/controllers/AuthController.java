@@ -26,8 +26,6 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticationUser(@RequestBody LoginRequest request){
-        System.out.println("request username: " + request.getUsername());
-        System.out.println("request password: " + request.getPassword());
         AuthenticationResult authenticationResult = authService.login(request);
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, authenticationResult.getJwtResponseCookie().toString()).body(authenticationResult.getUserInfoResponse());
     }

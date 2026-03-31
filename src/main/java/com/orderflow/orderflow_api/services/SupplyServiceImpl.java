@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.InventorySupply;
 import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.payload.SupplyDTO;
+import com.orderflow.orderflow_api.payload.SupplyResponse;
 import com.orderflow.orderflow_api.repositories.InventorySupplyRepository;
 import com.orderflow.orderflow_api.repositories.SupplyRepository;
 import org.modelmapper.ModelMapper;
@@ -28,9 +29,13 @@ public class SupplyServiceImpl implements SupplyService {
         if (supplyFromDb != null) {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
-        supplyRepository.save(supplyFromDb);
 
-        return modelMapper.map(supplyFromDb, SupplyDTO.class);
+        Supply supply = modelMapper.map(supplyDTO, Supply.class);
+        //System.out.println("supply : " + supply);
+
+        supplyRepository.save(supply);
+
+        return modelMapper.map(supply, SupplyDTO.class);
     }
 
     @Override
@@ -43,13 +48,26 @@ public class SupplyServiceImpl implements SupplyService {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
+        if (supplyFromDb.getSupplyName() != null || supplyFromDb.getUnitQuantity()>0) {
+            throw new RuntimeException("Cannot update Supply item with quantity different from 0." + supplyDTO.getSupplyReference());
+        }
+
         supplyFromDb.setSupplyReference(supplyDTO.getSupplyReference());
         supplyFromDb.setSupplyCode(supplyDTO.getSupplyCode());
+        supplyFromDb.setBrandName(supplyDTO.getBrandName());
         supplyFromDb.setSupplyName(supplyDTO.getSupplyName());
         supplyFromDb.setSupplyDescription(supplyDTO.getSupplyDescription());
         supplyFromDb.setSupplyUnit(supplyDTO.getSupplyUnit());
+        supplyFromDb.setValDate(supplyDTO.getValDate());
 
         supplyRepository.save(supplyFromDb);
         return modelMapper.map(supplyFromDb, SupplyDTO.class);
     }
+
+    @Override
+    public SupplyResponse getAllSupplyRegistered(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        return null;
+    }
+
+
 }
