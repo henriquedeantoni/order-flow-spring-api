@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class CategoryController {
 
     @Autowired

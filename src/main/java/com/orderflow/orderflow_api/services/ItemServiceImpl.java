@@ -62,7 +62,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public ItemResponse getAllItems(String keyword, String category, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+    public ItemResponse getAllItems(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
         Sort sortByIdAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -76,11 +76,6 @@ public class ItemServiceImpl implements ItemService {
                     -> criteriaBuilder.like(criteriaBuilder.lower(root.get("itemName")), "%" + keyword.toLowerCase() + "%"));
         }
 
-        if(category!=null && !category.isEmpty()){
-            specification = specification.and((root, query, criteriabuilder)
-                    -> criteriabuilder.like(root.get("category").get("categoryName"), category));
-        }
-
         Page<Item> itemsPage = itemRepository.findAll(specification, pageDetails);
 
         List<Item> items = itemsPage.getContent();
@@ -88,11 +83,10 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDTO> itemDTOS = items
                 .stream()
                 .map(item ->{
-                    ItemDTO itemDTO = modelMapper.map(item, ItemDTO.class);
                     //ItemDTO.setImage();
-                    return itemDTO;
+                    return modelMapper.map(item, ItemDTO.class);
                 }).toList();
-
+        System.out.println("itemDTOS.size(): "+itemDTOS.size());
         ItemResponse itemResponse = new ItemResponse();
         itemResponse.setContent(itemDTOS);
         itemResponse.setPageNumber(itemsPage.getNumber());
@@ -207,6 +201,7 @@ public class ItemServiceImpl implements ItemService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
         Page<Item> pageItems = itemRepository.findByCategoryOrderByPriceAsc(categoryFromDb, pageDetails);
 
         List<Item> items = pageItems.getContent();
@@ -232,13 +227,28 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemResponse getAllItemsByKeyword(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+    public ItemResponse getAllItemsByCategoryIdAndKeyword(Long categoryId, String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        Category categoryFromDb = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
         Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Item> pageItems = itemRepository.findByItemNameLikeIgnoreCase('%' + keyword + '%' , pageDetails);
+        Specification<Item> specification = Specification.allOf(List.of());
+
+        if(keyword!=null && !keyword.isEmpty()){
+            specification = specification.and((root, query, criteriaBuilder)
+                    -> criteriaBuilder.like(criteriaBuilder.lower(root.get("itemName")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        if(categoryFromDb!=null){
+            specification = specification.and((root, query, criteriabuilder)
+                    -> criteriabuilder.like(root.get("category").get("categoryName"), categoryFromDb.getCategoryName()));
+        }
+
+        Page<Item> pageItems = itemRepository.findAll(specification , pageDetails);
 
         List<Item> items = pageItems.getContent();
         if(items.isEmpty()) {

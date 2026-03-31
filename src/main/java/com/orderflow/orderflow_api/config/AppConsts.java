@@ -9,6 +9,7 @@ public class AppConsts {
     public static final String SORT_INVENTORIES_BY = "inventorySupplyId";
     public static final String SORT_USERS_BY = "userId";
     public static final String SORT_ORDERS_BY = "orderId";
+    public static final String SORT_SUPPLIES_BY = "supplyId";
     public static final String SORT_DIRECTION = "asc";
     public static final String QUANTITY_LAYERS = "10";
 }

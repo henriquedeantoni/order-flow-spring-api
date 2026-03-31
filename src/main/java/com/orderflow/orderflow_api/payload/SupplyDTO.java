@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,7 +13,9 @@ public class SupplyDTO {
     private Long supplyId;
     private String supplyName;
     private String supplyReference;
+    private String brandName;
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;
+    private LocalDate valDate;
 }

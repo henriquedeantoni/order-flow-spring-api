@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class ItemController {
 
     @Autowired
@@ -23,13 +23,12 @@ public class ItemController {
     @GetMapping("/public/items")
     public ResponseEntity<ItemResponse> getAllItems(
             @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "category", required = false) String category,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
     ){
-        ItemResponse itemResponse = itemService.getAllItems(keyword, category, pageSize, pageNumber, sortBy, sortOrder);
+        ItemResponse itemResponse = itemService.getAllItems(keyword, pageSize, pageNumber, sortBy, sortOrder);
 
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
@@ -45,7 +44,7 @@ public class ItemController {
     @PutMapping("/admin/items/{itemId}/item")
     public ResponseEntity<ItemDTO> updateItem(
             @RequestBody ItemDTO itemDTO,
-            @RequestParam Long itemId){
+            @PathVariable Long itemId){
         ItemDTO updatedItemDTO = itemService.updateItem(itemDTO, itemId);
 
         return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
@@ -54,8 +53,8 @@ public class ItemController {
     @PutMapping("/admin/items/{itemId}/item/{categoryId}")
     public ResponseEntity<ItemDTO> updateItemAndCategory(
             @RequestBody ItemDTO itemDTO,
-            @RequestParam Long itemId,
-            @RequestParam Long categoryId){
+            @PathVariable Long itemId,
+            @PathVariable Long categoryId){
         ItemDTO updatedItemDTO = itemService.updateItemAndCategory(itemDTO, itemId, categoryId);
 
         return new ResponseEntity<>(updatedItemDTO, HttpStatus.OK);
@@ -63,8 +62,8 @@ public class ItemController {
 
     @PutMapping("/admin/items/{itemId}/item/{status}")
     public ResponseEntity<ItemDTO> updateItemStatus(
-            @RequestParam Long itemId,
-            @RequestParam String status
+            @PathVariable Long itemId,
+            @PathVariable String status
     ){
         ItemDTO updatedItemDTO = itemService.updateItemStatus(itemId, status);
 
@@ -73,45 +72,45 @@ public class ItemController {
 
     @PutMapping("/admin/items/{itemId}/image/{imageId}")
     public ResponseEntity<ItemDTO> updatedItemImage(
-            @RequestParam Long itemId,
-            @RequestParam Long imageId){
+            @PathVariable Long itemId,
+            @PathVariable Long imageId){
         ItemDTO updateItem = itemService.updatedItemImage(itemId, imageId);
 
         return new ResponseEntity<>(updateItem, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/items/{itemId}")
+    @GetMapping("/public/items/item/{itemId}")
     public ResponseEntity<ItemDTO> getItemById(
-            @RequestParam Long itemId){
+            @PathVariable Long itemId){
         ItemDTO itemDTO = itemService.findById(itemId);
 
         return new ResponseEntity<>(itemDTO, HttpStatus.FOUND);
     }
 
-    @GetMapping("/admin/items/{categoryId}")
+    @GetMapping("/public/items/category/{categoryId}")
     public ResponseEntity<ItemResponse> getAllItemsByCategoryId(
-            @RequestParam(name = "categoryId", required = false) Long categoryId,
+            @PathVariable(name = "categoryId", required = false) Long categoryId,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
     ){
-
         ItemResponse itemResponse = itemService.getAllItemsByCategoryId( categoryId, pageSize, pageNumber, sortBy, sortOrder);
 
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/admin/items/{categoryId}/{keyword}")
-    public ResponseEntity<ItemResponse> getAllItemsByKeyword(
-            @PathVariable String keyword,
+    @GetMapping("/public/items/category/{categoryId}/keyword")
+    public ResponseEntity<ItemResponse> getAllItemsByCategoryIdAndKeyword(
+            @PathVariable Long categoryId,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
             @RequestParam(name = "sortBy", defaultValue = AppConsts.SORT_ITEMS_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConsts.SORT_DIRECTION, required = false) String sortOrder
     ){
 
-        ItemResponse itemResponse = itemService.getAllItemsByKeyword(keyword, pageSize, pageNumber, sortBy, sortOrder);
+        ItemResponse itemResponse = itemService.getAllItemsByCategoryIdAndKeyword(categoryId, keyword, pageSize, pageNumber, sortBy, sortOrder);
 
         return new ResponseEntity<>(itemResponse, HttpStatus.OK);
     }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -21,9 +22,11 @@ public class Supply {
 
     private String supplyName;
     private String supplyReference;
+    private String brandName;
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;
+    private Integer unitQuantity=0;
 
     @ToString.Exclude
     @OneToOne(mappedBy = "supply", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
@@ -31,4 +34,8 @@ public class Supply {
 
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
+
+    @Column(name = "validate_at")
+    private LocalDate valDate;
+
 }

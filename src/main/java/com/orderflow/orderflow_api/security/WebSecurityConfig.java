@@ -68,6 +68,7 @@ public class WebSecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers("/v1/public/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/v1/seller/**").hasAnyRole("ADMIN", "SELLER")

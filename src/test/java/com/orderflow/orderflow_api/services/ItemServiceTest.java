@@ -95,7 +95,6 @@ public class ItemServiceTest {
 
         ItemResponse itemResponse = itemService.getAllItems(
                 keyword,
-                category,
                 pageNumber,
                 pageSize,
                 sortBy,
