@@ -11,15 +11,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.swing.text.html.parser.Entity;
 
 @RestController
-@RequestMapping("/V1/auth")
+@RequestMapping("/V1")
 public class SupplyController {
     @Autowired
     private SupplyService supplyService;
 
-    @PostMapping("/admin/supplies/register")
+    @PostMapping("/admin/supplies/register/supply")
     public ResponseEntity<SupplyDTO> registerSupply(
             @RequestBody SupplyDTO supplyDTO
     ){
+        System.out.println("supplyDTO: " + supplyDTO);
         SupplyDTO savedSupply = supplyService.registerSupply(supplyDTO);
         return new ResponseEntity<>(savedSupply, HttpStatus.CREATED);
     }

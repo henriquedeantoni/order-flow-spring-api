@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class AlbumImageController {
     @Autowired
     private AlbumImageService albumImageService;

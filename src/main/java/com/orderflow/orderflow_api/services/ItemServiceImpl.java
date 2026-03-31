@@ -73,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
 
         if(keyword!=null && !keyword.isEmpty()){
             specification = specification.and((root, query, criteriaBuilder)
-                    -> criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+                    -> criteriaBuilder.like(criteriaBuilder.lower(root.get("itemName")), "%" + keyword.toLowerCase() + "%"));
         }
 
         Page<Item> itemsPage = itemRepository.findAll(specification, pageDetails);

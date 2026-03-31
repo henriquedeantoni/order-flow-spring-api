@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class ItemController {
 
     @Autowired

@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Controller
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class SimpleImageController {
     @Autowired
     private SimpleImageService simpleImageService;

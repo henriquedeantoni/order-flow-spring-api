@@ -21,7 +21,7 @@ public class InventorySupply {
     private Long inventorySupplyId;
 
     @OneToOne
-    @JoinColumn(name = "supply_id")
+    @JoinColumn(name = "supply")
     private Supply supply;
 
     @Getter

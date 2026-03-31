@@ -11,19 +11,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/v1")
 public class InventorySupplyController {
     @Autowired
     private InventorySupplyService inventorySupplyService;
 
-    @PostMapping("/admin/inventory/supplies/")
+    @PostMapping("/admin/inventory/supplies")
     public ResponseEntity<InventorySupplyDTO> registerSupplyOnInventory(
             @RequestBody InventorySupplyDTO inventorySupplyDTO ) {
         InventorySupplyDTO inventoryItem = inventorySupplyService.registerSupplyOnInventory(inventorySupplyDTO);
         return new ResponseEntity<>(inventoryItem, HttpStatus.CREATED);
     }
 
-    @GetMapping("/admin/inventory/supplies/")
+    @GetMapping("/admin/inventory/supplies")
     public ResponseEntity<InventoryResponse> getSupplyOnInventory(
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber,
