@@ -48,17 +48,12 @@ public class SupplyServiceImpl implements SupplyService {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
-        if (supplyFromDb.getSupplyName() != null || supplyFromDb.getUnitQuantity()>0) {
-            throw new RuntimeException("Cannot update Supply item with quantity different from 0." + supplyDTO.getSupplyReference());
-        }
-
         supplyFromDb.setSupplyReference(supplyDTO.getSupplyReference());
         supplyFromDb.setSupplyCode(supplyDTO.getSupplyCode());
         supplyFromDb.setBrandName(supplyDTO.getBrandName());
         supplyFromDb.setSupplyName(supplyDTO.getSupplyName());
         supplyFromDb.setSupplyDescription(supplyDTO.getSupplyDescription());
         supplyFromDb.setSupplyUnit(supplyDTO.getSupplyUnit());
-        supplyFromDb.setValDate(supplyDTO.getValDate());
 
         supplyRepository.save(supplyFromDb);
         return modelMapper.map(supplyFromDb, SupplyDTO.class);
@@ -68,6 +63,4 @@ public class SupplyServiceImpl implements SupplyService {
     public SupplyResponse getAllSupplyRegistered(String keyword, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
         return null;
     }
-
-
 }

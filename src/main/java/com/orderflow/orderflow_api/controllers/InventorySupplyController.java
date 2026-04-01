@@ -33,4 +33,16 @@ public class InventorySupplyController {
         InventoryResponse inventoryResponse = inventorySupplyService.getAllInventoryItems(pageSize, pageNumber, sortBy, sortOrder);
         return new ResponseEntity<>(inventoryResponse, HttpStatus.OK);
     }
+
+    @PostMapping("/amdin/inventory/supplies/movein")
+    public ResponseEntity<InventoryResponse> moveSupplyOnInventory(
+            @RequestParam int quantity,
+            @RequestBody InventorySupplyDTO inventorySupplyDTO,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber
+    ){
+        InventoryResponse response = inventorySupplyService.moveSupplyOnInventory(quantity, inventorySupplyDTO, pageSize, pageNumber);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 }
