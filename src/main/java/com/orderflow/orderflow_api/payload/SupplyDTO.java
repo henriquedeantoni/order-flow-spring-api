@@ -17,5 +17,4 @@ public class SupplyDTO {
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;
-    private LocalDate valDate;
 }

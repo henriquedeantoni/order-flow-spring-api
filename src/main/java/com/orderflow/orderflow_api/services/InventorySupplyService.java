@@ -7,4 +7,6 @@ public interface InventorySupplyService{
     InventorySupplyDTO registerSupplyOnInventory(InventorySupplyDTO inventorySupplyDTO);
 
     InventoryResponse getAllInventoryItems(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+
+    InventoryResponse moveSupplyOnInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, int pageSize, int pageNumber);
 }

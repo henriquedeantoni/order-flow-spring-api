@@ -9,6 +9,8 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,13 +31,10 @@ public class Supply {
     private Integer unitQuantity=0;
 
     @ToString.Exclude
-    @OneToOne(mappedBy = "supply", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    private InventorySupply inventorySupply;
+    @OneToMany(mappedBy = "supply", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
+    private Set<InventorySupply> inventorySupplies = new HashSet<>();
 
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
-
-    @Column(name = "validate_at")
-    private LocalDate valDate;
 
 }
