@@ -5,10 +5,13 @@ import com.orderflow.orderflow_api.payload.InventoryResponse;
 import com.orderflow.orderflow_api.payload.InventorySupplyDTO;
 import com.orderflow.orderflow_api.services.InventorySupplyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/v1")
@@ -54,5 +57,16 @@ public class InventorySupplyController {
     ){
         InventoryResponse response = inventorySupplyService.moveSupplyOutInventory(quantity, inventorySupplyDTO, pageSize, pageNumber);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/admin/inventory/supply/movements/period")
+    public ResponseEntity<InventoryResponse> movementsSupplyOnPeriod(
+            @RequestParam(name = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant firstDate,
+            @RequestParam(name = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant lastDate,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber
+    ){
+        InventoryResponse response = inventorySupplyService.movementsSupplyOnPeriod(firstDate, lastDate, pageSize, pageNumber);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

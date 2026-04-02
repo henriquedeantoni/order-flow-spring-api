@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -179,6 +180,11 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
         inventoryResponse.setTotalElements(pages.getTotalElements());
         inventoryResponse.setLastPage(pages.isLast());
         return inventoryResponse;
+    }
+
+    @Override
+    public InventoryResponse movementsSupplyOnPeriod(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber) {
+        return null;
     }
 
 
