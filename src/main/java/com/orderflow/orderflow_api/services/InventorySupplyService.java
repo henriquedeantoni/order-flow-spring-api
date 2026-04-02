@@ -9,4 +9,6 @@ public interface InventorySupplyService{
     InventoryResponse getAllInventoryItems(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
 
     InventoryResponse moveSupplyOnInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, int pageSize, int pageNumber);
+
+    InventoryResponse moveSupplyOutInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, Integer pageSize, Integer pageNumber);
 }

@@ -134,6 +134,54 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
         return inventoryResponse;
     }
 
+    @Override
+    public InventoryResponse moveSupplyOutInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, Integer pageSize, Integer pageNumber) {
+        Supply supplyFromDB = supplyRepository.findBySupplyReference(inventorySupplyDTO.getSupplyReference());
+
+        if(supplyFromDB==null){
+            throw new APIException("Error: Supply reference not found, supply not registered or refence number wrong");
+        }
+
+        List<InventorySupplyDTO> inventorySupplyDTOListFromDB = inventorySupplyRepository.findAllBySupplyReference(inventorySupplyDTO.getSupplyReference())
+                .stream().map(inventory -> {
+                    return modelMapper.map(inventory, InventorySupplyDTO.class);
+                }).toList();
+
+        if(quantity>inventorySupplyDTOListFromDB.size())
+            throw new APIException("Error: Quantity exceed stock amount for supply reference "
+                    +  supplyFromDB.getSupplyReference() + " and name " + supplyFromDB.getSupplyName());
+        else if(quantity<0)
+            throw new APIException("Error: Quantity must be positive");
+
+        Comparator<InventorySupplyDTO> comparator = Comparator.comparing(
+                inventory -> (Comparable) getField(inventory, "valDate"));
+
+        List<InventorySupplyDTO> listOrdered = inventorySupplyDTOListFromDB.stream().sorted(comparator).toList();
+
+        for(InventorySupplyDTO inventorySupplyDTOFromDB : inventorySupplyDTOListFromDB){
+            inventorySupplyDTOFromDB.setStatus("STOCK_OUT");
+            inventorySupplyRepository.save(modelMapper.map(inventorySupplyDTOFromDB, InventorySupply.class));
+        }
+
+        Page<InventorySupplyDTO> pages = pageCreation(listOrdered, pageNumber, pageSize, AppConsts.SORT_INVENTORIES_BY, "asc");
+
+        List<InventorySupplyDTO> itemsPage = pages.getContent();
+
+        if(itemsPage.size()>0){
+            supplyEventService.decreaseQuantityMovedEvent(supplyFromDB.getSupplyId(), quantity);
+        }
+
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setContent(itemsPage);
+        inventoryResponse.setPageNumber(pageNumber);
+        inventoryResponse.setPageSize(pageSize);
+        inventoryResponse.setTotalPages(pages.getTotalPages());
+        inventoryResponse.setTotalElements(pages.getTotalElements());
+        inventoryResponse.setLastPage(pages.isLast());
+        return inventoryResponse;
+    }
+
+
     private Page<InventorySupplyDTO> pageCreation(
             List<InventorySupplyDTO> inventorySupplyList,
             int pageNumber,

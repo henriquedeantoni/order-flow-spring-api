@@ -35,14 +35,24 @@ public class InventorySupplyController {
     }
 
     @PostMapping("/amdin/inventory/supplies/movein")
-    public ResponseEntity<InventoryResponse> moveSupplyOnInventory(
+    public ResponseEntity<InventoryResponse> moveSupplyInInventory(
             @RequestParam int quantity,
             @RequestBody InventorySupplyDTO inventorySupplyDTO,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber
     ){
         InventoryResponse response = inventorySupplyService.moveSupplyOnInventory(quantity, inventorySupplyDTO, pageSize, pageNumber);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
+    @PostMapping("/admin/inventory/supplies/moveout")
+    public ResponseEntity<InventoryResponse> moveSupplyOutInventory(
+            @RequestParam int quantity,
+            @RequestBody InventorySupplyDTO inventorySupplyDTO,
+            @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber
+    ){
+        InventoryResponse response = inventorySupplyService.moveSupplyOutInventory(quantity, inventorySupplyDTO, pageSize, pageNumber);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }
