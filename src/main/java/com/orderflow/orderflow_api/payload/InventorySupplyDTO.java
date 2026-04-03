@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +22,5 @@ public class InventorySupplyDTO {
     private String status;
 
     private LocalDate valDate;
+    private OffsetDateTime movmentDate;
 }

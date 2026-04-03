@@ -14,5 +14,9 @@ public interface InventorySupplyService{
 
     InventoryResponse moveSupplyOutInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, Integer pageSize, Integer pageNumber);
 
-    InventoryResponse movementsSupplyOnPeriod(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber);
+    InventoryResponse movementsSupplyOnPeriod(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder);
+
+    Integer getTotalQuantityFromSupply(long supplyId);
+
+    Integer getTotalQuantityFromSupplyByPeriod(long supplyId, Instant firstDate, Instant lastDate);
 }
