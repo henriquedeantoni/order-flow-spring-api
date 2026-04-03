@@ -244,7 +244,23 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
 
     @Override
     public Integer getTotalQuantityFromSupplyByPeriod(long supplyId, Instant firstDate, Instant lastDate) {
-        return 0;
+        Supply supply = supplyRepository.findById(supplyId)
+                .orElseThrow(() -> new APIException("Error: Supply with id " + supplyId + " not found"));
+
+        if(supply == null){
+            throw new APIException("Error: Supply with id " + supplyId + " not found");
+        }
+
+        List<InventorySupply> inventorySupplies = inventorySupplyRepository.findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(firstDate, lastDate);
+
+        if(inventorySupplies.isEmpty())
+            return 0;
+        else {
+            return inventorySupplies.stream()
+                    .mapToInt(inventorySupply ->
+                            inventorySupply.getStatus().equalsIgnoreCase("STOCK_IN") ? 1 : 0
+                    ).sum();
+        }
     }
 
     private Page<InventorySupplyDTO> pageCreation(

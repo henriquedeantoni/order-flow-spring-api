@@ -15,4 +15,6 @@ public interface InventorySupplyRepository extends JpaRepository<InventorySupply
     List<InventorySupply> findAllBySupplyReference(String supplyReference);
 
     Page<InventorySupply> findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(Instant firstDate, Instant lastDate, Pageable pageDetails);
+
+    List<InventorySupply> findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(Instant firstDate, Instant lastDate);
 }
