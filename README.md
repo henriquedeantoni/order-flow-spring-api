@@ -58,6 +58,25 @@ Na classe ```WebSecurityConfig``` têm-se a configuração da segurança,
 há a função de criptografia e definida pelo encoder BCryptPasswordEncoder que criptografa a senha de acesso.
 Tambem é configurado os filtros de acesso e encadeamento no método ```springSecFilterChain``` o que é permitido para qualquer usuário, público ou admin.
 
+## Inventário/Estoque
+
+O inventário ou estoque da aplicação fica armazenado na tabela Supply, Inventory Supply e Supply Event.
+
+A tabela Supply é armazena as informações de cadastro individual do item suprimento e matéria prima do estoque e corresponde a um item e seu cadastro completo contendo as informações
+do produto como nome, código referencia, nome da marca, descrição, código do fabricante, unidade de medida (kg, gr, ml) e a quantidade unitária.
+
+A tabela Inventory Supply relaciona cada item em Supply com as movimentações e quantidades, e é uma relação ManyToOne com Supply.
+Alem disso informa data hora local da movimentação, entrada e se o item já foi dado baixa ("STOCK_IN" e "STOCK_OUT")
+
+A tabela Event Supply registra todos os eventos de cada Supply ou suprimento, quantos foi movimentados e a hora local.
+Tambem é possivel obter a quantidade de item sobre determinado tempo ou o histograma.
+
+## Imagens
+
+As entidades dos locais de imagem, album são mapeadas por AlbumImage, SimpleImage e ItemImage
+
+A classe AlbumImage reune num grupo de imagens tambem representada pela SimpleImage. Já a classe ItemImage relaciona uma imagem a um item, sendo esta a imagem de capa do item.
+Portanto um item pode ter um AlbumImage (relação ManyToOne) e uma capa ItemImage.
 
 ## Endpoints
 
