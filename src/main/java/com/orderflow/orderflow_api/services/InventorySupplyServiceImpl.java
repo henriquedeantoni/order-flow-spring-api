@@ -19,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -110,6 +113,8 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
             inventorySupply.setCodeBar(inventorySupplyDTO.getCodeBar());
             inventorySupply.setSupplyReference(inventorySupplyDTO.getSupplyReference());
             inventorySupply.setValDate(inventorySupplyDTO.getValDate());
+            inventorySupply.setStatus("STOCK_IN");
+            inventorySupply.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
             inventorySupplyRepository.save(inventorySupply);
 
             InventorySupplyDTO supplyDTO = modelMapper.map(inventorySupply, InventorySupplyDTO.class);
@@ -132,6 +137,114 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
         inventoryResponse.setTotalElements(pages.getTotalElements());
         inventoryResponse.setLastPage(pages.isLast());
         return inventoryResponse;
+    }
+
+    @Override
+    public InventoryResponse moveSupplyOutInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, Integer pageSize, Integer pageNumber) {
+        Supply supplyFromDB = supplyRepository.findBySupplyReference(inventorySupplyDTO.getSupplyReference());
+
+        if(supplyFromDB==null){
+            throw new APIException("Error: Supply reference not found, supply not registered or refence number wrong");
+        }
+
+        List<InventorySupplyDTO> inventorySupplyDTOListFromDB = inventorySupplyRepository.findAllBySupplyReference(inventorySupplyDTO.getSupplyReference())
+                .stream().map(inventory -> {
+                    return modelMapper.map(inventory, InventorySupplyDTO.class);
+                }).toList();
+
+        if(quantity>inventorySupplyDTOListFromDB.size())
+            throw new APIException("Error: Quantity exceed stock amount for supply reference "
+                    +  supplyFromDB.getSupplyReference() + " and name " + supplyFromDB.getSupplyName());
+        else if(quantity<0)
+            throw new APIException("Error: Quantity must be positive");
+
+        Comparator<InventorySupplyDTO> comparator = Comparator.comparing(
+                inventory -> (Comparable) getField(inventory, "valDate"));
+
+        List<InventorySupplyDTO> listOrdered = inventorySupplyDTOListFromDB.stream().sorted(comparator).toList();
+
+        for(InventorySupplyDTO inventorySupplyDTOFromDB : inventorySupplyDTOListFromDB){
+            inventorySupplyDTOFromDB.setStatus("STOCK_OUT");
+            inventorySupplyDTOFromDB.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
+            inventorySupplyRepository.save(modelMapper.map(inventorySupplyDTOFromDB, InventorySupply.class));
+        }
+
+        Page<InventorySupplyDTO> pages = pageCreation(listOrdered, pageNumber, pageSize, AppConsts.SORT_INVENTORIES_BY, "asc");
+
+        List<InventorySupplyDTO> itemsPage = pages.getContent();
+
+        if(itemsPage.size()>0){
+            supplyEventService.decreaseQuantityMovedEvent(supplyFromDB.getSupplyId(), quantity);
+        }
+
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setContent(itemsPage);
+        inventoryResponse.setPageNumber(pageNumber);
+        inventoryResponse.setPageSize(pageSize);
+        inventoryResponse.setTotalPages(pages.getTotalPages());
+        inventoryResponse.setTotalElements(pages.getTotalElements());
+        inventoryResponse.setLastPage(pages.isLast());
+
+        return inventoryResponse;
+    }
+
+    @Override
+    public InventoryResponse movementsSupplyOnPeriod(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        if(!lastDate.isBefore(firstDate)){
+            throw new APIException("Error: Last date must be before first date");
+        }
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(firstDate, lastDate, pageDetails);
+
+        List<InventorySupply> inventoriesFromContent = pageItems.getContent();
+
+        if(inventoriesFromContent.isEmpty()){
+            throw new APIException("Error: Inventories are empty");
+        }
+
+        List<InventorySupplyDTO> inventorySupplyDTOS = inventoriesFromContent.stream()
+                .map(inventorySupply ->  {
+                    return modelMapper.map(inventorySupply, InventorySupplyDTO.class);
+                }).toList();
+
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setContent(inventorySupplyDTOS);
+        inventoryResponse.setPageNumber(pageNumber);
+        inventoryResponse.setPageSize(pageSize);
+        inventoryResponse.setTotalPages(pageItems.getTotalPages());
+        inventoryResponse.setTotalElements(pageItems.getTotalElements());
+        inventoryResponse.setLastPage(pageItems.isLast());
+
+        return  inventoryResponse;
+    }
+
+    @Override
+    public Integer getTotalQuantityFromSupply(long supplyId) {
+        Supply supply = supplyRepository.findById(supplyId)
+                .orElseThrow(() -> new APIException("Error: Supply with id " + supplyId + " not found"));
+
+        String supplyReference = supply.getSupplyReference();
+
+        List<InventorySupply> inventorySupplyList = inventorySupplyRepository.findAllBySupplyReference(supplyReference);
+
+        if(inventorySupplyList.isEmpty())
+            return 0;
+        else {
+            return inventorySupplyList.stream()
+                    .mapToInt(inventorySupply ->
+                        inventorySupply.getStatus().equalsIgnoreCase("STOCK_IN") ? 1 : 0
+                    ).sum();
+        }
+    }
+
+    @Override
+    public Integer getTotalQuantityFromSupplyByPeriod(long supplyId, Instant firstDate, Instant lastDate) {
+        return 0;
     }
 
     private Page<InventorySupplyDTO> pageCreation(
