@@ -20,9 +20,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -114,7 +116,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
             inventorySupply.setSupplyReference(inventorySupplyDTO.getSupplyReference());
             inventorySupply.setValDate(inventorySupplyDTO.getValDate());
             inventorySupply.setStatus("STOCK_IN");
-            inventorySupply.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
+            inventorySupply.setMovementDate(OffsetDateTime.now(ZoneOffset.UTC));
             inventorySupplyRepository.save(inventorySupply);
 
             InventorySupplyDTO supplyDTO = modelMapper.map(inventorySupply, InventorySupplyDTO.class);
@@ -140,14 +142,14 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
     }
 
     @Override
-    public InventoryResponse moveSupplyOutInventory(int quantity, InventorySupplyDTO inventorySupplyDTO, Integer pageSize, Integer pageNumber) {
-        Supply supplyFromDB = supplyRepository.findBySupplyReference(inventorySupplyDTO.getSupplyReference());
+    public InventoryResponse moveSupplyOutInventory(int quantity, String supplyReference, Integer pageSize, Integer pageNumber) {
+        Supply supplyFromDB = supplyRepository.findBySupplyReference(supplyReference);
 
         if(supplyFromDB==null){
             throw new APIException("Error: Supply reference not found, supply not registered or refence number wrong");
         }
 
-        List<InventorySupplyDTO> inventorySupplyDTOListFromDB = inventorySupplyRepository.findAllBySupplyReference(inventorySupplyDTO.getSupplyReference())
+        List<InventorySupplyDTO> inventorySupplyDTOListFromDB = inventorySupplyRepository.findAllBySupplyReference(supplyReference)
                 .stream().map(inventory -> {
                     return modelMapper.map(inventory, InventorySupplyDTO.class);
                 }).toList();
@@ -159,17 +161,43 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
             throw new APIException("Error: Quantity must be positive");
 
         Comparator<InventorySupplyDTO> comparator = Comparator.comparing(
-                inventory -> (Comparable) getField(inventory, "valDate"));
+                inventory -> (Comparable) getField((InventorySupplyDTO) inventory, "valDate")).reversed();
 
         List<InventorySupplyDTO> listOrdered = inventorySupplyDTOListFromDB.stream().sorted(comparator).toList();
 
-        for(InventorySupplyDTO inventorySupplyDTOFromDB : inventorySupplyDTOListFromDB){
-            inventorySupplyDTOFromDB.setStatus("STOCK_OUT");
-            inventorySupplyDTOFromDB.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
-            inventorySupplyRepository.save(modelMapper.map(inventorySupplyDTOFromDB, InventorySupply.class));
+        /*
+        for(int j=0; j<quantity; j++){
+            InventorySupplyDTO inventorySupplyDTOFromDB = listOrdered.get(j);
+            InventorySupply inventorySupply = inventorySupplyRepository.findById(inventorySupplyDTOFromDB.getInventorySupplyId())
+                    .orElseThrow(() -> new APIException("Error: Supply Inventory with id " + inventorySupplyDTOFromDB.getInventorySupplyId() + " not found"));
+            if(inventorySupply.getStatus().equals("STOCK_IN")){
+                inventorySupply.setStatus("STOCK_OUT");
+                inventorySupply.setMovementDate(OffsetDateTime.now(ZoneOffset.UTC));
+                inventorySupplyRepository.save(inventorySupply);
+            }
+        }*/
+
+        List<InventorySupplyDTO> listOrderedFiltered = new ArrayList();
+
+        int i=0;
+        for(InventorySupplyDTO inventorySupplyDTOFromDB : listOrdered){
+
+            if(i<quantity){
+                InventorySupply inventorySupply = inventorySupplyRepository.findById(inventorySupplyDTOFromDB.getInventorySupplyId())
+                        .orElseThrow(() -> new APIException("Error: Supply Inventory with id " + inventorySupplyDTOFromDB.getInventorySupplyId() + " not found"));
+
+                System.out.println(inventorySupply);
+                if(inventorySupply.getStatus().equals("STOCK_IN")){
+                    inventorySupply.setStatus("STOCK_OUT");
+                    inventorySupply.setMovementDate(OffsetDateTime.now(ZoneOffset.UTC));
+                    inventorySupplyRepository.save(inventorySupply);
+                    listOrderedFiltered.add(inventorySupplyDTOFromDB);
+                    i+=1;
+                }
+            }
         }
 
-        Page<InventorySupplyDTO> pages = pageCreation(listOrdered, pageNumber, pageSize, AppConsts.SORT_INVENTORIES_BY, "asc");
+        Page<InventorySupplyDTO> pages = pageCreation(listOrderedFiltered, pageNumber, pageSize, AppConsts.SORT_INVENTORIES_BY, "asc");
 
         List<InventorySupplyDTO> itemsPage = pages.getContent();
 
@@ -189,8 +217,9 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
     }
 
     @Override
-    public InventoryResponse movementsSupplyOnPeriod(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
-        if(!lastDate.isBefore(firstDate)){
+    public InventoryResponse movementsSupplyOnPeriod(OffsetDateTime firstDate, OffsetDateTime lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+
+        if(!firstDate.equals(lastDate) && firstDate.isAfter(lastDate)){
             throw new APIException("Error: Last date must be before first date");
         }
 
@@ -199,7 +228,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(firstDate, lastDate, pageDetails);
+        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate, pageDetails);
 
         List<InventorySupply> inventoriesFromContent = pageItems.getContent();
 
@@ -243,8 +272,99 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
     }
 
     @Override
-    public Integer getTotalQuantityFromSupplyByPeriod(long supplyId, Instant firstDate, Instant lastDate) {
-        return 0;
+    public Integer getTotalQuantityFromSupplyByPeriod(long supplyId, OffsetDateTime firstDate, OffsetDateTime lastDate) {
+        Supply supply = supplyRepository.findById(supplyId)
+                .orElseThrow(() -> new APIException("Error: Supply with id " + supplyId + " not found"));
+
+        if(supply == null){
+            throw new APIException("Error: Supply with id " + supplyId + " not found");
+        }
+
+        if(firstDate.isAfter(lastDate)){
+            throw new APIException("Error: First date must be before last date");
+        }
+
+        List<InventorySupply> inventorySupplies = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate);
+
+        if(inventorySupplies.isEmpty())
+            return 0;
+        else {
+            return inventorySupplies.stream()
+                    .mapToInt(inventorySupply ->
+                            inventorySupply.getStatus().equalsIgnoreCase("STOCK_IN") ? 1 : 0
+                    ).sum();
+        }
+    }
+
+    @Override
+    public InventoryResponse getSuppliesExpirationWeek(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+
+        OffsetDateTime lastDate = OffsetDateTime.from(LocalDate.now());
+        OffsetDateTime firstDate = OffsetDateTime.from(LocalDate.now().plusWeeks(1));
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate, pageDetails);
+
+
+        List<InventorySupply> inventoriesFromContent = pageItems.getContent();
+
+        if(inventoriesFromContent.isEmpty()){
+            throw new APIException("Error: Inventories are empty");
+        }
+
+        List<InventorySupplyDTO> inventorySupplyDTOS = inventoriesFromContent.stream()
+                .map(inventorySupply ->  {
+                    return modelMapper.map(inventorySupply, InventorySupplyDTO.class);
+                }).toList();
+
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setContent(inventorySupplyDTOS);
+        inventoryResponse.setPageNumber(pageNumber);
+        inventoryResponse.setPageSize(pageSize);
+        inventoryResponse.setTotalPages(pageItems.getTotalPages());
+        inventoryResponse.setTotalElements(pageItems.getTotalElements());
+        inventoryResponse.setLastPage(pageItems.isLast());
+
+        return  inventoryResponse;
+    }
+
+    @Override
+    public InventoryResponse getSuppliesExpirationMonth(Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+
+        OffsetDateTime lastDate = OffsetDateTime.from(LocalDate.now());
+        OffsetDateTime firstDate = OffsetDateTime.from(LocalDate.now().plusMonths(1));
+
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate, pageDetails);
+
+        List<InventorySupply> inventoriesFromContent = pageItems.getContent();
+
+        if(inventoriesFromContent.isEmpty()){
+            throw new APIException("Error: Inventories are empty");
+        }
+
+        List<InventorySupplyDTO> inventorySupplyDTOS = inventoriesFromContent.stream()
+                .map(inventorySupply ->  {
+                    return modelMapper.map(inventorySupply, InventorySupplyDTO.class);
+                }).toList();
+
+        InventoryResponse inventoryResponse = new InventoryResponse();
+        inventoryResponse.setContent(inventorySupplyDTOS);
+        inventoryResponse.setPageNumber(pageNumber);
+        inventoryResponse.setPageSize(pageSize);
+        inventoryResponse.setTotalPages(pageItems.getTotalPages());
+        inventoryResponse.setTotalElements(pageItems.getTotalElements());
+        inventoryResponse.setLastPage(pageItems.isLast());
+
+        return  inventoryResponse;
     }
 
     private Page<InventorySupplyDTO> pageCreation(
@@ -267,7 +387,12 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), listOrdered.size());
-        List<InventorySupplyDTO> subList = listOrdered.subList(start, end);
+        List<InventorySupplyDTO> subList = new ArrayList<>();
+
+        if(start<end)
+            subList = listOrdered.subList(start, end);
+        else
+            subList = Collections.emptyList();
 
         return new PageImpl<>(subList, pageable, listOrdered.size());
     }

@@ -18,9 +18,5 @@ public class InventorySupplyDTO {
     private String codeBar;
     private String section;
 
-    @Pattern(regexp = "STOCK_IN|STOCK_OUT", message = "Error: Status pattern not allowed")
-    private String status;
-
     private LocalDate valDate;
-    private OffsetDateTime movmentDate;
 }
