@@ -28,7 +28,6 @@ public class Supply {
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;
-    private Integer unitQuantity=0;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "supply", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)

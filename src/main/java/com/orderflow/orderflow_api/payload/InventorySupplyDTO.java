@@ -22,5 +22,5 @@ public class InventorySupplyDTO {
     private String status;
 
     private LocalDate valDate;
-    private OffsetDateTime movmentDate;
+    private OffsetDateTime movementDate;
 }

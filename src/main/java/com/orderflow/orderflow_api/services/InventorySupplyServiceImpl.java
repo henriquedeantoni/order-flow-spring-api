@@ -114,7 +114,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
             inventorySupply.setSupplyReference(inventorySupplyDTO.getSupplyReference());
             inventorySupply.setValDate(inventorySupplyDTO.getValDate());
             inventorySupply.setStatus("STOCK_IN");
-            inventorySupply.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
+            inventorySupply.setMovementDate(OffsetDateTime.now(ZoneOffset.UTC));
             inventorySupplyRepository.save(inventorySupply);
 
             InventorySupplyDTO supplyDTO = modelMapper.map(inventorySupply, InventorySupplyDTO.class);
@@ -165,7 +165,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
 
         for(InventorySupplyDTO inventorySupplyDTOFromDB : inventorySupplyDTOListFromDB){
             inventorySupplyDTOFromDB.setStatus("STOCK_OUT");
-            inventorySupplyDTOFromDB.setMovmentDate(OffsetDateTime.now(ZoneOffset.UTC));
+            inventorySupplyDTOFromDB.setMovementDate(OffsetDateTime.now(ZoneOffset.UTC));
             inventorySupplyRepository.save(modelMapper.map(inventorySupplyDTOFromDB, InventorySupply.class));
         }
 

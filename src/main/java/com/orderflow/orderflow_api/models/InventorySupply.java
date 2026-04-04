@@ -39,5 +39,5 @@ public class InventorySupply {
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
 
-    private OffsetDateTime movmentDate;
+    private OffsetDateTime movementDate;
 }

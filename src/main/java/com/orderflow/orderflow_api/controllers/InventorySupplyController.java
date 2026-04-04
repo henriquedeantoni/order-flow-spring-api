@@ -19,13 +19,6 @@ public class InventorySupplyController {
     @Autowired
     private InventorySupplyService inventorySupplyService;
 
-    @PostMapping("/admin/inventory/supplies")
-    public ResponseEntity<InventorySupplyDTO> registerSupplyOnInventory(
-            @RequestBody InventorySupplyDTO inventorySupplyDTO ) {
-        InventorySupplyDTO inventoryItem = inventorySupplyService.registerSupplyOnInventory(inventorySupplyDTO);
-        return new ResponseEntity<>(inventoryItem, HttpStatus.CREATED);
-    }
-
     @GetMapping("/admin/inventory/supplies")
     public ResponseEntity<InventoryResponse> getSupplyOnInventory(
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
@@ -39,7 +32,7 @@ public class InventorySupplyController {
 
     @PostMapping("/amdin/inventory/supplies/movein")
     public ResponseEntity<InventoryResponse> moveSupplyInInventory(
-            @RequestParam int quantity,
+            @RequestParam Integer quantity,
             @RequestBody InventorySupplyDTO inventorySupplyDTO,
             @RequestParam(name = "pageSize", defaultValue = AppConsts.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "pageNumber", defaultValue = AppConsts.PAGE_NUM, required = false) Integer pageNumber
