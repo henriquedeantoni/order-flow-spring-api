@@ -199,7 +199,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(firstDate, lastDate, pageDetails);
+        Page<InventorySupply> pageItems = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate, pageDetails);
 
         List<InventorySupply> inventoriesFromContent = pageItems.getContent();
 
@@ -251,7 +251,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
             throw new APIException("Error: Supply with id " + supplyId + " not found");
         }
 
-        List<InventorySupply> inventorySupplies = inventorySupplyRepository.findByMovmentDateGreaterThanEqualAndMovmentDateLessThanEqual(firstDate, lastDate);
+        List<InventorySupply> inventorySupplies = inventorySupplyRepository.findByMovementDateGreaterThanEqualAndMovementDateLessThanEqual(firstDate, lastDate);
 
         if(inventorySupplies.isEmpty())
             return 0;
