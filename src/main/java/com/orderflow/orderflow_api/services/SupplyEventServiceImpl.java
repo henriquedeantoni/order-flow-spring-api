@@ -18,8 +18,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.geom.Rectangle2D;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -113,12 +115,12 @@ public class SupplyEventServiceImpl implements SupplyEventService {
 
     @Override
     public String createDashboardTimeSeriesMonthlySupply(
-            Instant firstDate,
-            Instant lastDate,
+            OffsetDateTime firstDate,
+            OffsetDateTime lastDate,
             String chartTitleName,
             String axisLabelName,
             String valuesLabelName) {
-        if(firstDate.isBefore(lastDate))
+        if(!firstDate.isBefore(lastDate))
         {
             throw new APIException("Error: First Date must starts before Last Date");
         }
@@ -140,15 +142,18 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         ChartPanel chartPanel = new ChartPanel(chart);
 
         SVGGraphics2D svg = new SVGGraphics2D(800, 600);
-        chart.draw(svg, svg.getClipBounds());
+
+        Rectangle2D area = new Rectangle2D.Double(0, 0, 800, 600);
+
+        chart.draw(svg, area);
 
         return svg.getSVGElement();
     }
 
     @Override
     public String createDashboardTimeSeriesYearlySupply(
-            Instant firstDate,
-            Instant lastDate,
+            OffsetDateTime firstDate,
+            OffsetDateTime lastDate,
             String chartTitleName,
             String axisLabelName,
             String valuesLabelName) {
