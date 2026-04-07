@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
@@ -14,5 +15,5 @@ public interface SupplyEventRepository extends JpaRepository<SupplyEvent, Long> 
 
     List<SupplyEvent> findAllBySupplyId(Long supplyId);
 
-    List<SupplyEvent> findByEventDateGreaterThanEqualAndEventDateLessThanEqual(Instant firstDate, Instant lastDate);
+    List<SupplyEvent> findByEventDateGreaterThanEqualAndEventDateLessThanEqual(OffsetDateTime firstDate, OffsetDateTime lastDate);
 }
