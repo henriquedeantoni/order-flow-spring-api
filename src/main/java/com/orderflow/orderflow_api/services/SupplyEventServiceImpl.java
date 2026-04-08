@@ -3,6 +3,7 @@ package com.orderflow.orderflow_api.services;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.graphicEngine.charts.ChartEngine;
+import com.orderflow.orderflow_api.graphicEngine.styles.ChartStyle;
 import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.models.SupplyEvent;
 import com.orderflow.orderflow_api.payload.ItemTimeDTO;
@@ -137,17 +138,21 @@ public class SupplyEventServiceImpl implements SupplyEventService {
                     return modelMapper.map(supply, SupplyEventResponseDTO.class);
                 }).toList();
 
+        /*
         JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(supplyEventResponseDTOS, SupplyEventResponseDTO::getEventDate, chartTitleName, axisLabelName, valuesLabelName, "month" );
 
         ChartPanel chartPanel = new ChartPanel(chart);
 
         SVGGraphics2D svg = new SVGGraphics2D(800, 600);
 
-        Rectangle2D area = new Rectangle2D.Double(0, 0, 800, 600);
+        Rectangle2D area = new Rectangle2D.Double(0, 0, 800, 600);*/
 
-        chart.draw(svg, area);
+        String svgElement = ChartEngine.createTimeSeriesChartSvgString(
+                supplyEventResponseDTOS,
+                SupplyEventResponseDTO::getEventDate,
+                chartTitleName, axisLabelName, valuesLabelName, "month");
 
-        return svg.getSVGElement();
+        return svgElement;
     }
 
     @Override
@@ -174,14 +179,23 @@ public class SupplyEventServiceImpl implements SupplyEventService {
                     return modelMapper.map(supply, SupplyEventResponseDTO.class);
                 }).toList();
 
+        /*
         JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(supplyEventResponseDTOS, SupplyEventResponseDTO::getEventDate, chartTitleName, axisLabelName, valuesLabelName, "year" );
+
+        ChartStyle.applyTimeSeriesStyleToChart(chart);
 
         ChartPanel chartPanel = new ChartPanel(chart);
 
         SVGGraphics2D svg = new SVGGraphics2D(800, 600);
         chart.draw(svg, svg.getClipBounds());
+        */
 
-        return svg.getSVGElement();
+        String svgElement = ChartEngine.createTimeSeriesChartSvgString(
+                supplyEventResponseDTOS,
+                SupplyEventResponseDTO::getEventDate,
+                chartTitleName, axisLabelName, valuesLabelName, "year");
+
+        return svgElement;
     }
 
 }
