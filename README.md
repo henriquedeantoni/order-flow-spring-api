@@ -71,6 +71,10 @@ Alem disso informa data hora local da movimentação, entrada e se o item já fo
 A tabela Event Supply registra todos os eventos de cada Supply ou suprimento, quantos foi movimentados e a hora local.
 Tambem é possivel obter a quantidade de item sobre determinado tempo ou o histograma.
 
+### Criação de Relatórios no Dashboard do Inventário
+
+![img.png](img.png)
+
 ## Imagens
 
 As entidades dos locais de imagem, album são mapeadas por AlbumImage, SimpleImage e ItemImage

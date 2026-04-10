@@ -21,7 +21,7 @@ public class SupplyEvent {
 
     private Long supplyId;
 
-    @Pattern(regexp = "IN|OUT", message = "Error: The event type must be only IN or OUT")
+    @Pattern(regexp = "STOCK_IN|STOCK_OUT", message = "Error: The event type must be only IN or OUT")
     private String eventType;
 
     private Integer quantityMoved;

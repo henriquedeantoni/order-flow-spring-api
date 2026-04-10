@@ -24,8 +24,10 @@ import java.awt.geom.Rectangle2D;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
@@ -178,6 +180,61 @@ public class ChartEngine {
         );
 
         return chart;
+    }
+
+    public static String createTimeSeriesProgressionChartSvg(
+            Map<OffsetDateTime, Integer> timeSeriesProgression,
+            String chartName,
+            String axisTitleName,
+            String valuesTitleName,
+            String timePeriod
+
+    ){
+        TimeSeriesCollection dataset = DatasetFactory.createTimeSeriesProgressionCollection(timeSeriesProgression, chartName, timePeriod);
+
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+                chartName,
+                axisTitleName,
+                valuesTitleName,
+                dataset,
+                false,
+                true,
+                false
+        );
+
+        XYPlot plot = chart.getXYPlot();
+
+        DateAxis axis = (DateAxis) plot.getDomainAxis();
+
+        axis.setDateFormatOverride(
+                new SimpleDateFormat("d-MMMM-yyyy", new Locale("pt", "BR"))
+        );
+
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        rangeAxis.setAutoRange(true);
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, true);
+        plot.setRenderer(renderer);
+
+        if (plot.getDataset().getItemCount(0) == 1) {
+            RegularTimePeriod period = ((org.jfree.data.time.TimeSeriesCollection) plot.getDataset())
+                    .getSeries(0)
+                    .getTimePeriod(0);
+
+            RegularTimePeriod next = period.next();
+
+            axis.setRange(period.getStart(), next.getStart());
+        }
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+
+        SVGGraphics2D svg = new SVGGraphics2D(800, 600);
+
+        Rectangle2D area = new Rectangle2D.Double(0, 0, 800, 600);
+        chart.draw(svg, area);
+
+        return svg.getSVGElement();
     }
 
     public static <T, R> String createTimeSeriesChartSvgString(

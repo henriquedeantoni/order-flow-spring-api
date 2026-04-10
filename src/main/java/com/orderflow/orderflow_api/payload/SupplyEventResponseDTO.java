@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class SupplyEventResponseDTO {
     private Long supplyEventId;
-    private Long itemId;
+    private Long supplyId;
     private String eventType;
     private Integer quantityMoved;
     private OffsetDateTime eventDate;
