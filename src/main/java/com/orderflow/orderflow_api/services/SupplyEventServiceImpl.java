@@ -39,7 +39,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
 
         SupplyEventRequestDTO supplyEventRequestDTO = new SupplyEventRequestDTO();
         supplyEventRequestDTO.setSupplyId(supplyFromDb.getSupplyId());
-        supplyEventRequestDTO.setEventType("IN");
+        supplyEventRequestDTO.setEventType("STOCK_IN");
         supplyEventRequestDTO.setQuantityMoved(0);
 
         SupplyEvent supplyEvent = modelMapper.map(supplyEventRequestDTO, SupplyEvent.class);
@@ -55,7 +55,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
 
         SupplyEventRequestDTO supplyEventRequestDTO = new SupplyEventRequestDTO();
         supplyEventRequestDTO.setSupplyId(supplyFromDb.getSupplyId());
-        supplyEventRequestDTO.setEventType("IN");
+        supplyEventRequestDTO.setEventType("STOCK_IN");
         supplyEventRequestDTO.setQuantityMoved(quantityMoved);
 
         SupplyEvent supplyEvent = modelMapper.map(supplyEventRequestDTO, SupplyEvent.class);
@@ -71,7 +71,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
 
         SupplyEventRequestDTO supplyEventRequestDTO = new SupplyEventRequestDTO();
         supplyEventRequestDTO.setSupplyId(supplyFromDb.getSupplyId());
-        supplyEventRequestDTO.setEventType("OUT");
+        supplyEventRequestDTO.setEventType("STOCK_OUT");
         supplyEventRequestDTO.setQuantityMoved(quantityMoved);
 
         SupplyEvent supplyEvent = modelMapper.map(supplyEventRequestDTO, SupplyEvent.class);
@@ -99,9 +99,9 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         Integer quantityAtDate = 0;
 
         for (SupplyEvent supplyEvents : supplyEventsList){
-            if(supplyEvents.getEventType().equals("IN"))
+            if(supplyEvents.getEventType().equals("STOCK_IN"))
                 quantityAtDate += supplyEvents.getQuantityMoved();
-            else if (supplyEvents.getEventType().equals("OUT"))
+            else if (supplyEvents.getEventType().equals("STOCK_OUT"))
                 quantityAtDate -= supplyEvents.getQuantityMoved();
             else
                 throw new APIException("Error: Invalid event type, contact the administrator");
@@ -135,6 +135,8 @@ public class SupplyEventServiceImpl implements SupplyEventService {
                 .map(supply -> modelMapper.map(supply, SupplyEventResponseDTO.class))
                 .toList();
 
+        Map<OffsetDateTime, Integer> timeSeriesProgression = getTimeSeriesMap(supplyEventResponseDTOS);
+
         /*
         JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(supplyEventResponseDTOS, SupplyEventResponseDTO::getEventDate, chartTitleName, axisLabelName, valuesLabelName, "month" );
 
@@ -144,10 +146,12 @@ public class SupplyEventServiceImpl implements SupplyEventService {
 
         Rectangle2D area = new Rectangle2D.Double(0, 0, 800, 600);*/
 
-        String svgElement = ChartEngine.createTimeSeriesChartSvgString(
-                supplyEventResponseDTOS,
-                SupplyEventResponseDTO::getEventDate,
-                chartTitleName, axisLabelName, valuesLabelName, "month");
+        String svgElement = ChartEngine.createTimeSeriesProgressionChartSvg(
+                timeSeriesProgression,
+                chartTitleName,
+                axisLabelName,
+                valuesLabelName,
+                "month");
 
         return svgElement;
     }
@@ -177,6 +181,8 @@ public class SupplyEventServiceImpl implements SupplyEventService {
                     return modelMapper.map(supply, SupplyEventResponseDTO.class);
                 }).toList();
 
+        Map<OffsetDateTime, Integer> timeSeriesProgression = getTimeSeriesMap(supplyEventResponseDTOS);
+
         /*
         JFreeChart chart = ChartEngine.createTimeSeriesChartSvg(supplyEventResponseDTOS, SupplyEventResponseDTO::getEventDate, chartTitleName, axisLabelName, valuesLabelName, "year" );
 
@@ -191,7 +197,11 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         String svgElement = ChartEngine.createTimeSeriesChartSvgString(
                 supplyEventResponseDTOS,
                 SupplyEventResponseDTO::getEventDate,
-                chartTitleName, axisLabelName, valuesLabelName, "year");
+                chartTitleName,
+                axisLabelName,
+                valuesLabelName,
+                "year"
+        );
 
         return svgElement;
     }

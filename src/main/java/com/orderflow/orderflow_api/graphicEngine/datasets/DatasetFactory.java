@@ -89,10 +89,8 @@ public class DatasetFactory {
             Integer month = offsetDateTime.getMonthValue();
             Integer year = offsetDateTime.getYear();
             Day newDay = new Day(day, month, year);
-            if(mapDays.containsKey(newDay)) {
-                mapDays.put(newDay, mapDays.get(newDay) + 1);
-            } else {
-                mapDays.put(newDay, 1);
+            if(!mapDays.containsKey(newDay)) {
+                mapDays.put(newDay, entry.getValue());
             }
         }
 
