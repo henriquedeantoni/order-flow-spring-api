@@ -78,6 +78,34 @@ public class DatasetFactory {
         return dataset;
     }
 
+    public static TimeSeriesCollection createTimeSeriesProgressionCollection(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName, String period) {
+        Map<Day, Integer> mapDays = new HashMap<>();
+
+        TimeSeries series = new TimeSeries(chartName);
+
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapTimesSeries.entrySet()) {
+            OffsetDateTime offsetDateTime = entry.getKey();
+            Integer day = offsetDateTime.getDayOfMonth();
+            Integer month = offsetDateTime.getMonthValue();
+            Integer year = offsetDateTime.getYear();
+            Day newDay = new Day(day, month, year);
+            if(mapDays.containsKey(newDay)) {
+                mapDays.put(newDay, mapDays.get(newDay) + 1);
+            } else {
+                mapDays.put(newDay, 1);
+            }
+        }
+
+        for (Map.Entry<Day, Integer> entry : mapDays.entrySet()) {
+            series.addOrUpdate(entry.getKey(), entry.getValue());
+        }
+
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        dataset.addSeries(series);
+
+        return dataset;
+    }
+
     public static <T, R> Map<String, Integer> processDTOsToMap(List<T> list, Function<T, R> extractor) {
 
         Map<String, Integer> mapCategoriesDataset = new HashMap<>();
@@ -105,6 +133,40 @@ public class DatasetFactory {
     public static <T, R> Map<OffsetDateTime, Integer> processTimeDTOsToMap(
             List<T> list,
             Function<T, R> extractor,
+            String period) {
+
+        Map<OffsetDateTime, Integer> mapDateTimeDataset = new HashMap<>();
+
+        for (T time : list) {
+            R value = extractor.apply(time);
+            try{
+                if(!mapDateTimeDataset.containsKey(time) && value instanceof OffsetDateTime) {
+                    mapDateTimeDataset.put((OffsetDateTime)value, 1);
+                } else if(mapDateTimeDataset.containsKey(time) && value instanceof OffsetDateTime) {
+                    Integer newValue = mapDateTimeDataset.get(value) + 1;
+                    mapDateTimeDataset.put((OffsetDateTime)value, newValue);
+                } else {
+                    throw new APIException("error on build dataset: " + value.toString());
+                }
+            }  catch (RuntimeException ex) {
+                throw new APIException("Error on build dataset: " + ex.getMessage());
+            }
+        }
+
+        if (period.equals("month")) {
+            return compressTimesSeriesMonthPeriod(mapDateTimeDataset);
+        } else if (period.equals("year")) {
+            return compressTimesSeriesYearPeriod(mapDateTimeDataset);
+        } else {
+            throw new APIException("error on build dataset: " + period);
+        }
+    }
+
+    public static <T, R> Map<OffsetDateTime, Integer> processTimeEventDTOsToMap(
+            List<T> list,
+            Function<T, R> extractor,
+            Function<T, R> extractorQuantity,
+            Function<T, R> extractorEventType,
             String period) {
 
         Map<OffsetDateTime, Integer> mapDateTimeDataset = new HashMap<>();

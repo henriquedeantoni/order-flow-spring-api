@@ -29,13 +29,14 @@ public class SupplyEventController {
 
     @GetMapping(value = "/admin/supplyevent/dashboard/timeseries/supply/{supplyId}")
     public ResponseEntity<String> getDashboardTimeSeriesMonthlyItem(
+            @PathVariable("supplyId") Long supplyId,
             @RequestParam(name = "startDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime firstDate,
             @RequestParam(name = "endDate", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime lastDate,
             @RequestParam(name = "chartTitleName", required = true) String chartTitleName,
             @RequestParam(name = "axisLabelName", required = true) String axisLabelName,
             @RequestParam(name = "valuesLabelName", required = true) String valuesLabelName
     ){
-        String response = supplyEventService.createDashboardTimeSeriesMonthlySupply(firstDate, lastDate, chartTitleName, axisLabelName, valuesLabelName);
+        String response = supplyEventService.createDashboardTimeSeriesMonthlySupply(firstDate, lastDate, chartTitleName, axisLabelName, valuesLabelName, supplyId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf("image/svg+xml"));
