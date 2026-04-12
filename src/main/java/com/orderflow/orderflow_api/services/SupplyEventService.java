@@ -16,5 +16,7 @@ public interface SupplyEventService {
 
     String createDashboardTimeSeriesMonthlySupply(OffsetDateTime firstDate, OffsetDateTime lastDate, String chartTitleName, String axisLabelName, String valuesLabelName, Long supplyId);
 
+    String createDashboardTimeSeriesDailySupply(OffsetDateTime firstDate, OffsetDateTime lastDate, String chartTitleName, String axisLabelName, String valuesLabelName, Long supplyId);
+
     String createDashboardTimeSeriesYearlySupply(OffsetDateTime firstDate, OffsetDateTime lastDate, String chartTitleName, String axisLabelName, String valuesLabelName, Long supplyId);
 }

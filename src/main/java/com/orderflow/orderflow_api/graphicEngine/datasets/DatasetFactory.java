@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.exceptions.APIException;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.time.Day;
+import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.springframework.stereotype.Component;
@@ -79,6 +80,47 @@ public class DatasetFactory {
     }
 
     public static TimeSeriesCollection createTimeSeriesProgressionCollection(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName, String period) {
+
+        switch (period){
+                case "day":
+                    return transformCollectionDay(mapTimesSeries, chartName);
+                case "month":
+                    return transformCollectionMonth(mapTimesSeries, chartName);
+
+                    default:
+                        return transformCollectionMonth(mapTimesSeries, chartName);
+        }
+    }
+
+    public static TimeSeriesCollection transformCollectionDay(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName){
+        Map<Hour, Integer> mapDays = new HashMap<>();
+
+        TimeSeries series = new TimeSeries(chartName);
+
+
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapTimesSeries.entrySet()) {
+            OffsetDateTime offsetDateTime = entry.getKey();
+            Integer hour = offsetDateTime.getHour();
+            Integer minute = offsetDateTime.getMinute();
+            Integer second = offsetDateTime.getSecond();
+            Date date = Date.from(offsetDateTime.toInstant());
+            Hour hourTime = new Hour(date);
+            if(!mapDays.containsKey(hourTime)) {
+                mapDays.put(hourTime, entry.getValue());
+            }
+        }
+
+        for (Map.Entry<Hour, Integer> entry : mapDays.entrySet()) {
+            series.addOrUpdate(entry.getKey(), entry.getValue());
+        }
+
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        dataset.addSeries(series);
+
+        return dataset;
+    }
+
+    public static TimeSeriesCollection transformCollectionMonth(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName){
         Map<Day, Integer> mapDays = new HashMap<>();
 
         TimeSeries series = new TimeSeries(chartName);
@@ -95,6 +137,34 @@ public class DatasetFactory {
         }
 
         for (Map.Entry<Day, Integer> entry : mapDays.entrySet()) {
+            series.addOrUpdate(entry.getKey(), entry.getValue());
+        }
+
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        dataset.addSeries(series);
+
+        return dataset;
+    }
+
+    public static TimeSeriesCollection createTimeSeriesProgressionCollectionDaily(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName, String period) {
+        Map<Hour, Integer> mapDays = new HashMap<>();
+
+        TimeSeries series = new TimeSeries(chartName);
+
+
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapTimesSeries.entrySet()) {
+            OffsetDateTime offsetDateTime = entry.getKey();
+            Integer hour = offsetDateTime.getHour();
+            Integer minute = offsetDateTime.getMinute();
+            Integer second = offsetDateTime.getSecond();
+            Date date = Date.from(offsetDateTime.toInstant());
+            Hour hourTime = new Hour(date);
+            if(!mapDays.containsKey(hourTime)) {
+                mapDays.put(hourTime, entry.getValue());
+            }
+        }
+
+        for (Map.Entry<Hour, Integer> entry : mapDays.entrySet()) {
             series.addOrUpdate(entry.getKey(), entry.getValue());
         }
 
@@ -200,6 +270,23 @@ public class DatasetFactory {
         Map<OffsetDateTime, Integer> mapDates = new HashMap<>();
         for (Map.Entry<OffsetDateTime, Integer> entry : mapDateTimeDataset.entrySet()) {
             OffsetDateTime newDate = entry.getKey().truncatedTo(ChronoUnit.DAYS);
+
+            if(mapDates.containsKey(newDate)) {
+                mapDates.compute(newDate, (k,v)-> v+1);
+            } else {
+                mapDates.put(newDate, 1);
+            }
+        }
+
+        return mapDates;
+    }
+
+    private static Map<OffsetDateTime, Integer> compressTimesSeriesHourPeriod(Map<OffsetDateTime, Integer> mapDateTimeDataset)
+    {
+        // compress to weeks
+        Map<OffsetDateTime, Integer> mapDates = new HashMap<>();
+        for (Map.Entry<OffsetDateTime, Integer> entry : mapDateTimeDataset.entrySet()) {
+            OffsetDateTime newDate = entry.getKey().truncatedTo(ChronoUnit.HOURS);
 
             if(mapDates.containsKey(newDate)) {
                 mapDates.compute(newDate, (k,v)-> v+1);

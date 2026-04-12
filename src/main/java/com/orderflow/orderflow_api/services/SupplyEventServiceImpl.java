@@ -157,6 +157,43 @@ public class SupplyEventServiceImpl implements SupplyEventService {
     }
 
     @Override
+    public String createDashboardTimeSeriesDailySupply(
+            OffsetDateTime firstDate,
+            OffsetDateTime lastDate,
+            String chartTitleName,
+            String axisLabelName,
+            String valuesLabelName,
+            Long supplyId) {
+        if(!firstDate.isBefore(lastDate))
+        {
+            throw new APIException("Error: First Date must starts before Last Date");
+        }
+
+        long days = ChronoUnit.DAYS.between(firstDate, lastDate);
+        if(days > 1) {
+            throw  new APIException("The time duration must be less or equal 1 day");
+        }
+
+        List<SupplyEvent> supplyEventsList = supplyEventRepository.findByEventDateGreaterThanEqualAndEventDateLessThanEqual(firstDate, lastDate);
+
+        List<SupplyEventResponseDTO> supplyEventResponseDTOS = supplyEventsList.stream()
+                .filter(supply -> supply.getSupplyId().equals(supplyId))
+                .map(supply -> modelMapper.map(supply, SupplyEventResponseDTO.class))
+                .toList();
+
+        Map<OffsetDateTime, Integer> timeSeriesProgression = getTimeSeriesMap(supplyEventResponseDTOS);
+
+        String svgElement = ChartEngine.createTimeSeriesProgressionChartSvg(
+                timeSeriesProgression,
+                chartTitleName,
+                axisLabelName,
+                valuesLabelName,
+                "day");
+
+        return svgElement;
+    }
+
+    @Override
     public String createDashboardTimeSeriesYearlySupply(
             OffsetDateTime firstDate,
             OffsetDateTime lastDate,
