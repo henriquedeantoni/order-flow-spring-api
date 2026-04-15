@@ -16,8 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SupplyServiceImpl implements SupplyService {
@@ -89,6 +91,40 @@ public class SupplyServiceImpl implements SupplyService {
                 .map(supply -> {
                     return modelMapper.map(supply, SupplyDTO.class);
                 }).toList();
+
+        SupplyResponse supplyResponse = new SupplyResponse();
+        supplyResponse.setContent(suppliesDTOS);
+        supplyResponse.setPageNumber(pageSupplies.getNumber());
+        supplyResponse.setPageSize(pageSupplies.getSize());
+        supplyResponse.setTotalElements(pageSupplies.getTotalElements());
+        supplyResponse.setTotalPages(pageSupplies.getTotalPages());
+        return supplyResponse;
+    }
+
+    @Override
+    public SupplyResponse getAllSupplyRegisteredByPeriod(String keyword, OffsetDateTime firstDate, OffsetDateTime lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Specification<Supply> specification = Specification.allOf(List.of());
+        if(keyword != null && !keyword.isEmpty()) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("supplyName")),
+                            "%" + keyword.toLowerCase() + "%"));
+        }
+
+        Page<Supply> pageSupplies = supplyRepository.findAll(specification, pageDetails);
+
+        List<Supply> supplies = pageSupplies.getContent();
+        List<SupplyDTO> suppliesDTOS = supplies
+                .stream()
+                .filter(supply -> supply.getAddDate().isBefore(lastDate) && supply.getAddDate().isAfter(firstDate))
+                .map(supply->{
+                    return modelMapper.map(supply, SupplyDTO.class);
+                })
+                .collect(Collectors.toList());
 
         SupplyResponse supplyResponse = new SupplyResponse();
         supplyResponse.setContent(suppliesDTOS);

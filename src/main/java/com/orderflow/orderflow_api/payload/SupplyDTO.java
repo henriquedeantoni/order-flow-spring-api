@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +18,5 @@ public class SupplyDTO {
     private String supplyDescription;
     private String supplyCode;
     private String supplyUnit;
+    private OffsetDateTime addDate;
 }
