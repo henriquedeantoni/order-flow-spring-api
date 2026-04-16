@@ -272,11 +272,9 @@ public class LocalServiceImpl implements LocalService{
 
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
         /*
-
         renderer.setSeriesPaint(0, new Color(75,125,175));
         renderer.setSeriesPaint(1, new Color(225,25,64));
-
-         */
+        */
 
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.GRAY);

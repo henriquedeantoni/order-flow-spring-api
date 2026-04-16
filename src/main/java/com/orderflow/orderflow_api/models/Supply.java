@@ -35,5 +35,4 @@ public class Supply {
 
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
-
 }
