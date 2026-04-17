@@ -206,9 +206,26 @@ public class ChartEngine {
 
         DateAxis axis = (DateAxis) plot.getDomainAxis();
 
-        axis.setDateFormatOverride(
-                new SimpleDateFormat("d-MMMM-yyyy", new Locale("pt", "BR"))
-        );
+        switch (timePeriod) {
+            case "month":
+                    axis.setDateFormatOverride(
+                            new SimpleDateFormat("d-MMMM-yyyy", new Locale("pt", "BR"))
+                    );
+                    break;
+            case "day":
+                axis.setDateFormatOverride(
+                        new SimpleDateFormat("d-MMMM-yyyy HH:mm", new Locale("pt", "BR"))
+                );
+                break;
+
+                default:
+
+                    axis.setDateFormatOverride(
+                            new SimpleDateFormat("d-MMMM-yyyy", new Locale("pt", "BR"))
+                    );
+                    break;
+
+        }
 
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());

@@ -3,10 +3,7 @@ package com.orderflow.orderflow_api.graphicEngine.datasets;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.time.Day;
-import org.jfree.data.time.Hour;
-import org.jfree.data.time.TimeSeries;
-import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.*;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -93,13 +90,14 @@ public class DatasetFactory {
     }
 
     public static TimeSeriesCollection transformCollectionDay(Map<OffsetDateTime, Integer> mapTimesSeries, String chartName){
-        Map<Hour, Integer> mapDays = new HashMap<>();
+        Map<Second, Integer> mapDays = new HashMap<>();
 
         TimeSeries series = new TimeSeries(chartName);
 
+        Map<OffsetDateTime, Integer> sortedMapTimesSeries = new TreeMap<>(mapTimesSeries);
 
-        for (Map.Entry<OffsetDateTime, Integer> entry : mapTimesSeries.entrySet()) {
-            OffsetDateTime offsetDateTime = entry.getKey();
+        for (Map.Entry<OffsetDateTime, Integer> entry : sortedMapTimesSeries.entrySet()) {
+            /*OffsetDateTime offsetDateTime = entry.getKey();
             Integer hour = offsetDateTime.getHour();
             Integer minute = offsetDateTime.getMinute();
             Integer second = offsetDateTime.getSecond();
@@ -107,10 +105,28 @@ public class DatasetFactory {
             Hour hourTime = new Hour(date);
             if(!mapDays.containsKey(hourTime)) {
                 mapDays.put(hourTime, entry.getValue());
+            }*/
+            OffsetDateTime offsetDateTime = entry.getKey();
+
+            int year = offsetDateTime.getYear();
+            int month = offsetDateTime.getMonthValue();
+            int day = offsetDateTime.getDayOfMonth();
+            int hour = offsetDateTime.getHour();
+            int minute = offsetDateTime.getMinute();
+            int second = offsetDateTime.getSecond();
+
+            Day jfreeDay = new Day(day, month, year);
+            Hour jfreeHour = new Hour(hour, jfreeDay);
+            Minute jfreeMinute = new Minute(minute, jfreeHour);
+            Second jfreeSecond = new Second(second, jfreeMinute);
+
+            // Agora você tem precisão até o segundo
+            if (!mapDays.containsKey(jfreeSecond)) {
+                mapDays.put(jfreeSecond, entry.getValue());
             }
         }
 
-        for (Map.Entry<Hour, Integer> entry : mapDays.entrySet()) {
+        for (Map.Entry<Second, Integer> entry : mapDays.entrySet()) {
             series.addOrUpdate(entry.getKey(), entry.getValue());
         }
 
@@ -150,7 +166,6 @@ public class DatasetFactory {
         Map<Hour, Integer> mapDays = new HashMap<>();
 
         TimeSeries series = new TimeSeries(chartName);
-
 
         for (Map.Entry<OffsetDateTime, Integer> entry : mapTimesSeries.entrySet()) {
             OffsetDateTime offsetDateTime = entry.getKey();
