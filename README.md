@@ -73,7 +73,17 @@ Tambem é possivel obter a quantidade de item sobre determinado tempo ou o histo
 
 ### Criação de Relatórios no Dashboard do Inventário
 
+<br>
+
+Quantidade movimentada semanal
+
 ![img.png](img.png)
+
+<br>
+
+Quantidade movimentada ao longo do dia
+
+![img_1.png](img_1.png)
 
 ## Imagens
 
