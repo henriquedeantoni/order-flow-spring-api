@@ -1,4 +1,8 @@
 package com.orderflow.orderflow_api.services;
 
-public class RecipeSupplyServiceImpl {
+import org.springframework.stereotype.Service;
+
+@Service
+public class RecipeSupplyServiceImpl implements RecipeSupplyService {
+
 }
