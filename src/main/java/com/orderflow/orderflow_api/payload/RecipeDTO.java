@@ -13,7 +13,5 @@ public class RecipeDTO {
     private Long recipeId;
     private String recipeName;
     private String preparationDescription;
-    public OffsetDateTime includedDate = OffsetDateTime.now();
-    public OffsetDateTime updatedDate;
     public int timeMinutesToPrepare;
 }
