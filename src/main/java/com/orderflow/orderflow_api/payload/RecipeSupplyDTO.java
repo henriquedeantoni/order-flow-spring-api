@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RecipeSupplyDTO {
     private Long recipeSupplyId;
+    private Long supplyId;
     private Integer quantity;
     private String unit;
 }
