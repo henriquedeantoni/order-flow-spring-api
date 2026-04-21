@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecipeSupplyDTO {
-    private Long recipeSupplyId;
+    private Long supplyId;
     private Integer quantity;
     private String unit;
 }
