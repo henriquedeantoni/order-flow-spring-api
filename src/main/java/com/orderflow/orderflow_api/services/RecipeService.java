@@ -11,4 +11,6 @@ public interface RecipeService {
     RecipeDTO registerRecipe(RecipeDTO recipeDTO, Long itemId, List<RecipeSupplyDTO> recipeList);
 
     RecipeDTO updateRecipe(RecipeDTO recipeDTO, Long recipeId);
+
+    RecipeDTO updateRecipeList(List<RecipeSupplyDTO> recipeList, Long recipeId);
 }

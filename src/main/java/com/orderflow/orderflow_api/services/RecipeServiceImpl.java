@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.Recipe;
 import com.orderflow.orderflow_api.models.RecipeSupply;
+import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.payload.RecipeDTO;
 import com.orderflow.orderflow_api.payload.RecipeSupplyDTO;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
@@ -46,10 +47,7 @@ public class RecipeServiceImpl implements RecipeService {
         Item itemFromDb = itemRepository.findById(itemId)
                 .orElseThrow(()-> new ResourceNotFoundException("Item", "itemId", itemId));
 
-        for(RecipeSupplyDTO recipeSupplyDTO : recipeList){
-            var recipeSupplyFromDb = recipeSupplyRepository.findById(recipeSupplyDTO.getRecipeSupplyId())
-                    .orElseThrow(()-> new ResourceNotFoundException("RecipeSupply", "recipeSupplyId", recipeSupplyDTO.getRecipeSupplyId()));
-        }
+        validateRecipeSupplyList(recipeList);
 
         Recipe recipe = new Recipe();
         recipe.setRecipeName(recipeDTO.getRecipeName());
@@ -67,7 +65,8 @@ public class RecipeServiceImpl implements RecipeService {
 
         recipe.setRecipeSupplies(recipeSupply);
 
-        recipeRepository.save(recipe);
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        saveOnDbRecipeSupplyList(recipeList, savedRecipe.getRecipeId());
 
         return modelMapper.map(recipe, RecipeDTO.class);
     }
@@ -91,12 +90,56 @@ public class RecipeServiceImpl implements RecipeService {
         Recipe recipeFromDb = recipeRepository.findById(recipeId)
                 .orElseThrow(()-> new ResourceNotFoundException("Recipe", "recipeId", recipeId));
 
-        recipeFromDb.setRecipeName(recipeDTO.getRecipeName());
-        recipeFromDb.setPreparationDescription(recipeDTO.getPreparationDescription());
-        recipeFromDb.setTimeMinutesToPrepare(recipeDTO.getTimeMinutesToPrepare());
+        validateRecipeSupplyList(recipeList);
+
+        List<RecipeSupply> recipeSupply = new ArrayList<>();
+        recipeSupply = recipeList.stream()
+                .map(rec ->{
+                    return modelMapper.map(rec, RecipeSupply.class);
+                }).toList();
+
+        recicleRecipeSupplyList(recipeList, recipeId);
+        recipeFromDb.setRecipeSupplies(recipeSupply);
         recipeFromDb.setUpdatedDate(OffsetDateTime.now());
         recipeRepository.save(recipeFromDb);
 
         return modelMapper.map(recipeFromDb, RecipeDTO.class);
+    }
+
+    private void validateRecipeSupplyList(List<RecipeSupplyDTO> recipeList) {
+        for(RecipeSupplyDTO recipeSupplyDTO : recipeList){
+            Long supplyId = recipeSupplyDTO.getSupplyId();
+
+            Supply supplyFromDb = recipeSupplyRepository.findById(supplyId)
+                    .orElseThrow(()-> new ResourceNotFoundException("Supply", "supplyId", supplyId)).getSupply();
+        }
+    }
+
+    private void saveOnDbRecipeSupplyList(List<RecipeSupplyDTO> recipeList, Long recipeId) {
+        Recipe recipeFromDb = recipeRepository.findById(recipeId)
+                .orElseThrow(()-> new ResourceNotFoundException("Recipe", "recipeId", recipeId));
+
+        for (RecipeSupplyDTO recipeSupplyDTO : recipeList){
+            RecipeSupply recipeSupply = modelMapper.map(recipeSupplyDTO, RecipeSupply.class);
+            recipeSupply.setRecipe(recipeFromDb);
+            recipeSupplyRepository.save(recipeSupply);
+        }
+    }
+
+    private void recicleRecipeSupplyList(List<RecipeSupplyDTO> recipeList, Long recipeId) {
+        Recipe recipeFromDb = recipeRepository.findById(recipeId)
+                .orElseThrow(()-> new ResourceNotFoundException("Recipe", "recipeId", recipeId));
+
+        List<RecipeSupply> existentRecipeSupplyList = recipeFromDb.getRecipeSupplies();
+
+        for (RecipeSupply RecipeSupply : existentRecipeSupplyList){
+            recipeSupplyRepository.delete(RecipeSupply);
+        }
+
+        for (RecipeSupplyDTO recipeSupplyDTO : recipeList){
+            RecipeSupply recipeSupply = modelMapper.map(recipeSupplyDTO, RecipeSupply.class);
+            recipeSupply.setRecipe(recipeFromDb);
+            recipeSupplyRepository.save(recipeSupply);
+        }
     }
 }

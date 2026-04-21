@@ -45,4 +45,13 @@ public class RecipeController {
         RecipeDTO createdRecipe = recipeService.updateRecipe(recipeDTO, recipeId);
         return new ResponseEntity<>(createdRecipe, HttpStatus.CREATED);
     }
+
+    @PutMapping("/admin/recipes/{recipeId}/list")
+    public ResponseEntity<RecipeDTO> updateRecipeList(
+            @RequestBody List<RecipeSupplyDTO> recipeList,
+            @PathVariable Long recipeId
+    ) {
+        RecipeDTO createdRecipe = recipeService.updateRecipeList(recipeList, recipeId);
+        return new ResponseEntity<>(createdRecipe, HttpStatus.CREATED);
+    }
 }
