@@ -23,7 +23,15 @@ public class Payment {
     private PaymentMethod paymentMethod;
 
     private String pagPaymentId;
-    private String pagStatus;
+    private PaymentStatus pagStatus;
     private String pagResponseMessage;
     private String pagName;
+
+    public Payment(PaymentMethod paymentMethod, String pagPaymentId, PaymentStatus pagStatus, String pagResponseMessage, String pagName) {
+        this.paymentMethod = paymentMethod;
+        this.pagPaymentId = pagPaymentId;
+        this.pagStatus = pagStatus;
+        this.pagResponseMessage = pagResponseMessage;
+        this.pagName = pagName;
+    }
 }

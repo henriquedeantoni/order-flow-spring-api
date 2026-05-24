@@ -35,6 +35,7 @@ public class Order {
     private Payment payment;
 
     private Double totalAmount;
+    private OrderStatus prevStatus;
     private OrderStatus orderStatus;
 
     @ManyToOne
