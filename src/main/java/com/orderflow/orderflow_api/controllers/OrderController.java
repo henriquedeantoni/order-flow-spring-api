@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.controllers;
 
+import com.orderflow.orderflow_api.models.PaymentMethod;
 import com.orderflow.orderflow_api.payload.OrderDTO;
 import com.orderflow.orderflow_api.payload.OrderRequestDTO;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
@@ -20,7 +21,7 @@ public class OrderController {
 
     @PostMapping("/order/allusers/payments/{paymentMethod}")
     public ResponseEntity<OrderDTO> orderItems(
-            @PathVariable("paymentMethod") String paymentMethod,
+            @PathVariable("paymentMethod") int paymentMethod,
             @RequestBody OrderRequestDTO orderRequestDTO) {
 
         String emailAuth = authUtil.emailOnLoggedSession();
@@ -30,7 +31,6 @@ public class OrderController {
                 paymentMethod,
                 orderRequestDTO.getPagName(),
                 orderRequestDTO.getPagPaymentId(),
-                orderRequestDTO.getPagStatus(),
                 orderRequestDTO.getPagResponseMessage()
         );
         return new ResponseEntity<>(orderDTO, HttpStatus.CREATED);
