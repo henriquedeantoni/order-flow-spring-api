@@ -23,11 +23,11 @@ public class SignupRequest {
     private String password;
 
     @NotBlank
-    @Size(max=25)
+    @Size(max=50)
     private String firstName;
 
     @NotBlank
-    @Size(max=25)
+    @Size(max=50)
     private String lastName;
 
     private Set<String> roles;
