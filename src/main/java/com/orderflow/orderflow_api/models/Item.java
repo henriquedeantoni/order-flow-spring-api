@@ -40,7 +40,6 @@ public class Item {
     @Column(name = "price")
     private double price;
 
-    @NotNull
     @Column(name = "discount")
     private double discount;
 
