@@ -34,10 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -274,6 +271,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemResponse getItemsCreatedInInterval(Instant firstDate, Instant lastDate, Integer pageSize, Integer pageNumber, String sortBy, String sortOrder) {
 
+        OffsetDateTime firstOffsetDateTime = firstDate.atOffset(ZoneOffset.UTC);
+        OffsetDateTime lastOffsetDateTime = lastDate.atOffset(ZoneOffset.UTC);
+
         if(!firstDate.isBefore(lastDate)) {
             throw  new APIException("First Date must be before Last Date");
         }
@@ -282,7 +282,7 @@ public class ItemServiceImpl implements ItemService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
-        Page<Item> pageItems = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate, pageDetails);
+        Page<Item> pageItems = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstOffsetDateTime, lastOffsetDateTime, pageDetails);
 
         List<Item> itemsFromContent = pageItems.getContent();
 
@@ -391,6 +391,9 @@ public class ItemServiceImpl implements ItemService {
             String axisTitleName,
             String valuesTitleName)
     {
+        OffsetDateTime firstOffsetDateTime = firstDate.atOffset(ZoneOffset.UTC);
+        OffsetDateTime lastOffsetDateTime = lastDate.atOffset(ZoneOffset.UTC);
+
         if(!firstDate.isBefore(lastDate)) {
             throw  new APIException("First Date must be before Last Date");
         }
@@ -399,7 +402,7 @@ public class ItemServiceImpl implements ItemService {
             throw  new APIException("The time duration must be less or equal 1 month");
         }
 
-        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstOffsetDateTime, lastOffsetDateTime);
 
         List<ItemTimeDTO> itemTimeDTOS = items.stream()
                 .map( item ->{
@@ -424,6 +427,9 @@ public class ItemServiceImpl implements ItemService {
             String axisTitleName,
             String valuesTitleName)
     {
+        OffsetDateTime firstOffsetDateTime = firstDate.atOffset(ZoneOffset.UTC);
+        OffsetDateTime lastOffsetDateTime = lastDate.atOffset(ZoneOffset.UTC);
+
         if(!firstDate.isBefore(lastDate)) {
             throw  new APIException("First Date must starts before Last Date");
         }
@@ -432,7 +438,7 @@ public class ItemServiceImpl implements ItemService {
             throw  new APIException("The time duration must be less or equal 1 year");
         }
 
-        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDate, lastDate);
+        List<Item> items = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstOffsetDateTime, lastOffsetDateTime);
 
         List<ItemTimeDTO> itemTimeDTOS = items.stream()
                 .map( item ->{
