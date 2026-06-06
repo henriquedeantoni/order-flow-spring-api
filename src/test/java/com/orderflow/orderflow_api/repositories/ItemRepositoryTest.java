@@ -17,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.Nested;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
@@ -120,12 +122,23 @@ public class ItemRepositoryTest {
         private final Item itemFour = new Item();
         private final Item itemFive = new Item();
 
-        private final OffsetDateTime specificDateTime = OffsetDateTime.of(
+        //private final ZoneId zone = ZoneId.systemDefault();
+
+        private final OffsetDateTime firstDateTime = OffsetDateTime.of(
                 2020, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
         );
 
-        private final OffsetDateTime specificOtherDateTime = OffsetDateTime.of(
+        private final OffsetDateTime secondDateTime = OffsetDateTime.of(
+                2020, 1, 3, 12, 00, 0, 0, ZoneOffset.UTC
+        );
+
+        private final OffsetDateTime specificFirstDateTime = OffsetDateTime.of(
                 2020, 1, 2, 12, 00, 0, 0, ZoneOffset.UTC
+        );
+
+
+        private final OffsetDateTime specificSecondDateTime = OffsetDateTime.of(
+                2020, 1, 4, 12, 00, 0, 0, ZoneOffset.UTC
         );
 
         @BeforeEach
@@ -144,35 +157,35 @@ public class ItemRepositoryTest {
             itemOne.setQuantity(10);
             itemOne.setPrice(15.00);
             itemOne.setCategory(firstCategory);
-            itemOne.setIncludedDate(specificOtherDateTime);
+            itemOne.setIncludedDate(specificFirstDateTime);
 
             itemTwo.setItemName("item two");
             itemTwo.setDescription("item two Description");
             itemTwo.setQuantity(20);
             itemTwo.setPrice(20.00);
             itemTwo.setCategory(firstCategory);
-            itemTwo.setIncludedDate(specificOtherDateTime);
+            itemTwo.setIncludedDate(specificSecondDateTime);
 
             itemThree.setItemName("item three");
             itemThree.setDescription("item three Description");
             itemThree.setQuantity(10);
             itemThree.setPrice(25.00);
             itemThree.setCategory(firstCategory);
-            itemThree.setIncludedDate(specificOtherDateTime);
+            itemThree.setIncludedDate(specificFirstDateTime);
 
             itemFour.setItemName("item four");
             itemFour.setDescription("item four Description");
             itemFour.setQuantity(20);
             itemFour.setPrice(30.00);
             itemFour.setCategory(firstCategory);
-            itemFour.setIncludedDate(specificOtherDateTime);
+            itemFour.setIncludedDate(specificSecondDateTime);
 
             itemFive.setItemName("item five");
             itemFive.setDescription("item five Description");
             itemFive.setQuantity(15);
-            itemFive.setPrice(20.00);
+            itemFive.setPrice(35.00);
             itemFive.setCategory(firstCategory);
-            itemFive.setIncludedDate(specificOtherDateTime);
+            itemFive.setIncludedDate(specificFirstDateTime);
 
             entityManager.persist(itemOne);
             entityManager.persist(itemTwo);
@@ -183,9 +196,9 @@ public class ItemRepositoryTest {
             pageable = PageRequest.of(0, 10);
         }
 
-        @DisplayName("Junit test for")
+        @DisplayName("Junit test for Given Page List when save then Return Page List Find By Category Order By Price Ascendant")
         @Test
-        void testGivenPageList_whenSave_thenReturnPageList(){
+        void testGivenPageList_whenSave_thenReturnPageListFindByCategoryOrderByPriceAsc(){
             // Given/Arange
 
             // When/Act
@@ -194,6 +207,24 @@ public class ItemRepositoryTest {
             // Then/Assert
             assertNotNull(itemPage);
             assertEquals(5, itemPage.getTotalElements());
+            assertEquals(15.00, itemPage.getContent().get(0).getPrice());
+            assertEquals(20.00, itemPage.getContent().get(1).getPrice());
+            assertEquals(25.00, itemPage.getContent().get(2).getPrice());
+        }
+
+        //findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual
+        @DisplayName("JUnit  test for Given Page List when save then Return Page List Find By IncludedDate Greater Than Equal And Included Date Less Than Equal")
+        @Test
+        void testGivenPageList_whenSave_thenReturnPageListFindByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(){
+            // Given/Arrange
+
+            // When/Act
+            Page<Item> itemPage = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDateTime, secondDateTime, pageable);
+
+            // Then/Assert
+            assertNotNull(itemPage);
+            assertEquals(3, itemPage.getTotalElements());
+            assertNotEquals(2,  itemPage.getTotalElements());
         }
     }
 
