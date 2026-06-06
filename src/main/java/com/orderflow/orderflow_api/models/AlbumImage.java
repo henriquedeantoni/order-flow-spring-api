@@ -38,4 +38,9 @@ public class AlbumImage {
     @OneToMany(mappedBy = "albumImage", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SimpleImage> simpleImages = new HashSet<>();
 
+    public AlbumImage(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
+
 }

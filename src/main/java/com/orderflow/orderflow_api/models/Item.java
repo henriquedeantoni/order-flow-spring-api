@@ -43,7 +43,7 @@ public class Item {
     @Column(name = "discount")
     private double discount;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
 
