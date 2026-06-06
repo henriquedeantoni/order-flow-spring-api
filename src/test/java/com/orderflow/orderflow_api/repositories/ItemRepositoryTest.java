@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,13 +47,9 @@ public class ItemRepositoryTest {
         private Pageable pageable;
 
         private final CategoryDTO firstCategoryDTO =  new CategoryDTO();
-        private final CategoryDTO secondCategoryDTO =  new CategoryDTO();
 
         private final Item itemOne = new Item();
         private final Item itemTwo = new Item();
-        private final Item itemThree = new Item();
-        private final Item itemFour = new Item();
-        private final Item itemFive = new Item();
 
         private final User userOne = new User("UserOne", "userone@mail.com", "hashPassword1", "John", "Doe");
         private final ItemImage itemImageOne = new ItemImage("urlOne", "image one", "description image one");
@@ -62,7 +59,7 @@ public class ItemRepositoryTest {
                 2020, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
         );
 
-        private final OffsetDateTime specificOtherDateTime = OffsetDateTime.of(
+        private final OffsetDateTime specificSecondDateTime = OffsetDateTime.of(
                 2020, 1, 2, 12, 00, 0, 0, ZoneOffset.UTC
         );
 
@@ -75,10 +72,19 @@ public class ItemRepositoryTest {
             itemOne.setDescription("item one Description");
             itemOne.setQuantity(10);
             itemOne.setPrice(15.00);
-            itemOne.setIncludedDate(specificOtherDateTime);
+            itemOne.setIncludedDate(specificDateTime);
             itemOne.setUser(userOne);
             itemOne.setItemImage(itemImageOne);
             itemOne.setAlbumImage(albumImageOne);
+
+            itemTwo.setItemName("item two");
+            itemTwo.setDescription("item two Description");
+            itemTwo.setQuantity(20);
+            itemTwo.setPrice(25.00);
+            itemTwo.setIncludedDate(specificDateTime);
+            itemTwo.setUser(userOne);
+            itemTwo.setItemImage(itemImageOne);
+            itemTwo.setAlbumImage(albumImageOne);
         }
 
 
@@ -103,6 +109,59 @@ public class ItemRepositoryTest {
             assertEquals(itemOne.getCategory(), savedItem.getCategory());
         }
 
+        @DisplayName("JUnit test for Given Item Object when Find By Id then Return Item Object")
+        @Test
+        void testGivenItemObject_whenFindById_thenReturnItemObject(){
+            // Given/Arrange
+            itemRepository.save(itemOne);
+            itemRepository.save(itemTwo);
+
+            // When/Act
+            Item firstItem = itemRepository.findById(itemOne.getItemId()).get();
+            Item secondItem = itemRepository.findById(itemTwo.getItemId()).get();
+
+            // Then/Assert
+            assertNotNull(firstItem);
+            assertNotNull(secondItem);
+            assertEquals(itemOne.getItemId(), firstItem.getItemId());
+            assertEquals(itemTwo.getItemId(), secondItem.getItemId());
+        }
+
+        @DisplayName("JUnit test for Given Item Object when Find By Id then Return Item Object")
+        @Test
+        void testGivenItemObject_whenUpdateItem_thenReturnUpdateObject(){
+            // Given/Arrange
+            itemRepository.save(itemOne);
+
+            // When/Act
+            Item savedItem = itemRepository.findById(itemOne.getItemId()).get();
+            savedItem.setItemName("Changed Name");
+            savedItem.setItemStatus("Changed Status");
+            savedItem.setDescription("Changed Description");
+
+            Item updatedItem = itemRepository.save(savedItem);
+
+            // Then/Assert
+            assertNotNull(updatedItem);
+            assertEquals("Changed Name", updatedItem.getItemName());
+            assertEquals("Changed Status", updatedItem.getItemStatus());
+            assertEquals("Changed Description", updatedItem.getDescription());
+        }
+
+        @DisplayName("JUnit test for Given")
+        @Test
+        void testGivenItemObject_whenDeleteItemById_thenRemoveItem(){
+
+            // Given/Arrange
+            itemRepository.save(itemOne);
+
+            // When/Act
+            itemRepository.deleteById(itemOne.getItemId());
+            Optional<Item> itemOptional = itemRepository.findById(itemOne.getItemId());
+
+            // Then/Assert
+            assertTrue(itemOptional.isEmpty());
+        }
     }
 
     @Nested
@@ -226,8 +285,20 @@ public class ItemRepositoryTest {
             assertEquals(3, itemPage.getTotalElements());
             assertNotEquals(2,  itemPage.getTotalElements());
         }
+
+        //findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual
+        @DisplayName("JUnit  test for Given List when save then Return Page List Find By IncludedDate Greater Than Equal And Included Date Less Than Equal")
+        @Test
+        void testGivenList_whenSave_thenReturnPageListFindByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(){
+            // Given/Arrange
+
+            // When/Act
+            List<Item> itens = itemRepository.findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(firstDateTime, secondDateTime);
+
+            // Then/Assert
+            assertNotNull(itens);
+            assertEquals(3, itens.size());
+            assertNotEquals(2,  itens.size());
+        }
     }
-
-
-
 }
