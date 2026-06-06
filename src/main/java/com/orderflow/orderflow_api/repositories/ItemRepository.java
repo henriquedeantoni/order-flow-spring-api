@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
@@ -17,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item,Long>, JpaSpecificati
 
     Page<Item> findByItemNameLikeIgnoreCase(String s, Pageable pageDetails);
 
-    Page<Item> findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(Instant firstDate, Instant lastDate, Pageable pageDetails);
+    Page<Item> findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(OffsetDateTime firstDate, OffsetDateTime lastDate, Pageable pageDetails);
 
-    List<Item> findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(Instant firstDate, Instant lastDate);
+    List<Item> findByIncludedDateGreaterThanEqualAndIncludedDateLessThanEqual(OffsetDateTime firstDate, OffsetDateTime lastDate);
 }
