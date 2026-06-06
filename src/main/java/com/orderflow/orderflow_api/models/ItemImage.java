@@ -35,4 +35,10 @@ public class ItemImage {
     @OneToOne
     @JoinColumn(name = "item_id")
     private Item item;
+
+    public ItemImage(String url, String title, String description){
+        this.url = url;
+        this.title = title;
+        this.description = description;
+    }
 }

@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 public class CategoryRepositoryTest {
@@ -34,16 +35,21 @@ public class CategoryRepositoryTest {
     private final Item itemFour = new Item();
     private final Item itemFive = new Item();
 
+    private final OffsetDateTime specificDateTime = OffsetDateTime.of(
+            2020, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
+    );
+
     @BeforeEach
     public void setUp(){
+
         firstCategory.setCategoryName("First Category");
-        firstCategory.setIncludedDate(OffsetDateTime.now(ZoneOffset.UTC));
+        firstCategory.setIncludedDate(specificDateTime);
 
         secondCategory.setCategoryName("Second Category");
-        secondCategory.setIncludedDate(OffsetDateTime.now(ZoneOffset.UTC));
+        secondCategory.setIncludedDate(specificDateTime);
 
         thirdCategory.setCategoryName("Third Category");
-        thirdCategory.setIncludedDate(OffsetDateTime.now(ZoneOffset.UTC));
+        thirdCategory.setIncludedDate(specificDateTime);
 
         itemOne.setItemName("item one");
         itemOne.setQuantity(10);
@@ -83,5 +89,86 @@ public class CategoryRepositoryTest {
         assertNotNull(savedCategory);
         assertTrue(savedCategory.getCategoryId()>0);
         assertEquals("First Category", savedCategory.getCategoryName());
+        assertEquals(specificDateTime, savedCategory.getIncludedDate());
+        assertEquals(firstCategory, savedCategory);
+    }
+
+    @DisplayName("JUnit test Given Category List when Save then Return Category List")
+    @Test
+    public void testGivenCategoryList_whenSave_thenReturnCategoryList(){
+        // Given/Arrange
+        categoryRepository.save(firstCategory);
+        categoryRepository.save(secondCategory);
+        categoryRepository.save(thirdCategory);
+
+        // When/Act
+        List<Category> savedCategories = categoryRepository.findAll();
+
+        // Then/Assert
+        assertNotNull(savedCategories);
+        assertTrue(savedCategories.size()>0);
+        assertEquals(3, savedCategories.size());
+    }
+
+    @DisplayName("JUnit test for Category Object when find by CategoryId then return category object")
+    @Test
+    public void testGivenCategoryObject_whenFindByCategoryId_thenReturnCategoryObject(){
+        // Given/Arrange
+        categoryRepository.save(firstCategory);
+
+        // When/Act
+        Category savedCategory = categoryRepository.findByCategoryId(firstCategory.getCategoryId());
+
+        // Then/Assert
+        assertNotNull(savedCategory);
+        assertEquals(firstCategory.getCategoryId(), savedCategory.getCategoryId());
+    }
+
+    @DisplayName("JUnit test for Category Object when find by CategoryName then return category object")
+    @Test
+    public void testGivenCategoryObject_whenFindByCategoryName_thenReturnCategoryObject(){
+        // Given/Arrange
+        categoryRepository.save(firstCategory);
+
+        // When/Act
+        Category savedCategory = categoryRepository.findByCategoryName(firstCategory.getCategoryName());
+
+        // Then/Assert
+        assertNotNull(savedCategory);
+        assertEquals(firstCategory.getCategoryName(), savedCategory.getCategoryName());
+    }
+
+    @DisplayName("JUnit test for Given Category Object when Update Category then Return Updated Object")
+    @Test
+    void testGivenCategoryObject_whenUpdateCategory_thenReturnUpdatedObject(){
+
+        // Given/Arrange
+        categoryRepository.save(firstCategory);
+
+        // When/Act
+        Category savedCategory = categoryRepository.findById(firstCategory.getCategoryId()).get();
+        savedCategory.setCategoryName("Category Name Changed");
+
+        Category updatedCategory = categoryRepository.save(savedCategory);
+
+        // Then/Assert
+        assertNotNull(updatedCategory);
+        assertEquals("Category Name Changed", updatedCategory.getCategoryName());
+        assertEquals(firstCategory.getCategoryId(), updatedCategory.getCategoryId());
+    }
+
+    @DisplayName("JUnit test for Given Category Object when Delete Category then Remove Category Object")
+    @Test
+    void testGivenCategoryObject_whenDelete_thenRemoceCategoryObject(){
+        // Given/Arrange
+        categoryRepository.save(firstCategory);
+
+        // When/Act
+        categoryRepository.deleteById(firstCategory.getCategoryId());
+
+        Optional<Category> deletedCategory = categoryRepository.findById(firstCategory.getCategoryId());
+
+        // Then/Assert
+        assertTrue(deletedCategory.isEmpty());
     }
 }
