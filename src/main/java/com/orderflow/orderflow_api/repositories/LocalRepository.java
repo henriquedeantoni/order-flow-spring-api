@@ -1,6 +1,5 @@
 package com.orderflow.orderflow_api.repositories;
 
-import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.Local;
 import com.orderflow.orderflow_api.models.User;
 import org.springframework.data.domain.Page;
