@@ -165,7 +165,7 @@ public class ItemRepositoryTest {
     }
 
     @Nested
-    class elaborateOperations {
+    class elaboratedOperations {
 
         private Pageable pageable;
 

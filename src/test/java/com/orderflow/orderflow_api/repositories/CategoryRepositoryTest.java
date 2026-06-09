@@ -159,7 +159,7 @@ public class CategoryRepositoryTest {
 
     @DisplayName("JUnit test for Given Category Object when Delete Category then Remove Category Object")
     @Test
-    void testGivenCategoryObject_whenDelete_thenRemoceCategoryObject(){
+    void testGivenCategoryObject_whenDelete_thenRemoveCategoryObject(){
         // Given/Arrange
         categoryRepository.save(firstCategory);
 
