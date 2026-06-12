@@ -202,6 +202,7 @@ public class LocalRepositoryTest {
         private String cityOne;
         private String cityTwo;
         private String stateOne;
+        private String countryOne;
 
         @BeforeEach
         void setUp() {
@@ -209,6 +210,7 @@ public class LocalRepositoryTest {
             cityOne = "Rio De Janeiro";
             cityTwo = "Sao Paulo";
             stateOne = "Sao Paulo";
+            countryOne = "Brazil";
 
             localOne = new Local(
                     "Street One",
@@ -306,6 +308,19 @@ public class LocalRepositoryTest {
             // Then/Assert
             assertNotNull(locals);
             assertEquals(3, locals.getContent().size());
+        }
+
+        @DisplayName("JUnit test Given Page List when Save then Return Page List FindAllByStateAndByCountry" )
+        @Test
+        void testGivenPageList_whenSave_thenReturnPageListfindAllByStateAndByCountry(){
+            // Given/Arrange
+
+            // When/Act
+            List<Local> locals = localRepository.findAllByStateAndByCountry(stateOne, countryOne);
+
+            // Then/Assert
+            assertNotNull(locals);
+            assertEquals(3, locals.size());
         }
     }
 }
