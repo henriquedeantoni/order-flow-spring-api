@@ -127,7 +127,7 @@ public class ItemRepositoryTest {
             assertEquals(itemTwo.getItemId(), secondItem.getItemId());
         }
 
-        @DisplayName("JUnit test for Given Item Object when Find By Id then Return Item Object")
+        @DisplayName("JUnit test for Given Item Object when Update Item then Return Item Object")
         @Test
         void testGivenItemObject_whenUpdateItem_thenReturnUpdateObject(){
             // Given/Arrange
