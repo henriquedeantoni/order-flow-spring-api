@@ -30,4 +30,9 @@ public class SimpleImage {
     @ManyToOne
     @JoinColumn(name = "album_image_id", nullable = false)
     private AlbumImage albumImage;
+
+    public SimpleImage(String url, String title) {
+        this.url = url;
+        this.title = title;
+    }
 }
