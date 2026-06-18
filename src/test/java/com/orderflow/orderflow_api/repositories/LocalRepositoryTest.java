@@ -322,5 +322,29 @@ public class LocalRepositoryTest {
             assertNotNull(locals);
             assertEquals(3, locals.size());
         }
+
+        @DisplayName("JUnit test for Given  ")
+        @Test
+        void testGivenStateAndCountry_whenFindJPQL_thenReturnLocalObjectList(){
+            // Given/Arrange
+            localRepository.save(localOne);
+            localRepository.save(localTwo);
+            localRepository.save(localThree);
+            localRepository.save(localFour);
+            localRepository.save(localFive);
+            localRepository.save(localSix);
+
+            String state = "Sao Paulo";
+            String country = "Brazil";
+
+            // When/Act
+            List<Local> locals = localRepository.findAllByStateAndByCountry(state, country);
+
+            // Then/Assert
+            assertNotNull(locals);
+            assertEquals(3, locals.size());
+
+        }
+
     }
 }
