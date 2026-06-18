@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,4 +34,11 @@ public class Recipe {
     public OffsetDateTime updatedDate;
 
     public int timeMinutesToPrepare;
+
+    public Recipe(String recipeName, String preparationDescription, OffsetDateTime includedDate, int timeMinutesToPrepare) {
+        this.recipeName = recipeName;
+        this.preparationDescription = preparationDescription;
+        this.includedDate = includedDate;
+        this.timeMinutesToPrepare = timeMinutesToPrepare;
+    }
 }
