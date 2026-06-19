@@ -33,4 +33,10 @@ public class Cart {
     private List<CartItem> cartItems = new ArrayList<>();
 
     private Double totalPrice = 0.0;
+
+    public Cart(OffsetDateTime createDate, User user, Double totalPrice) {
+        this.createDate = createDate;
+        this.user = user;
+        this.totalPrice = totalPrice;
+    }
 }
