@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +23,9 @@ public class CartRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     private final OffsetDateTime createDate = OffsetDateTime.of(
             2020, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
@@ -138,5 +142,34 @@ public class CartRepositoryTest {
         assertNotNull(updatedCart);
         assertEquals(100.00, updatedCart.getTotalPrice(), 0);
     }
-    
+
+    @DisplayName("JUnit test for Given Cart Object when Delete Cart Then Remove Cart Object")
+    @Test
+    void testGivenCartObject_whenDelete_thenReturnCartObject(){
+        // Given/Arrange
+        cartRepository.save(cartOne);
+
+        // When/Act
+        cartRepository.deleteById(cartOne.getCartId());
+        Optional<Cart> deletedCart = cartRepository.findById(cartOne.getCartId());
+
+        // Then/Assert
+        assertTrue(deletedCart.isEmpty());
+    }
+
+    @DisplayName("JUnit test for Given User email and Cart Object when find Cart By Email then Return Cart Object  ")
+    @Test
+    void testGivenUserEmailAndCart_whenFindCartByEmail_thenReturnCartObject(){
+        // Given/Arrange
+        cartRepository.save(cartOne);
+        String userEmail = "userone@mail.com";
+
+        // When/Act
+        Cart savedCart = cartRepository.findCartByEmail(userEmail);
+
+        // Then/Assert
+        assertNotNull(savedCart);
+        assertTrue(savedCart.getCartId()>0);
+        assertEquals(userEmail, savedCart.getUser().getEmail());
+    }
 }
