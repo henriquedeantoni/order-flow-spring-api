@@ -9,6 +9,8 @@ import java.util.List;
 public interface CartService {
     List<CartDTO> getAllCarts();
 
+    CartDTO findByCartId(Long cartId);
+
     String createCartWithItems(List<CartItemDTO> cartItemsDTO);
 
     CartDTO addItemToCart(Long itemId, Integer quantity);

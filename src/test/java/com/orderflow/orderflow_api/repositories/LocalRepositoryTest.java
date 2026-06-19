@@ -323,7 +323,7 @@ public class LocalRepositoryTest {
             assertEquals(3, locals.size());
         }
 
-        @DisplayName("JUnit test for Given  ")
+        @DisplayName("JUnit test for Given State and Country when FindJPQL then Return Local Object List")
         @Test
         void testGivenStateAndCountry_whenFindJPQL_thenReturnLocalObjectList(){
             // Given/Arrange
@@ -343,8 +343,6 @@ public class LocalRepositoryTest {
             // Then/Assert
             assertNotNull(locals);
             assertEquals(3, locals.size());
-
         }
-
     }
 }
