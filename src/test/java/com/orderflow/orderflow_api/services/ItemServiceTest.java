@@ -141,7 +141,6 @@ public class ItemServiceTest {
         Item mappedItem = new Item();
         mappedItem.setItemName("rice bowl");
         mappedItem.setPrice(20.0);
-        mappedItem.setDiscount(10);
         mappedItem.setQuantity(10);
         mappedItem.setItemSize("normal");
         mappedItem.setDescription("Bowl of baked rice and spicy");
@@ -152,7 +151,6 @@ public class ItemServiceTest {
         savedItem.setItemId(1L);
         savedItem.setItemName("rice bowl");
         savedItem.setPrice(20.0);
-        savedItem.setDiscount(10);
         savedItem.setQuantity(10);
         savedItem.setItemSize("normal");
         savedItem.setDescription("Bowl of baked rice and spicy");
@@ -222,7 +220,6 @@ public class ItemServiceTest {
         Item mappedItem = new Item();
         mappedItem.setItemName("rice bowl");
         mappedItem.setPrice(20.0);
-        mappedItem.setDiscount(10);
         mappedItem.setQuantity(10);
         mappedItem.setItemSize("normal");
         mappedItem.setDescription("Bowl of baked rice and spicy");
@@ -233,7 +230,6 @@ public class ItemServiceTest {
         savedItem.setItemId(1L);
         savedItem.setItemName("rice bowl");
         savedItem.setPrice(20.0);
-        savedItem.setDiscount(10);
         savedItem.setQuantity(10);
         savedItem.setItemSize("normal");
         savedItem.setDescription("Bowl of baked rice and spicy");
@@ -293,7 +289,6 @@ public class ItemServiceTest {
         existingItem.setItemStatus("Enable");
         existingItem.setItemSize("Normal");
         existingItem.setPrice(13.99);
-        existingItem.setDiscount(2.00);
         existingItem.setDescription("Description 1");
 
         ItemDTO itemDTO = new ItemDTO();

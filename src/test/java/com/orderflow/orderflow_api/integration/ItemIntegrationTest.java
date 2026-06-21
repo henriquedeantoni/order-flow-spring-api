@@ -92,7 +92,6 @@ public class ItemIntegrationTest {
         item.setItemStatus("Enable");
         item.setItemSize("Normal");
         item.setPrice(13.99);
-        item.setDiscount(2.00);
         item.setDescription("Description 1");
 
         item = itemRepository.save(item);
