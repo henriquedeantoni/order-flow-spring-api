@@ -65,6 +65,7 @@ public class Item {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     private List<CartItem> items = new ArrayList<>();
 

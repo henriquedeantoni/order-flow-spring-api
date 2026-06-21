@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Cascade;
 
 import java.time.OffsetDateTime;
@@ -29,6 +30,7 @@ public class Cart {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "cart", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>();
 

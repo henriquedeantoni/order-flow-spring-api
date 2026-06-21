@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -18,6 +19,7 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartItemId;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
@@ -25,6 +27,7 @@ public class CartItem {
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
@@ -32,4 +35,10 @@ public class CartItem {
     private Integer quantity;
     private double discount;
     private double itemPrice;
+
+    public CartItem(Integer quantity, double discount, double itemPrice) {
+        this.quantity = quantity;
+        this.discount = discount;
+        this.itemPrice = itemPrice;
+    }
 }
