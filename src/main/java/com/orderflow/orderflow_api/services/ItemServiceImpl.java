@@ -122,7 +122,6 @@ public class ItemServiceImpl implements ItemService {
         itemFromDb.setItemStatus(itemDTO.getItemStatus());
         itemFromDb.setDescription(itemDTO.getDescription());
         itemFromDb.setTimePrepareMinutes(itemDTO.getTimePrepareMinutes());
-        itemFromDb.setDiscount(itemDTO.getDiscount());
 
         Item savedItem = itemRepository.save(itemFromDb);
 
@@ -145,7 +144,6 @@ public class ItemServiceImpl implements ItemService {
         itemFromDb.setItemStatus(itemDTO.getItemStatus());
         itemFromDb.setDescription(itemDTO.getDescription());
         itemFromDb.setTimePrepareMinutes(itemDTO.getTimePrepareMinutes());
-        itemFromDb.setDiscount(itemDTO.getDiscount());
         itemFromDb.setCategory(categoryFromDb);
 
         Item savedItem = itemRepository.save(itemFromDb);
