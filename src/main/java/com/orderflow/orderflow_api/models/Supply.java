@@ -36,4 +36,13 @@ public class Supply {
 
     @Column(name = "added_at")
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
+
+    public Supply(String supplyName, String supplyReference, String brandName, String supplyDescription, String supplyCode, String supplyUnit) {
+        this.supplyName = supplyName;
+        this.supplyReference = supplyReference;
+        this.brandName = brandName;
+        this.supplyDescription = supplyDescription;
+        this.supplyCode = supplyCode;
+        this.supplyUnit = supplyUnit;
+    }
 }

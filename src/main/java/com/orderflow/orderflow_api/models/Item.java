@@ -40,9 +40,6 @@ public class Item {
     @Column(name = "price")
     private double price;
 
-    @Column(name = "discount")
-    private double discount;
-
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
@@ -68,7 +65,14 @@ public class Item {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "item", cascade = {CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
     private List<CartItem> items = new ArrayList<>();
 
+    public Item(String itemName, String description, int quantity, double price ){
+        this.itemName = itemName;
+        this.description = description;
+        this.quantity = quantity;
+        this.price = price;
+    }
 }
