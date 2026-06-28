@@ -40,4 +40,14 @@ public class InventorySupply {
     private OffsetDateTime addDate = OffsetDateTime.now(ZoneOffset.UTC);
 
     private OffsetDateTime movementDate;
+
+    public InventorySupply(String codeBar, String section, String supplyReference, String status, LocalDate valDate, OffsetDateTime addDate, OffsetDateTime movementDate) {
+        this.codeBar = codeBar;
+        this.section = section;
+        this.supplyReference = supplyReference;
+        this.status = status;
+        this.valDate = valDate;
+        this.addDate = addDate;
+        this.movementDate = movementDate;
+    }
 }
