@@ -27,4 +27,11 @@ public class SupplyEvent {
     private Integer quantityMoved;
 
     private OffsetDateTime eventDate = OffsetDateTime.now(ZoneOffset.UTC);
+
+    public SupplyEvent(Long supplyId, String eventType, Integer quantityMoved, OffsetDateTime eventDate){
+        this.supplyId = supplyId;
+        this.eventType = eventType;
+        this.quantityMoved = quantityMoved;
+        this.eventDate = eventDate;
+    }
 }
