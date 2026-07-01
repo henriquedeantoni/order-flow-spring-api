@@ -109,4 +109,49 @@ public class InventorySupplyRepositoryTest {
         assertEquals("STOCK_IN", savedInventorySupply.getStatus());
         assertEquals(supplyOne, savedInventorySupply.getSupply());
     }
+
+    @DisplayName("JUnit test for Given Inventory Supply Object when find by id then Return Inventory Supply Object")
+    @Test
+    void testGivenInventorySupplyObject_whenFindById_thenReturnInventoryObject(){
+        // Given/Arrange
+        inventorySupplyOne.setSupply(supplyOne);
+        supplyRepository.save(supplyOne);
+        inventorySupplyRepository.save(inventorySupplyOne);
+
+        // When/Act
+        InventorySupply savedInventorySupply = inventorySupplyRepository.findById(inventorySupplyOne.getInventorySupplyId()).get();
+
+        // Then/Assert
+        assertNotNull(savedInventorySupply);
+        assertTrue(savedInventorySupply.getInventorySupplyId()>0);
+        assertEquals(inventorySupplyOne.getInventorySupplyId(), savedInventorySupply.getInventorySupplyId());
+    }
+
+    @DisplayName("JUnit test for Given Inventory Supply Object when update Inventory Supply then Return Updated Object")
+    @Test
+    void testGivenInventorySupplyObject_whenUpdate_thenReturnUpdatedObject(){
+        // Given/Arrange
+        inventorySupplyOne.setSupply(supplyOne);
+        supplyRepository.save(supplyOne);
+        inventorySupplyRepository.save(inventorySupplyOne);
+
+        // When/Act
+        InventorySupply savedInventorySupply = inventorySupplyRepository.findById(inventorySupplyOne.getInventorySupplyId()).get();
+
+        savedInventorySupply.setSupplyReference("New Supply Reference");
+        savedInventorySupply.setStatus("Updated Status");
+        savedInventorySupply.setSection("New Section");
+        savedInventorySupply.setCodeBar("New Code Bar");
+
+        InventorySupply updatedInventorySupply = inventorySupplyRepository.save(savedInventorySupply);
+
+        // Then/Assert
+        assertNotNull(updatedInventorySupply);
+        assertTrue(updatedInventorySupply.getInventorySupplyId()>0);
+        assertEquals("New Supply Reference", updatedInventorySupply.getSupplyReference());
+        assertEquals("Updated Status", updatedInventorySupply.getStatus());
+        assertEquals("New Section", updatedInventorySupply.getSection());
+        assertEquals("New Code Bar", updatedInventorySupply.getCodeBar());
+    }
+
 }
