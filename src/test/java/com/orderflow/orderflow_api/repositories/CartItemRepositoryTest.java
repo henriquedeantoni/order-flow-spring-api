@@ -143,7 +143,62 @@ public class CartItemRepositoryTest {
         // Then/Assert
         assertNotNull(savedCartItem);
         assertTrue(savedCartItem.getCartItemId()>0);
-        assertEquals(1L, savedCartItem.getCartItemId());
+        assertEquals(cartItemOne.getCartItemId(), savedCartItem.getCartItemId());
         assertEquals("Item One", savedCartItem.getItem().getItemName());
     }
+
+    @DisplayName("JUnit test for Given Cart Object when findById then Return Cart Object")
+    @Test
+    void testGivenCartObject_whenFindById_thenReturnCartObject(){
+        // Given/Arrange
+        cartItemRepository.save(cartItemOne);
+
+        // When/Act
+        CartItem savedCartItem = cartItemRepository.findById(cartItemOne.getCartItemId()).get();
+
+        // Then/Assert
+        assertNotNull(savedCartItem);
+        assertTrue(savedCartItem.getCartItemId()>0);
+        assertEquals(cartItemOne.getCartItemId(), savedCartItem.getCartItemId());
+        assertEquals("Item One", savedCartItem.getItem().getItemName());
+    }
+
+    @DisplayName("JUnit test for Given Cart Object when updated object then Return Updated Cart")
+    @Test
+    void testGivenCartObject_whenUpdatedObject_thenReturnUpdatedCart(){
+        // Given/Arrange
+        cartItemRepository.save(cartItemOne);
+
+        // When/Act
+        CartItem savedCartItem = cartItemRepository.findById(cartItemOne.getCartItemId()).get();
+        savedCartItem.setItemPrice(99.99);
+        savedCartItem.setDiscount(0.01);
+        savedCartItem.setQuantity(99);
+
+        CartItem updatedCartItem = cartItemRepository.save(savedCartItem);
+
+        // Then/Assert
+        assertNotNull(updatedCartItem);
+        assertTrue(updatedCartItem.getCartItemId()>0);
+        assertEquals(savedCartItem.getCartItemId(), updatedCartItem.getCartItemId());
+        assertEquals(99.99 , updatedCartItem.getItemPrice(), 0.0001);
+        assertEquals(0.01 , updatedCartItem.getDiscount(), 0.0001);
+        assertEquals(99, updatedCartItem.getQuantity());
+    }
+
+    @DisplayName("JUnit test for Given Cart when delete by id then Remove Object")
+    @Test
+    void testGivenCartObject_whenDeleteById_thenReturnCartObject(){
+        // Given/Arrange
+        cartItemRepository.save(cartItemOne);
+
+        // When/Act
+        cartItemRepository.deleteById(cartItemOne.getCartItemId());
+
+        Optional<CartItem> cartItemOptional = cartItemRepository.findById(cartItemOne.getCartItemId());
+
+        // Then/Assert
+        assertTrue(cartItemOptional.isEmpty());
+    }
+
 }
