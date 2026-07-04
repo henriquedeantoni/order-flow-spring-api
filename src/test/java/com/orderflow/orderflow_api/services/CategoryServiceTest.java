@@ -5,14 +5,20 @@ import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,17 +29,54 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 public class CategoryServiceTest {
 
-    @Mock
-    ModelMapper modelMapper;
+    @InjectMocks
+    private ModelMapper modelMapper;
 
     @Mock
-    CategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
 
     @Mock
     private AuthUtil authUtil;
 
     @InjectMocks
-    private CategoryService categoryService;
+    private CategoryServiceImpl categoryService;
+
+    private final OffsetDateTime firstDate = OffsetDateTime.of(
+            2025, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
+    );
+
+    private final Category categoryOne = new Category();
+    private final Category categoryTwo = new Category();
+    private final Category categoryThree = new Category();
+
+    @BeforeEach
+    void setUp() {
+
+        ReflectionTestUtils.setField(categoryService, "modelMapper", new ModelMapper());
+
+        // Given/Arrange
+        categoryOne.setCategoryName("CategoryOne");
+        categoryOne.setIncludedDate(firstDate);
+
+        categoryTwo.setCategoryName("CategoryTwo");
+        categoryTwo.setIncludedDate(firstDate);
+    }
+
+    @DisplayName("JUnit test for Given Category Object when save category then Return Category Object")
+    @Test
+    void testGivenSaveCategoryObjectWhenSaveCategoryThenReturnCategoryObject() {
+        // Given/Arrange
+        given(categoryRepository.findByCategoryId(anyLong())).willReturn(categoryOne);
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
+        CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
+
+        // When/Act
+        CategoryDTO savedCategory = categoryService.addCategory(categoryOneDTO);
+
+        // Then/Assert
+        assertNotNull(savedCategory);
+        assertEquals("CategoryOne", savedCategory.getCategoryName());
+    }
 
     @Test
     @DisplayName("Should add a new category with success")
