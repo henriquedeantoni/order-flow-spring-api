@@ -25,4 +25,11 @@ public class RecipeSupply {
 
     private Integer quantity;
     private String unit;
+
+    public RecipeSupply(Supply supply, Recipe recipe, Integer quantity, String unit) {
+        this.supply = supply;
+        this.recipe = recipe;
+        this.quantity = quantity;
+        this.unit = unit;
+    }
 }

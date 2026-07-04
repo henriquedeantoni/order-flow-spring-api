@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.models.Cart;
 import com.orderflow.orderflow_api.models.CartItem;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -146,6 +147,7 @@ public class CartItemRepositoryTest {
         userRepository.save(userThree);
     }
 
+
     @DisplayName("JUnit test for Given Cart Object when save then Return Cart Object")
     @Test
     void testGivenCartObject_whenSave_thenReturnCartObject(){
@@ -269,7 +271,7 @@ public class CartItemRepositoryTest {
         cartItemRepository.save(cartItemSix);
 
         // When/Act
-        cartItemRepository.deleteCartItemByItemIdAndCartId(cartOne.getCartId(), itemOne.getItemId());
+        cartItemRepository.deleteCartItemByItemIdAndCartId(itemOne.getItemId(), cartOne.getCartId());
 
         // Then/Assert
         assertTrue(cartItemRepository.findAll().size()==5);
