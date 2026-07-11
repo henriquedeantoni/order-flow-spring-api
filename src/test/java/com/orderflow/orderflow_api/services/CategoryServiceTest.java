@@ -1,6 +1,7 @@
 package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.exceptions.APIException;
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
@@ -44,9 +45,6 @@ public class CategoryServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
-
-    @Mock
-    private AuthUtil authUtil;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -138,9 +136,9 @@ public class CategoryServiceTest {
         assertTrue(categoryResponse.isLastPage());
     }
 
-    @DisplayName("JUnit test for Given Empty Categories List when get All Categories Then return Category List")
+    @DisplayName("JUnit test for Given Empty Categories List when get All Categories Then Throws API Exception")
     @Test
-    void testGivenEmptyCategoriesListWhenGetAllCategoriesPageThenReturnEmptyCategoriesPage() {
+    void testGivenEmptyCategoriesListWhenGetAllCategoriesPageThenThrowsAPIException() {
         // Given/Arrange
 
         Page<Category> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
@@ -162,7 +160,6 @@ public class CategoryServiceTest {
         categoryOne.setCategoryId(1L);
         given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
         willDoNothing().given(categoryRepository).deleteById(anyLong());
-        //willDoNothing().given(categoryService).deleteCategory(categoryOne.getCategoryId());
 
         // When/Act
         CategoryDTO savedCategoryDTO =  categoryService.deleteCategory(categoryOne.getCategoryId());
@@ -172,7 +169,7 @@ public class CategoryServiceTest {
         assertEquals("Category A", savedCategoryDTO.getCategoryName());
     }
 
-    @DisplayName("JUnit test")
+    @DisplayName("JUnit test Given Category when Update Category then Return Category DTO")
     @Test
     void testGivenCategoryWhenUpdateCategoryThenReturnCategoryDTO() {
         // Given/Arrange
@@ -190,5 +187,26 @@ public class CategoryServiceTest {
         // Then/Assert
         assertNotNull(updatedCategoryDTO);
         assertEquals("Category A", updatedCategoryDTO.getCategoryName());
+    }
+
+    @DisplayName("JUnit test Given Category when Update Category Not Existent Then Throws API Exception")
+    @Test
+    void testGivenCategoryWhenUpdateCategoryNotExistentThenThrowsAPIException() {
+        // Given/Arrange
+        categoryOne.setCategoryId(1L);
+        given(categoryRepository.findById(categoryOne.getCategoryId())).willReturn(Optional.of(categoryOne));
+
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
+
+        CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
+
+        // When/Act
+        categoryOneDTO.setCategoryName("New Category Name");
+        assertThrows(ResourceNotFoundException.class, () -> {
+            categoryService.updateCategory(categoryOneDTO, 1000L);
+        });
+
+        // Then/Assert
+        verify(categoryRepository, never()).save(any(Category.class));
     }
 }
