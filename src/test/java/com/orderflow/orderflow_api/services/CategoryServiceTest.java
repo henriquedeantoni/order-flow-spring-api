@@ -1,29 +1,40 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
+import com.orderflow.orderflow_api.payload.CategoryResponse;
 import com.orderflow.orderflow_api.repositories.CategoryRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.BDDMockito.given;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -35,9 +46,6 @@ public class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
-    @Mock
-    private AuthUtil authUtil;
-
     @InjectMocks
     private CategoryServiceImpl categoryService;
 
@@ -45,9 +53,9 @@ public class CategoryServiceTest {
             2025, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
     );
 
-    private final Category categoryOne = new Category();
-    private final Category categoryTwo = new Category();
-    private final Category categoryThree = new Category();
+    private Category categoryOne;
+    private Category categoryTwo;
+    private Category categoryThree;
 
     @BeforeEach
     void setUp() {
@@ -55,18 +63,18 @@ public class CategoryServiceTest {
         ReflectionTestUtils.setField(categoryService, "modelMapper", new ModelMapper());
 
         // Given/Arrange
-        categoryOne.setCategoryName("CategoryOne");
-        categoryOne.setIncludedDate(firstDate);
+        categoryOne = new Category("Category A", firstDate);
 
-        categoryTwo.setCategoryName("CategoryTwo");
-        categoryTwo.setIncludedDate(firstDate);
+        categoryTwo = new Category("Category B", firstDate);
+
+        categoryThree = new Category("Category C", firstDate);
     }
 
     @DisplayName("JUnit test for Given Category Object when save category then Return Category Object")
     @Test
     void testGivenSaveCategoryObjectWhenSaveCategoryThenReturnCategoryObject() {
         // Given/Arrange
-        given(categoryRepository.findByCategoryId(anyLong())).willReturn(categoryOne);
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
         given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
         CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
 
@@ -75,97 +83,130 @@ public class CategoryServiceTest {
 
         // Then/Assert
         assertNotNull(savedCategory);
-        assertEquals("CategoryOne", savedCategory.getCategoryName());
+        assertEquals("Category A", savedCategory.getCategoryName());
     }
 
+    @DisplayName("JUnit test for Given Categories List when get All Categories Page Ascending Then return Categories Page Ascending")
     @Test
-    @DisplayName("Should add a new category with success")
-    void shouldAddCategorySuccessfully()
-    {
-        // ------------ ARRANGE --------------
-        CategoryDTO categoryInputDTO = new CategoryDTO();
-        categoryInputDTO.setCategoryName("Category Name");
+    void testGivenAllCategoriesListWhenGetAllCategoriesPageAscendingThenReturnCategoriesPageAscending() {
+        // Given/Arrange
+        List<Category> mockCategories = List.of(
+                categoryOne,
+                categoryTwo,
+                categoryThree);
 
-        Category mappedCategory = new Category();
-        mappedCategory.setCategoryName("Category Name");
+        Page<Category> mockPage = new PageImpl(mockCategories, PageRequest.of(0, 10), mockCategories.size());
 
-        User user = new User();
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(mockPage);
 
-        Category savedCategory = new Category();
-        savedCategory.setCategoryId(1L);
-        savedCategory.setCategoryName("Category Name");
+        // When/Act
+        CategoryResponse categoryResponse = categoryService.getAllCategories(10, 0, "categoryName", "asc");
 
-        CategoryDTO categoryOutputDTO = new CategoryDTO();
-        categoryOutputDTO.setCategoryId(1L);
-        categoryOutputDTO.setCategoryName("Category Name");
-
-        when(modelMapper.map(categoryInputDTO, Category.class)).thenReturn(mappedCategory);
-
-        when(authUtil.userOnLoggedSession()).thenReturn(user);
-
-        when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
-
-        when(modelMapper.map(savedCategory, CategoryDTO.class)).thenReturn(categoryInputDTO);
-
-        // ------------ ACT --------------
-
-        CategoryDTO resultCategoryDTO = categoryService.addCategory(categoryInputDTO);
-
-        // ------------ ASSERT --------------
-
-        assertNotNull(resultCategoryDTO);
-
-        assertEquals(1L, resultCategoryDTO.getCategoryId());
-        assertEquals("Category Name", resultCategoryDTO.getCategoryName());
-
-        verify(categoryRepository, times(1) )
-                .findById(categoryInputDTO.getCategoryId());
-
-        verify(modelMapper, times(1))
-                .map(categoryInputDTO, Category.class);
-
-        verify(authUtil, times(1))
-                .userOnLoggedSession();
-
-        verify(categoryRepository, times(1))
-                .save(any(Category.class));
-
-        verify(modelMapper, times(1))
-                .map(savedCategory, Category.class);
+        // Then/Assert
+        assertNotNull(categoryResponse);
+        assertEquals(3L, categoryResponse.getTotalElements());
+        assertEquals(0, categoryResponse.getPageNumber());
+        assertEquals(1, categoryResponse.getTotalPages());
+        assertEquals("Category C", categoryResponse.getContent().get(2).getCategoryName());
+        assertTrue(categoryResponse.isLastPage());
     }
 
+    @DisplayName("JUnit test for Given Categories List when get All Categories Then return Categories Page Descending")
     @Test
-    @DisplayName("Should update a category with success")
-    void shouldUpdateCategorySuccessfully()
-    {
-        // ------------ ARRANGE --------------
-        Long categoryId = 1L;
+    void testGivenAllCategoriesListWhenGetAllCategoriesPageDescendingThenReturnCategoriesPageDescending() {
+        // Given/Arrange
+        List<Category> mockCategories = List.of(
+                categoryThree,
+                categoryTwo,
+                categoryOne);
 
-        Category existingCategory = new Category();
-        existingCategory.setCategoryId(categoryId);
-        existingCategory.setCategoryName("Old category Name");
+        Page<Category> mockPage = new PageImpl(mockCategories, PageRequest.of(0, 10), mockCategories.size());
 
-        CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setCategoryId(categoryId);
-        categoryDTO.setCategoryName("New category Name");
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(mockPage);
 
-        when(categoryRepository.findById(categoryId))
-                .thenReturn(Optional.of(existingCategory));
+        // When/Act
+        CategoryResponse categoryResponse = categoryService.getAllCategories(10, 0, "categoryName", "desc");
 
-        when(modelMapper.map(categoryDTO, Category.class))
-                .thenReturn(new Category());
+        // Then/Assert
+        assertNotNull(categoryResponse);
+        assertEquals(3L, categoryResponse.getTotalElements());
+        assertEquals(0, categoryResponse.getPageNumber());
+        assertEquals(1, categoryResponse.getTotalPages());
+        assertEquals("Category A", categoryResponse.getContent().get(2).getCategoryName());
+        assertTrue(categoryResponse.isLastPage());
+    }
 
-        when(categoryRepository.save(any(Category.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    @DisplayName("JUnit test for Given Empty Categories List when get All Categories Then Throws API Exception")
+    @Test
+    void testGivenEmptyCategoriesListWhenGetAllCategoriesPageThenThrowsAPIException() {
+        // Given/Arrange
 
-        when(modelMapper.map(existingCategory, CategoryDTO.class))
-                .thenReturn(categoryDTO);
+        Page<Category> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(mockPage);
 
-        // ------------ ACT --------------
-        CategoryDTO categoryResult = categoryService.updateCategory(categoryDTO, categoryId);
+        // When/Act
+        assertThrows(APIException.class, () -> {
+            categoryService.getAllCategories(10, 0, "categoryName", "desc");
+        });
 
-        // ------------ ASSERT --------------
-        assertEquals("New category Name", categoryResult.getCategoryName());
-        verify(categoryRepository, times(1)).save(existingCategory);
+        // Then/Assert
+        verify(categoryRepository, never()).save(any(Category.class));
+    }
+
+    @DisplayName("JUnit test for Given Category when Delete Category then Return Deleted Category DTO")
+    @Test
+    void testGivenCategoryWhenDeleteCategoryThenReturnDeletedCategoryDTO() {
+        // Given/Arrange
+        categoryOne.setCategoryId(1L);
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
+        willDoNothing().given(categoryRepository).deleteById(anyLong());
+
+        // When/Act
+        CategoryDTO savedCategoryDTO =  categoryService.deleteCategory(categoryOne.getCategoryId());
+
+        // Then/Assert
+        verify(categoryRepository, times(1)).delete(categoryOne);
+        assertEquals("Category A", savedCategoryDTO.getCategoryName());
+    }
+
+    @DisplayName("JUnit test Given Category when Update Category then Return Category DTO")
+    @Test
+    void testGivenCategoryWhenUpdateCategoryThenReturnCategoryDTO() {
+        // Given/Arrange
+        categoryOne.setCategoryId(1L);
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
+
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
+
+        CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
+
+        // When/Act
+        categoryOneDTO.setCategoryName("New Category Name");
+        CategoryDTO updatedCategoryDTO = categoryService.updateCategory(categoryOneDTO, 1L);
+
+        // Then/Assert
+        assertNotNull(updatedCategoryDTO);
+        assertEquals("Category A", updatedCategoryDTO.getCategoryName());
+    }
+
+    @DisplayName("JUnit test Given Category when Update Category Not Existent Then Throws API Exception")
+    @Test
+    void testGivenCategoryWhenUpdateCategoryNotExistentThenThrowsAPIException() {
+        // Given/Arrange
+        categoryOne.setCategoryId(1L);
+        given(categoryRepository.findById(categoryOne.getCategoryId())).willReturn(Optional.of(categoryOne));
+
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
+
+        CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
+
+        // When/Act
+        categoryOneDTO.setCategoryName("New Category Name");
+        assertThrows(ResourceNotFoundException.class, () -> {
+            categoryService.updateCategory(categoryOneDTO, 1000L);
+        });
+
+        // Then/Assert
+        verify(categoryRepository, never()).save(any(Category.class));
     }
 }

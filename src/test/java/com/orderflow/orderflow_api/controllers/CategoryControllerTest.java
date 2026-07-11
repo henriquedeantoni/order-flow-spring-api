@@ -30,7 +30,6 @@ public class CategoryControllerTest {
         Long categoryId = 1L;
 
         CategoryDTO categoryDTO = new CategoryDTO();
-        categoryDTO.setCategoryId(categoryId);
         categoryDTO.setCategoryName("Category name 1");
 
         // ------------ ACT --------------

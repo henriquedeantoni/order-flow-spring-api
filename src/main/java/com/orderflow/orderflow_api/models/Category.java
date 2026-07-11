@@ -30,4 +30,9 @@ public class Category {
 
     @Column(name = "included_at")
     private OffsetDateTime includedDate = OffsetDateTime.now(ZoneOffset.UTC);
+
+    public Category(String categoryName , OffsetDateTime includedDate) {
+        this.categoryName = categoryName;
+        this.includedDate = includedDate;
+    }
 }
