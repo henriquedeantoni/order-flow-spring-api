@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
@@ -27,11 +28,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -53,9 +55,9 @@ public class CategoryServiceTest {
             2025, 1, 1, 12, 00, 0, 0, ZoneOffset.UTC
     );
 
-    private final Category categoryOne = new Category();
-    private final Category categoryTwo = new Category();
-    private final Category categoryThree = new Category();
+    private Category categoryOne;
+    private Category categoryTwo;
+    private Category categoryThree;
 
     @BeforeEach
     void setUp() {
@@ -63,21 +65,18 @@ public class CategoryServiceTest {
         ReflectionTestUtils.setField(categoryService, "modelMapper", new ModelMapper());
 
         // Given/Arrange
-        categoryOne.setCategoryName("Category A");
-        categoryOne.setIncludedDate(firstDate);
+        categoryOne = new Category("Category A", firstDate);
 
-        categoryTwo.setCategoryName("Category B");
-        categoryTwo.setIncludedDate(firstDate);
+        categoryTwo = new Category("Category B", firstDate);
 
-        categoryThree.setCategoryName("Category C");
-        categoryThree.setIncludedDate(firstDate);
+        categoryThree = new Category("Category C", firstDate);
     }
 
     @DisplayName("JUnit test for Given Category Object when save category then Return Category Object")
     @Test
     void testGivenSaveCategoryObjectWhenSaveCategoryThenReturnCategoryObject() {
         // Given/Arrange
-        given(categoryRepository.findByCategoryId(anyLong())).willReturn(categoryOne);
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
         given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
         CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
 
@@ -86,12 +85,12 @@ public class CategoryServiceTest {
 
         // Then/Assert
         assertNotNull(savedCategory);
-        assertEquals("CategoryOne", savedCategory.getCategoryName());
+        assertEquals("Category A", savedCategory.getCategoryName());
     }
 
-    @DisplayName("JUnit test for Given Categories List when get All Categories Then return Category List")
+    @DisplayName("JUnit test for Given Categories List when get All Categories Page Ascending Then return Categories Page Ascending")
     @Test
-    void testGivenGetAllCategoriesListWhenGetAllCategoriesPageAscendingThenReturnAllCategoriesPageAscending() {
+    void testGivenAllCategoriesListWhenGetAllCategoriesPageAscendingThenReturnCategoriesPageAscending() {
         // Given/Arrange
         List<Category> mockCategories = List.of(
                 categoryOne,
@@ -114,9 +113,9 @@ public class CategoryServiceTest {
         assertTrue(categoryResponse.isLastPage());
     }
 
-    @DisplayName("JUnit test for Given Categories List when get All Categories Then return Category List")
+    @DisplayName("JUnit test for Given Categories List when get All Categories Then return Categories Page Descending")
     @Test
-    void testGivenGetAllCategoriesListWhenGetAllCategoriesPageDescendingThenReturnAllCategoriesPageDescending() {
+    void testGivenAllCategoriesListWhenGetAllCategoriesPageDescendingThenReturnCategoriesPageDescending() {
         // Given/Arrange
         List<Category> mockCategories = List.of(
                 categoryThree,
@@ -139,19 +138,57 @@ public class CategoryServiceTest {
         assertTrue(categoryResponse.isLastPage());
     }
 
-    @DisplayName("JUnit test for Given Categories L")
+    @DisplayName("JUnit test for Given Empty Categories List when get All Categories Then return Category List")
     @Test
-    void testGivenCategoryWhenDeleteCategoriyThenReturnDeletedCategory() {
+    void testGivenEmptyCategoriesListWhenGetAllCategoriesPageThenReturnEmptyCategoriesPage() {
+        // Given/Arrange
+
+        Page<Category> mockPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
+        given(categoryRepository.findAll(any(Pageable.class))).willReturn(mockPage);
+
+        // When/Act
+        assertThrows(APIException.class, () -> {
+            categoryService.getAllCategories(10, 0, "categoryName", "desc");
+        });
+
+        // Then/Assert
+        verify(categoryRepository, never()).save(any(Category.class));
+    }
+
+    @DisplayName("JUnit test for Given Category when Delete Category then Return Deleted Category DTO")
+    @Test
+    void testGivenCategoryWhenDeleteCategoryThenReturnDeletedCategoryDTO() {
         // Given/Arrange
         categoryOne.setCategoryId(1L);
-        given(categoryRepository.findByCategoryId(anyLong())).willReturn(categoryOne);
-        willDoNothing().given(categoryService).deleteCategory(categoryOne.getCategoryId());
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
+        willDoNothing().given(categoryRepository).deleteById(anyLong());
+        //willDoNothing().given(categoryService).deleteCategory(categoryOne.getCategoryId());
 
         // When/Act
         CategoryDTO savedCategoryDTO =  categoryService.deleteCategory(categoryOne.getCategoryId());
 
         // Then/Assert
         verify(categoryRepository, times(1)).delete(categoryOne);
+        assertEquals("Category A", savedCategoryDTO.getCategoryName());
+    }
 
+    @DisplayName("JUnit test")
+    @Test
+    void testGivenCategoryWhenUpdateCategoryThenReturnCategoryDTO() {
+        // Given/Arrange
+        categoryOne.setCategoryId(1L);
+        given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
+
+        given(categoryRepository.save(any(Category.class))).willReturn(categoryOne);
+
+        CategoryDTO categoryOneDTO = new ModelMapper().map(categoryOne, CategoryDTO.class);
+
+        // When/Act
+        categoryOneDTO.setCategoryName("New Category Name");
+        CategoryDTO updatedCategoryDTO = categoryService.updateCategory(categoryOneDTO, 1L);
+
+        // Then/Assert
+        assertNotNull(updatedCategoryDTO);
+        assertEquals("Category A", updatedCategoryDTO.getCategoryName());
     }
 }
