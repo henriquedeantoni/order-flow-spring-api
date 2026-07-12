@@ -2,9 +2,11 @@ package com.orderflow.orderflow_api.services;
 
 import com.orderflow.orderflow_api.models.Category;
 import com.orderflow.orderflow_api.models.Local;
+import com.orderflow.orderflow_api.models.User;
 import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.payload.LocalDTO;
 import com.orderflow.orderflow_api.repositories.LocalRepository;
+import com.orderflow.orderflow_api.security.util.AuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,9 @@ public class LocalServiceTest {
     @Mock
     private LocalRepository localRepository;
 
+    @Mock
+    private AuthUtil authUtil;
+
     @InjectMocks
     private LocalServiceImpl localService;
 
@@ -56,6 +61,7 @@ public class LocalServiceTest {
     @Test
     void testGivenLocalObjectWhenSaveLocalThenReturnLocalObject() {
         // Given/Arrange
+        given(authUtil.userOnLoggedSession()).willReturn(new User("username", "user@email.com", "hashPass", "firstName", "lastName"));
         given(localRepository.findById(anyLong())).willReturn(Optional.of(localOne));
         given(localRepository.save(any(Local.class))).willReturn(localOne);
         LocalDTO localOneDTO = new ModelMapper().map(localOne, LocalDTO.class);
