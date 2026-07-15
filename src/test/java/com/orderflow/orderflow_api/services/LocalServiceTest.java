@@ -115,7 +115,7 @@ public class LocalServiceTest {
                 .willReturn(new User("username", "user@email.com", "hashPass", "firstName", "lastName"));
         List<Local> localMockList = List.of(localOne, localTwo, localThree, localFour);
         Page<Local> localMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
-        given(localRepository.findAll(any(PageRequest.class))).willReturn(localMockPage);
+        given(localRepository.findByUser(any(User.class), any(PageRequest.class))).willReturn(localMockPage);
 
         // When/Act
         LocalResponse localResponse = localService.findAllUserLocals(0, 1, "streetName", "asc");
