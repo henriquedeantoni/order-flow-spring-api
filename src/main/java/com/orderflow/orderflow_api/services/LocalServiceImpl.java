@@ -114,7 +114,8 @@ public class LocalServiceImpl implements LocalService{
     @Override
     public LocalDTO findLocalById(Long localId) {
         Local localFromDB = localRepository.findById(localId)
-                .orElseThrow(() -> new ResourceNotFoundException("Local", "localId", localId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Local", "localId", localId));
         return modelMapper.map(localFromDB, LocalDTO.class);
     }
 
