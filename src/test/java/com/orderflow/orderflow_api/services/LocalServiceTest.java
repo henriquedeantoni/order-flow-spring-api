@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Local;
 import com.orderflow.orderflow_api.models.User;
+import com.orderflow.orderflow_api.payload.CategoryDTO;
 import com.orderflow.orderflow_api.payload.LocalDTO;
 import com.orderflow.orderflow_api.payload.LocalResponse;
 import com.orderflow.orderflow_api.repositories.LocalRepository;
@@ -30,8 +31,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 public class LocalServiceTest {
@@ -289,22 +290,22 @@ public class LocalServiceTest {
                 localThree,
                 localFour);
 
+        List<Local> emptyMockList = List.of();
+
         Page<Local> localMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
-        Page<Local> emptyLocalMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
+        Page<Local> emptyLocalMockPage = new PageImpl(emptyMockList, PageRequest.of(0, 10), localMockList.size());
 
         given(localRepository.findAllByState(eq(validState), any(Pageable.class))).willReturn(localMockPage);
         given(localRepository.findAllByState(eq(invalidState), any(Pageable.class))).willReturn(emptyLocalMockPage);
 
         // When/Act
-        LocalResponse response = localService.findLocalsByState(validState, 0, 10, "streetName", "asc");
+        assertThrows(APIException.class, ()-> {
+            localService.findLocalsByState(invalidState, 0, 10, "streetName", "asc");
+        });
 
         // Then/Assert
-        assertNotNull(response);
-        assertEquals(4, response.getTotalElements());
-        assertEquals("Street A", response.getContent().get(0).getStreetName());
-        assertEquals("state name", response.getContent().get(1).getState());
+        verify(localRepository).findAllByState(eq(invalidState), any(Pageable.class));
     }
-
 
     @DisplayName("JUnit test for Given Local Object When Update Local then Return Local DTO Object")
     @Test
@@ -326,5 +327,22 @@ public class LocalServiceTest {
         assertEquals("new state", savedLocal.getState());
     }
 
+    @DisplayName("JUnit test for Given Local when Delete Local then Return Deleted Local DTO")
+    @Test
+    void testGivenLocalWhenDeleteCategoryThenReturnDeletedCategoryDTO() {
+        // Given/Arrange
+        localOne.setLocalId(1L);
+        given(localRepository.findById(anyLong())).willReturn(Optional.of(localOne));
+        willDoNothing().given(localRepository).deleteById(anyLong());
+
+        // When/Act
+        LocalDTO deletedLocalDTO =  localService.deleteLocal(localOne.getLocalId());
+
+        // Then/Assert
+        verify(localRepository, times(1)).delete(localOne);
+        assertEquals("Street A", deletedLocalDTO.getStreetName());
+        assertEquals("Building A", deletedLocalDTO.getBuildingName());
+        assertEquals("City A", deletedLocalDTO.getCity());
+    }
 
 }
