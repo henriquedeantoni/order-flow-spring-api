@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Local;
 import com.orderflow.orderflow_api.models.User;
@@ -197,5 +198,133 @@ public class LocalServiceTest {
         assertEquals(4, response.getTotalElements());
         assertEquals("Street A", response.getContent().get(0).getStreetName());
     }
+
+    @DisplayName("JUnit test for Given Local Object When Find Locals By City Non Existent Then Return Empty Page Response")
+    @Test
+    void testGivenLocalObjectWhenFindLocalLocalByCityNonExistentThenReturnEmptyPageResponse() {
+        // Given/Arrange
+        given(authUtil.userOnLoggedSession()).willReturn(new User("username", "user@email.com", "hashPass", "firstName", "lastName"));
+
+        String validCity = "city name";
+        String invalidCity = "wrong city name";
+
+        localOne.setCity(validCity);
+        localTwo.setCity(validCity);
+        localThree.setCity(validCity);
+        localFour.setCity(validCity);
+
+        List<Local> localMockList = List.of(
+                localOne,
+                localTwo,
+                localThree,
+                localFour);
+
+        List<Local> emptyMockList = List.of();
+
+        Page<Local> localMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
+        Page<Local> emptyLocalMockPage = new PageImpl(emptyMockList, PageRequest.of(0, 10), emptyMockList.size());
+
+        given(localRepository.findAllByCity(eq(validCity), any(Pageable.class))).willReturn(localMockPage);
+        given(localRepository.findAllByCity(eq(invalidCity), any(Pageable.class))).willReturn(emptyLocalMockPage);
+
+        // When/Act
+        assertThrows(APIException.class, ()-> {
+            localService.findLocalsByCity(invalidCity, 0, 10, "streetName", "asc");
+        });
+
+        // Then/Assert
+        verify(localRepository).findAllByCity(eq(invalidCity), any(Pageable.class));
+    }
+
+    @DisplayName("JUnit test for Given Local Object When Find Locals By State Then Return Locals Object Response")
+    @Test
+    void testGivenLocalObjectWhenFindLocalLocalByStateThenReturnLocalsObjectResponse() {
+        // Given/Arrange
+        given(authUtil.userOnLoggedSession()).willReturn(new User("username", "user@email.com", "hashPass", "firstName", "lastName"));
+
+        String state = "state name";
+        localOne.setState(state);
+        localTwo.setState(state);
+        localThree.setState(state);
+        localFour.setState(state);
+
+        List<Local> localMockList = List.of(
+                localOne,
+                localTwo,
+                localThree,
+                localFour);
+
+        List<Local> emptyMockList = List.of();
+
+        Page<Local> localMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
+        given(localRepository.findAllByState(eq(state), any(Pageable.class))).willReturn(localMockPage);
+
+        // When/Act
+        LocalResponse response = localService.findLocalsByState(state, 0, 10, "streetName", "asc");
+
+        // Then/Assert
+        assertNotNull(response);
+        assertEquals(4, response.getTotalElements());
+        assertEquals("Street A", response.getContent().get(0).getStreetName());
+        assertEquals("state name", response.getContent().get(1).getState());
+    }
+
+    @DisplayName("JUnit test for Given Local Object When Find Locals By State Then Non Existent Then Return Empty Page Response")
+    @Test
+    void testGivenLocalObjectWhenFindLocalLocalByStateNonExistentThenReturnEmptyPageResponse() {
+        // Given/Arrange
+        given(authUtil.userOnLoggedSession()).willReturn(new User("username", "user@email.com", "hashPass", "firstName", "lastName"));
+
+        String validState = "state name";
+        String invalidState = "wrong state name";
+
+        localOne.setState(validState);
+        localTwo.setState(validState);
+        localThree.setState(validState);
+        localFour.setState(validState);
+
+        List<Local> localMockList = List.of(
+                localOne,
+                localTwo,
+                localThree,
+                localFour);
+
+        Page<Local> localMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
+        Page<Local> emptyLocalMockPage = new PageImpl(localMockList, PageRequest.of(0, 10), localMockList.size());
+
+        given(localRepository.findAllByState(eq(validState), any(Pageable.class))).willReturn(localMockPage);
+        given(localRepository.findAllByState(eq(invalidState), any(Pageable.class))).willReturn(emptyLocalMockPage);
+
+        // When/Act
+        LocalResponse response = localService.findLocalsByState(validState, 0, 10, "streetName", "asc");
+
+        // Then/Assert
+        assertNotNull(response);
+        assertEquals(4, response.getTotalElements());
+        assertEquals("Street A", response.getContent().get(0).getStreetName());
+        assertEquals("state name", response.getContent().get(1).getState());
+    }
+
+
+    @DisplayName("JUnit test for Given Local Object When Update Local then Return Local DTO Object")
+    @Test
+    void testGivenLocalObjectWhenUpdateLocalThenReturnLocalObject() {
+        // Given/Arrange
+        localOne.setLocalId(1L);
+        given(localRepository.findById(1L)).willReturn(Optional.of(localOne));
+        given(localRepository.save(localOne)).willReturn(localOne);
+        LocalDTO localOneDTO = new ModelMapper().map(localOne, LocalDTO.class);
+
+        // When/Act
+        localOneDTO.setStreetName("New Street");
+        localOneDTO.setState("new state");
+        LocalDTO savedLocal = localService.updateLocal(1L, localOneDTO);
+
+        // Then/Assert
+        assertNotNull(savedLocal);
+        assertEquals("New Street", savedLocal.getStreetName());
+        assertEquals("new state", savedLocal.getState());
+    }
+
 
 }

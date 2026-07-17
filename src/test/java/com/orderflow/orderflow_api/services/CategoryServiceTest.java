@@ -173,6 +173,8 @@ public class CategoryServiceTest {
     @Test
     void testGivenCategoryWhenUpdateCategoryThenReturnCategoryDTO() {
         // Given/Arrange
+        Long validLongId = 1L;
+        Long invalidLongId = 2L;
 
         categoryOne.setCategoryId(1L);
         given(categoryRepository.findById(anyLong())).willReturn(Optional.of(categoryOne));
