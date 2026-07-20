@@ -3,6 +3,8 @@ package com.orderflow.orderflow_api.services;
 import com.orderflow.orderflow_api.models.AlbumImage;
 import com.orderflow.orderflow_api.models.SimpleImage;
 import com.orderflow.orderflow_api.models.User;
+import com.orderflow.orderflow_api.payload.SimpleImageDTO;
+import com.orderflow.orderflow_api.payload.SimpleImageRequestDTO;
 import com.orderflow.orderflow_api.repositories.AlbumImageRepository;
 import com.orderflow.orderflow_api.repositories.SimpleImageRepository;
 import com.orderflow.orderflow_api.security.util.AuthUtil;
@@ -12,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -76,10 +81,16 @@ public class SimpleImageServiceTest {
         given(simpleImageRepository.save(any(SimpleImage.class))).willReturn(simpleImageOne);
         given(fileService.uploadImageFile(any(String.class), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f");
 
-        // When/Act
+        SimpleImageRequestDTO simpleImageRequest = new SimpleImageRequestDTO("Image One");
 
+        MultipartFile file = Mockito.mock(MultipartFile.class);
+
+        // When/Act
+        SimpleImageDTO simpleImageDTO = simpleImageService.addImage(1L, simpleImageRequest, file );
 
         // Then/Assert
+
+        assertNotNull(simpleImageDTO);
     }
 
     @DisplayName("JUnit test for Given Simple Image Object When Add Image With Id Existent Then Throws API Exception")
