@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.AlbumImage;
 import com.orderflow.orderflow_api.models.SimpleImage;
 import com.orderflow.orderflow_api.models.User;
@@ -26,8 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -45,7 +45,7 @@ public class SimpleImageServiceTest {
     private AlbumImageRepository albumImageRepository;
 
     @Mock
-    private FileServiceImpl fileServiceImpl;
+    private FileService fileService;
 
     @Mock
     private AuthUtil authUtil;
@@ -67,6 +67,7 @@ public class SimpleImageServiceTest {
         modelMapper = new ModelMapper();
 
         ReflectionTestUtils.setField(simpleImageService, "modelMapper", new ModelMapper());
+        ReflectionTestUtils.setField(simpleImageService, "path", "src/test/resources/images");
 
         simpleImageOne = new SimpleImage("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f","Image One");
         simpleImageTwo = new SimpleImage("/811e1bcf-7264-4284-9a84-658cc5de0884", "Image Two");
@@ -86,7 +87,7 @@ public class SimpleImageServiceTest {
         given(simpleImageRepository.findById(anyLong())).willReturn(Optional.of(simpleImageOne));
         given(albumImageRepository.findById(anyLong())).willReturn(Optional.of(albumImageOne));
         given(simpleImageRepository.save(any(SimpleImage.class))).willReturn(simpleImageOne);
-        given(fileServiceImpl.uploadImageFile(any(String.class), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f");
+        given(fileService.uploadImageFile(any(String.class), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f");
 
         SimpleImageRequestDTO simpleImageRequest = new SimpleImageRequestDTO("Image One");
 
@@ -104,31 +105,44 @@ public class SimpleImageServiceTest {
     @DisplayName("JUnit test for Given Simple Image Object When Add Image With Id Existent Then Throws API Exception")
     @Test
     void testGivenSimpleImageObjectWhenAddImageWithIdExistentThenThrowsAPIException() throws IOException {
-        // Given/Arrange
-        Long albumImageId = 1L;
-        MultipartFile file = Mockito.mock(MultipartFile.class);
+        // Given / Arrange
+        Long validSimpleImageId = 1L;
+        Long invalidSimpleImageId = 2L;
+        MultipartFile file = new MockMultipartFile(
+                "file", "image.png", "image/png", "conteudo".getBytes()
+        );
+        given(simpleImageRepository.findById(validSimpleImageId)).willReturn(Optional.of(simpleImageOne));
 
+        given(fileService.uploadImageFile(anyString(), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f.png");
 
-        given(simpleImageRepository.findById(1L)).willReturn(Optional.of(simpleImageOne));
-        given(albumImageRepository.findById(anyLong())).willReturn(Optional.of(albumImageOne));
-        given(simpleImageRepository.save(simpleImageOne)).willReturn(simpleImageOne);
-        given(fileServiceImpl.uploadImageFile(anyString(), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f");
-        SimpleImageDTO simpleImageDTO = new ModelMapper().map(simpleImageOne, SimpleImageDTO.class);
+        // When / Act
+        assertThrows(ResourceNotFoundException.class, () -> {
+            simpleImageService.updateImageFile(invalidSimpleImageId, file);
+        });
 
-
-
-        // When/Act
-        when(file.getOriginalFilename()).thenReturn("image.png");
-        when(file.getInputStream()).thenReturn(new ByteArrayInputStream("content".getBytes()));
-        SimpleImageDTO response = simpleImageService.updateImageFile(1L, file);
-
-        // Then/Assert
-        assertNotNull(response);
-        verify(fileServiceImpl).uploadImageFile(anyString(), any(MultipartFile.class));
-        assertEquals("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f", response.getUrl());
+        // Then / Assert
+        verify(simpleImageRepository).findById(2L);
     }
 
+    @DisplayName("JUnit test for Given Simple Image Object When Upload Image File Then Return Simple Image DTO")
+    @Test
+    void testGivenSimpleImageObjectWhenUploadImageFileThenReturnSimpleImageDTO() throws IOException {
+        // Given / Arrange
+        Long simpleImageId = 1L;
+        MultipartFile file = new MockMultipartFile(
+                "file", "image.png", "image/png", "conteudo".getBytes()
+        );
+        given(simpleImageRepository.findById(simpleImageId)).willReturn(Optional.of(simpleImageOne));
 
+        given(fileService.uploadImageFile(anyString(), any(MultipartFile.class))).willReturn("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f.png");
 
+        // When / Act
+        SimpleImageDTO response = simpleImageService.updateImageFile(simpleImageId, file);
 
+        // Then / Assert
+        assertNotNull(response);
+        assertEquals("/6e0d7690-9df9-4de6-aa6f-dc52bf39b96f.png", response.getUrl());
+        verify(fileService).uploadImageFile(anyString(), any(MultipartFile.class));
+        verify(simpleImageRepository).save(simpleImageOne);
+    }
 }
