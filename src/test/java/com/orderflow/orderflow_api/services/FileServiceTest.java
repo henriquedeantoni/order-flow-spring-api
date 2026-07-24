@@ -23,7 +23,7 @@ public class FileServiceTest {
     @InjectMocks
     private FileServiceImpl fileService;
 
-    @DisplayName("JUnit test for Given")
+    @DisplayName("JUnit test for Given Path And MultipartFile when upload File Then Return File Name")
     @Test
     void testGivenPathAndMultipartFileWhenUploadFileThenReturnFileName() throws IOException {
         // Given / Arrange
