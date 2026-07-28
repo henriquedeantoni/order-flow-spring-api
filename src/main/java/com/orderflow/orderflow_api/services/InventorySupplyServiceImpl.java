@@ -56,9 +56,9 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
         inventorySupply.setSection(inventorySupplyDTO.getSection());
         inventorySupply.setCodeBar(inventorySupplyDTO.getCodeBar());
 
-        inventorySupplyRepository.save(inventorySupply);
+        InventorySupply savedInventorySupply = inventorySupplyRepository.save(inventorySupply);
 
-        return inventorySupplyDTO;
+        return modelMapper.map(savedInventorySupply, InventorySupplyDTO.class);
     }
 
     @Override
