@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface SupplyEventService {
-    SupplyEventResponseDTO firstSupplyEvent(Long supplyId);
+    SupplyEventResponseDTO firstSupplyEventRegister(Long supplyId);
 
     SupplyEventResponseDTO increaseQuantityMovedEvent(Long supplyId, Integer quantityMoved);
 

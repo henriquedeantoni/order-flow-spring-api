@@ -39,7 +39,8 @@ public class ItemImageServiceImpl implements ItemImageService {
     @Override
     public ItemImageDTO addItemImage(Long itemId, ItemImageRequestDTO itemImageRequestDTO, MultipartFile fileImage) throws IOException {
         Item itemFromDB = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item", "itemId",itemId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Item", "itemId",itemId));
 
         String fileName = fileService.uploadImageFile(path, fileImage);
 
