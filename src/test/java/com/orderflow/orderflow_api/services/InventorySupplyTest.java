@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.models.InventorySupply;
 import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.payload.InventorySupplyDTO;
@@ -21,10 +22,11 @@ import java.util.Optional;
 
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 public class InventorySupplyTest {
@@ -58,35 +60,58 @@ public class InventorySupplyTest {
 
         inventorySupplyOne = new InventorySupply("codeBarOne", "sectionA", "supplyReferenceOne", "Approved", newDate, movementDateTime, movementDateTime);
 
+        inventorySupplyDTO = new InventorySupplyDTO();
+
+        inventorySupplyDTO.setSupplyReference("supplyReferenceOne");
+        inventorySupplyDTO.setSection("sectionA");
+        inventorySupplyDTO.setCodeBar("codeBarOne");
+        inventorySupplyDTO.setValDate(newDate);
+
         supplyOne = new Supply("supplyOne", "supplyOneReference", "supplyOneName", "supplyOneDescription", "supplyOneCode", "gr");
 
-        inventorySupplyDTO = modelMapper.map(supplyOne, InventorySupplyDTO.class);
     }
 
     @DisplayName("JUnit test for Given Inventory Supply Object When Register Supply On Inventory Then Return Inventory Supply DTO Object")
     @Test
     void testGivenInventorySupplyObjectWhenRegisterSupplyOnInventoryThenReturnInventorySupplyDTOObject() {
-        InventorySupplyDTO dto = new InventorySupplyDTO();
-        dto.setSupplyReference("SUP123");
-        dto.setSection("A1");
-        dto.setCodeBar("123456789");
 
-        Supply supply = new Supply();
-        supply.setSupplyReference("SUP123");
+        // Given/Arrange
 
-        given(supplyRepository.findBySupplyReference("SUP123")).willReturn(supply);
+        supplyOne.setSupplyReference("supplyReferenceOne");
+        given(supplyRepository.findBySupplyReference("supplyReferenceOne")).willReturn(supplyOne);
         given(inventorySupplyRepository.save(any(InventorySupply.class))).willAnswer(inv -> inv.getArgument(0));
-        given(modelMapper.map(any(InventorySupply.class), eq(InventorySupplyDTO.class))).willReturn(dto);
+        given(modelMapper.map(any(InventorySupply.class), eq(InventorySupplyDTO.class))).willReturn(inventorySupplyDTO);
 
-        InventorySupplyDTO result = inventorySupplyService.registerSupplyOnInventory(dto);
+        // When/Act
+        InventorySupplyDTO savedInventorySupply = inventorySupplyService.registerSupplyOnInventory(inventorySupplyDTO);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getSupplyReference()).isEqualTo("SUP123");
+        // Then/Assert
+        assertNotNull(savedInventorySupply);
+        assertEquals("supplyReferenceOne",  savedInventorySupply.getSupplyReference());
+
     }
 
     @DisplayName("JUnit test for Given Inventory Supply Object When Register Supply On Inventory With Supply Reference Non Existent Then Throws APIException")
     @Test
     void testGivenInventorySupplyObjectWhenRegisterSupplyOnInventoryWithSupplyReferenceNonExistentThenThrowsAPIException() {
+        // Given/Arrange
+        String invalidSupplyReference = "invalidSupplyReference";
+        inventorySupplyDTO.setSupplyReference(invalidSupplyReference);
+        given(supplyRepository.findBySupplyReference("supplyReferenceOne")).willReturn(supplyOne);
+        given(supplyRepository.findBySupplyReference(invalidSupplyReference)).willReturn(null);
+        given(inventorySupplyRepository.save(any(InventorySupply.class))).willAnswer(inv -> inv.getArgument(0));
+        given(modelMapper.map(any(InventorySupply.class), eq(InventorySupplyDTO.class))).willReturn(inventorySupplyDTO);
+
+        // When/Act
+        assertThrows(APIException.class, ()-> inventorySupplyService.registerSupplyOnInventory(inventorySupplyDTO));
+
+        // Then/Assert
+        verify(inventorySupplyRepository, never()).save(any(InventorySupply.class));
+    }
+
+    @DisplayName("JUnit test for Given Inventory List When Get All Inventory Itens Then Return Inventory Response")
+    @Test
+    void testGivenInventoryListWhenGetAllInventoryItensThenReturnInventoryResponse() {
         // Given/Arrange
 
 
