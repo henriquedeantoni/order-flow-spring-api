@@ -33,7 +33,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
     @Autowired
     ModelMapper modelMapper;
 
-    public SupplyEventResponseDTO firstSupplyEvent(Long supplyId) {
+    public SupplyEventResponseDTO firstSupplyEventRegister(Long supplyId) {
         Supply supplyFromDb = supplyRepository.findById(supplyId)
                 .orElseThrow(()-> new ResourceNotFoundException("Supply", "supplyId", supplyId));
 

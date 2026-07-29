@@ -77,8 +77,7 @@ public class InventorySupplyServiceImpl implements InventorySupplyService {
         List<InventorySupplyDTO> inventorySupplyDTOList = inventoryList
                 .stream().map(
                         item -> {
-                            InventorySupplyDTO inventorySupplyDTO = modelMapper.map(item, InventorySupplyDTO.class);
-                            return inventorySupplyDTO;
+                            return modelMapper.map(item, InventorySupplyDTO.class);
                         }
                 ).toList();
 

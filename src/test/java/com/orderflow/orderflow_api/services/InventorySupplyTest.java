@@ -3,6 +3,7 @@ package com.orderflow.orderflow_api.services;
 import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.models.InventorySupply;
 import com.orderflow.orderflow_api.models.Supply;
+import com.orderflow.orderflow_api.payload.InventoryResponse;
 import com.orderflow.orderflow_api.payload.InventorySupplyDTO;
 import com.orderflow.orderflow_api.repositories.InventorySupplyRepository;
 import com.orderflow.orderflow_api.repositories.SupplyRepository;
@@ -13,20 +14,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
+import java.util.List;
 
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 public class InventorySupplyTest {
@@ -45,6 +48,9 @@ public class InventorySupplyTest {
 
     private InventorySupply inventorySupplyOne;
     private InventorySupply inventorySupplyTwo;
+    private InventorySupply inventorySupplyThree;
+    private InventorySupply inventorySupplyFour;
+
     private InventorySupplyDTO inventorySupplyDTO;
 
     private Supply supplyOne;
@@ -59,6 +65,12 @@ public class InventorySupplyTest {
     public void setUp() {
 
         inventorySupplyOne = new InventorySupply("codeBarOne", "sectionA", "supplyReferenceOne", "Approved", newDate, movementDateTime, movementDateTime);
+
+        inventorySupplyTwo = new InventorySupply("codeBarTwo", "sectionA", "supplyReferenceTwo", "Approved", newDate, movementDateTime, movementDateTime);
+
+        inventorySupplyThree = new InventorySupply("codeBarThree", "sectionA", "supplyReferenceThree", "Approved", newDate, movementDateTime, movementDateTime);
+
+        inventorySupplyFour = new InventorySupply("codeBarFour", "sectionA", "supplyReferenceFour", "Approved", newDate, movementDateTime, movementDateTime);
 
         inventorySupplyDTO = new InventorySupplyDTO();
 
@@ -113,13 +125,24 @@ public class InventorySupplyTest {
     @Test
     void testGivenInventoryListWhenGetAllInventoryItensThenReturnInventoryResponse() {
         // Given/Arrange
+        List<InventorySupply> inventorySupplyList = List.of(
+                inventorySupplyOne,
+                inventorySupplyTwo,
+                inventorySupplyThree,
+                inventorySupplyFour
+        );
 
+        Page<InventorySupply> pageMock = new PageImpl(inventorySupplyList, PageRequest.of(0, 10), 0);
+
+        given(inventorySupplyRepository.findAll(any(Specification.class), any(Pageable.class))).willReturn(pageMock);
 
         // When/Act
-
+        InventoryResponse response = inventorySupplyService.getAllInventoryItems(10, 0, "codeBar", "asc");
 
         // Then/Assert
-
-
+        assertNotNull(response);
+        assertEquals(4L, response.getTotalElements());
+        assertEquals(1, response.getTotalPages());
+        assertEquals(0, response.getPageNumber());
     }
 }
