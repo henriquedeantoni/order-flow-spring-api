@@ -57,8 +57,6 @@ public class InventorySupplyTest {
 
     private LocalDate newDate = LocalDate.of(2025, 10, 10);
 
-    private OffsetDateTime dateTime = OffsetDateTime.of(2025, 10, 10, 10, 10, 10, 0, ZoneOffset.UTC);
-
     private OffsetDateTime movementDateTime = OffsetDateTime.of(2025, 10, 10, 10, 10, 10, 0, ZoneOffset.UTC);
 
     @BeforeEach

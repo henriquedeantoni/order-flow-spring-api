@@ -36,12 +36,12 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     public SupplyDTO registerSupply(SupplyDTO supplyDTO) {
         Supply supplyFromDb = supplyRepository.findBySupplyReference(supplyDTO.getSupplyReference());
+
         if (supplyFromDb != null) {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
         Supply supply = modelMapper.map(supplyDTO, Supply.class);
-        //System.out.println("supply : " + supply);
 
         supplyRepository.save(supply);
 
