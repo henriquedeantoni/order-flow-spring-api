@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.InventorySupply;
 import com.orderflow.orderflow_api.models.Supply;
@@ -38,7 +39,7 @@ public class SupplyServiceImpl implements SupplyService {
         Supply supplyFromDb = supplyRepository.findBySupplyReference(supplyDTO.getSupplyReference());
 
         if (supplyFromDb != null) {
-            throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
+            throw new APIException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
         Supply supply = modelMapper.map(supplyDTO, Supply.class);
@@ -54,7 +55,7 @@ public class SupplyServiceImpl implements SupplyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Supply", "supplyId", supplyId));
 
         Supply supplyByReference = supplyRepository.findBySupplyReference(supplyDTO.getSupplyReference());
-        if (supplyByReference != null) {
+        if (supplyByReference != null && !supplyByReference.getSupplyId().equals(supplyDTO.getSupplyId())) {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
