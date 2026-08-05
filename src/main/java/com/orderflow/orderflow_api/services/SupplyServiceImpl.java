@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.InventorySupply;
 import com.orderflow.orderflow_api.models.Supply;
@@ -36,12 +37,12 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     public SupplyDTO registerSupply(SupplyDTO supplyDTO) {
         Supply supplyFromDb = supplyRepository.findBySupplyReference(supplyDTO.getSupplyReference());
+
         if (supplyFromDb != null) {
-            throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
+            throw new APIException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
         Supply supply = modelMapper.map(supplyDTO, Supply.class);
-        //System.out.println("supply : " + supply);
 
         supplyRepository.save(supply);
 
@@ -54,7 +55,7 @@ public class SupplyServiceImpl implements SupplyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Supply", "supplyId", supplyId));
 
         Supply supplyByReference = supplyRepository.findBySupplyReference(supplyDTO.getSupplyReference());
-        if (supplyByReference != null) {
+        if (supplyByReference != null && !supplyByReference.getSupplyId().equals(supplyDTO.getSupplyId())) {
             throw new RuntimeException("Supply already exists, with reference specified " + supplyDTO.getSupplyReference());
         }
 
@@ -115,12 +116,14 @@ public class SupplyServiceImpl implements SupplyService {
                             "%" + keyword.toLowerCase() + "%"));
         }
 
+        specification = specification.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.between(root.get("addDate"), firstDate, lastDate));
+
         Page<Supply> pageSupplies = supplyRepository.findAll(specification, pageDetails);
 
         List<Supply> supplies = pageSupplies.getContent();
         List<SupplyDTO> suppliesDTOS = supplies
                 .stream()
-                .filter(supply -> supply.getAddDate().isBefore(lastDate) && supply.getAddDate().isAfter(firstDate))
                 .map(supply->{
                     return modelMapper.map(supply, SupplyDTO.class);
                 })
