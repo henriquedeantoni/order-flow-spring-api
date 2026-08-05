@@ -4,6 +4,7 @@ import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.payload.SupplyDTO;
+import com.orderflow.orderflow_api.payload.SupplyResponse;
 import com.orderflow.orderflow_api.repositories.InventorySupplyRepository;
 import com.orderflow.orderflow_api.repositories.SupplyRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.OffsetDateTime;
@@ -76,9 +78,9 @@ public class SupplyServiceTest {
         supplyTwo.setSupplyDescription("SupplyDescriptionTwo");
         supplyTwo.setSupplyReference("SupplyReferenceTwo");
         supplyTwo.setBrandName("BrandNameTwo");
-        supplyOne.setSupplyCode("SupplyCodeTwo");
-        supplyOne.setSupplyUnit("SupplyUnitTwo");
-        supplyOne.setAddDate(dateTimeTwo);
+        supplyTwo.setSupplyCode("SupplyCodeTwo");
+        supplyTwo.setSupplyUnit("SupplyUnitTwo");
+        supplyTwo.setAddDate(dateTimeTwo);
 
 
         supplyThree.setSupplyReference("SupplyReferenceThree");
@@ -86,20 +88,33 @@ public class SupplyServiceTest {
         supplyThree.setSupplyDescription("SupplyDescriptionThree");
         supplyThree.setSupplyReference("SupplyReferenceThree");
         supplyThree.setBrandName("BrandNameThree");
-        supplyOne.setSupplyCode("SupplyCodeThree");
-        supplyOne.setSupplyUnit("SupplyUnitThree");
-        supplyOne.setAddDate(dateTimeThree);
+        supplyThree.setSupplyCode("SupplyCodeThree");
+        supplyThree.setSupplyUnit("SupplyUnitThree");
+        supplyThree.setAddDate(dateTimeThree);
 
 
-        supplyThree.setSupplyReference("SupplyReferenceFour");
-        supplyThree.setSupplyName("SupplyNameFour");
-        supplyThree.setSupplyDescription("SupplyDescriptionFour");
-        supplyThree.setSupplyReference("SupplyReferenceFour");
-        supplyThree.setBrandName("BrandNameFour");
-        supplyOne.setSupplyCode("SupplyCodeFour");
-        supplyOne.setSupplyUnit("SupplyUnitFour");
-        supplyOne.setAddDate(dateTimeFour);
+        supplyFour.setSupplyReference("SupplyReferenceFour");
+        supplyFour.setSupplyName("SupplyNameFour");
+        supplyFour.setSupplyDescription("SupplyDescriptionFour");
+        supplyFour.setSupplyReference("SupplyReferenceFour");
+        supplyFour.setBrandName("BrandNameFour");
+        supplyFour.setSupplyCode("SupplyCodeFour");
+        supplyFour.setSupplyUnit("SupplyUnitFour");
+        supplyFour.setAddDate(dateTimeFour);
 
+        given(modelMapper.map(any(Supply.class), eq(SupplyDTO.class)))
+                .willAnswer(invocation -> {
+                    Supply source = invocation.getArgument(0);
+                    SupplyDTO dto = new SupplyDTO();
+                    dto.setSupplyName(source.getSupplyName());
+                    dto.setSupplyDescription(source.getSupplyDescription());
+                    dto.setSupplyReference(source.getSupplyReference());
+                    dto.setBrandName(source.getBrandName());
+                    dto.setSupplyCode(source.getSupplyCode());
+                    dto.setSupplyUnit(source.getSupplyUnit());
+                    dto.setAddDate(source.getAddDate());
+                    return dto;
+                });
     }
 
     @DisplayName("JUnit test for Given Supply Object when Register Supply then Return Supply DTO Object")
@@ -200,9 +215,9 @@ public class SupplyServiceTest {
         verify(supplyRepository, never()).save(any());
     }
 
-    @DisplayName("JUnit test for Given ...")
+    @DisplayName("JUnit test for Given Supply List Objects When Get All Supply Registered Page Ascending Then Return Supply Response Object")
     @Test
-    public void testGivenSupplyObjectWhenUpdateSupplyThenReturnSupplyDTO(){
+    public void testGivenSupplyListObjectsWhenGetAllSupplyRegisteredPageAscendingThenReturnSupplyResponseObject(){
         // Given/Arrange
         List<Supply> mockSupplyList = List.of(
                 supplyOne,
@@ -211,14 +226,46 @@ public class SupplyServiceTest {
                 supplyFour
         );
 
-        Page<Supply> supplyPage = new PageImpl(mockSupplyList, PageRequest.of(0, 1), mockSupplyList.size());
-        given(supplyRepository.findAll(any(Pageable.class))).willReturn(supplyPage);
+        Page<Supply> supplyPage = new PageImpl(mockSupplyList, PageRequest.of(0, 10), mockSupplyList.size());
+        given(supplyRepository.findAll( any(Specification.class) , any(Pageable.class))).willReturn(supplyPage);
 
         // When/Act
 
+        SupplyResponse supplyResponse = supplyService.getAllSupplyRegistered("SupplyName", 10, 0, "supplyName","asc");
 
         // Then/Arrange
+        assertNotNull(supplyResponse);
+        assertEquals(4L, supplyResponse.getTotalElements());
+        assertEquals(0, supplyResponse.getPageNumber());
+        assertEquals(1, supplyResponse.getTotalPages());
+        assertEquals("BrandNameFour", supplyResponse.getContent().get(3).getBrandName());
+    }
 
+    @DisplayName("JUnit test for Given Supply List Objects When Get All Supply Registered ByPeriod Page Ascending Then Return Supply Response Object")
+    @Test
+    public void testGivenSupplyListObjectsWhenGetAllSupplyRegisteredByPeriodPageAscendingThenReturnSupplyResponseObject(){
+        // Given/Arrange
 
+        OffsetDateTime firstDate = OffsetDateTime.of(2025, 10, 6, 10, 10, 10, 0, ZoneOffset.UTC);
+        OffsetDateTime lastDate = OffsetDateTime.of(2025, 10, 19, 10, 10, 10, 0, ZoneOffset.UTC);
+
+        List<Supply> mockSupplyList = List.of(
+                supplyTwo,
+                supplyThree
+        );
+
+        Page<Supply> supplyPage = new PageImpl(mockSupplyList, PageRequest.of(0, 10), mockSupplyList.size());
+        given(supplyRepository.findAll( any(Specification.class) , any(Pageable.class))).willReturn(supplyPage);
+
+        // When/Act
+
+        SupplyResponse supplyResponse = supplyService.getAllSupplyRegisteredByPeriod("SupplyName", firstDate, lastDate, 10, 0, "supplyName","asc");
+
+        // Then/Arrange
+        assertNotNull(supplyResponse);
+        assertEquals(2L, supplyResponse.getTotalElements());
+        assertEquals(0, supplyResponse.getPageNumber());
+        assertEquals(1, supplyResponse.getTotalPages());
+        assertEquals("BrandNameThree", supplyResponse.getContent().get(1).getBrandName());
     }
 }

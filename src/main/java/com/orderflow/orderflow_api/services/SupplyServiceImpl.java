@@ -116,12 +116,14 @@ public class SupplyServiceImpl implements SupplyService {
                             "%" + keyword.toLowerCase() + "%"));
         }
 
+        specification = specification.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.between(root.get("addDate"), firstDate, lastDate));
+
         Page<Supply> pageSupplies = supplyRepository.findAll(specification, pageDetails);
 
         List<Supply> supplies = pageSupplies.getContent();
         List<SupplyDTO> suppliesDTOS = supplies
                 .stream()
-                .filter(supply -> supply.getAddDate().isBefore(lastDate) && supply.getAddDate().isAfter(firstDate))
                 .map(supply->{
                     return modelMapper.map(supply, SupplyDTO.class);
                 })
