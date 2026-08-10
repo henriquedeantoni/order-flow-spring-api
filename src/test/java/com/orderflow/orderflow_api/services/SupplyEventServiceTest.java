@@ -1,7 +1,9 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Supply;
 import com.orderflow.orderflow_api.models.SupplyEvent;
+import com.orderflow.orderflow_api.payload.SupplyEventRequestDTO;
 import com.orderflow.orderflow_api.payload.SupplyEventResponseDTO;
 import com.orderflow.orderflow_api.repositories.SupplyEventRepository;
 import com.orderflow.orderflow_api.repositories.SupplyRepository;
@@ -18,8 +20,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -68,23 +69,100 @@ public class SupplyEventServiceTest {
     public void givenSupplyEventObjectWhenFirstSupplyEventRegisterThenReturnSupplyEventDTOObject()
     {
         // Given/arrange
+        SupplyEventRequestDTO requestDTO = new SupplyEventRequestDTO();
+        requestDTO.setSupplyId(1L);
+        requestDTO.setEventType("STOCK_IN");
+        requestDTO.setQuantityMoved(0);
+        requestDTO.setAddDate(OffsetDateTime.now());
+
         SupplyEventResponseDTO responseDTO = new SupplyEventResponseDTO();
-        responseDTO.setEventDate(dateTimeOne);
-        responseDTO.setSupplyId(1L);
         responseDTO.setEventType("STOCK_IN");
-        responseDTO.setSupplyEventId(1L);
-        responseDTO.setQuantityMoved(100);
+        responseDTO.setQuantityMoved(0);
+        responseDTO.setEventDate(OffsetDateTime.now());
 
         given(supplyRepository.findById(1L)).willReturn(Optional.of(supplyOne));
 
         // When/Act
-        given(modelMapper.map(responseDTO, SupplyEvent.class)).willReturn(supplyEventOne);
+        //given(modelMapper.map(requestDTO, SupplyEvent.class)).willReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEventRequestDTO.class), eq(SupplyEvent.class)))
+                .thenReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEvent.class), eq(SupplyEventResponseDTO.class)))
+                .thenReturn(responseDTO);
+
         SupplyEventResponseDTO response = supplyEventService.firstSupplyEventRegister(1L);
 
         // Then/Assert
         assertNotNull(response);
         assertEquals("STOCK_IN",response.getEventType());
-        assertEquals(100,response.getSupplyEventId());
+        assertEquals(0,response.getQuantityMoved());
+        verify(supplyEventRepository, times(1)).save(any());
+    }
+
+    @DisplayName("JUnit test for Given SupplyEvent Object when FirstSupplyEventRegister With Invalid SupplyId then Throws Resource not found Exception")
+    @Test
+    public void givenSupplyEventObjectWhenFirstSupplyEventRegisterWithInvalidSupplyIdThenThrowsResourceNotFoundException()
+    {
+        // Given/arrange
+        Long validSupplyId = 1L;
+        Long invalidSupplyId = 2L;
+        SupplyEventRequestDTO requestDTO = new SupplyEventRequestDTO();
+        requestDTO.setSupplyId(1L);
+        requestDTO.setEventType("STOCK_IN");
+        requestDTO.setQuantityMoved(0);
+        requestDTO.setAddDate(OffsetDateTime.now());
+
+        SupplyEventResponseDTO responseDTO = new SupplyEventResponseDTO();
+        responseDTO.setEventType("STOCK_IN");
+        responseDTO.setQuantityMoved(0);
+        responseDTO.setEventDate(OffsetDateTime.now());
+
+        given(supplyRepository.findById(validSupplyId)).willReturn(Optional.of(supplyOne));
+        given(supplyRepository.findById(invalidSupplyId)).willReturn(Optional.empty());
+
+        // When/Act
+        //given(modelMapper.map(requestDTO, SupplyEvent.class)).willReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEventRequestDTO.class), eq(SupplyEvent.class)))
+                .thenReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEvent.class), eq(SupplyEventResponseDTO.class)))
+                .thenReturn(responseDTO);
+
+        assertThrows(ResourceNotFoundException.class, ()-> supplyEventService.firstSupplyEventRegister(2L));
+
+        // Then/Assert
+        verify(supplyEventRepository, never()).save(any());
+    }
+
+    @DisplayName("JUnit test for Given SupplyEvent Object when Increase Quantity Moved Event then Return SupplyEventDTO Object")
+    @Test
+    public void givenSupplyEventObjectWhenIncreaseQuantityMovedEventThenReturnSupplyEventResponseDTOObject()
+    {
+        // Given/arrange
+        SupplyEventRequestDTO requestDTO = new SupplyEventRequestDTO();
+        requestDTO.setSupplyId(1L);
+        requestDTO.setEventType("STOCK_IN");
+        requestDTO.setQuantityMoved(0);
+        requestDTO.setAddDate(OffsetDateTime.now());
+
+        SupplyEventResponseDTO responseDTO = new SupplyEventResponseDTO();
+        responseDTO.setEventType("STOCK_IN");
+        responseDTO.setQuantityMoved(0);
+        responseDTO.setEventDate(OffsetDateTime.now());
+
+        given(supplyRepository.findById(1L)).willReturn(Optional.of(supplyOne));
+
+        // When/Act
+        //given(modelMapper.map(requestDTO, SupplyEvent.class)).willReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEventRequestDTO.class), eq(SupplyEvent.class)))
+                .thenReturn(supplyEventOne);
+        when(modelMapper.map(any(SupplyEvent.class), eq(SupplyEventResponseDTO.class)))
+                .thenReturn(responseDTO);
+
+        SupplyEventResponseDTO response = supplyEventService.increaseQuantityMovedEvent(1L, 100);
+
+        // Then/Assert
+        assertNotNull(response);
+        assertEquals("STOCK_IN",response.getEventType());
+        assertEquals(0,response.getQuantityMoved());
         verify(supplyEventRepository, times(1)).save(any());
     }
 }
