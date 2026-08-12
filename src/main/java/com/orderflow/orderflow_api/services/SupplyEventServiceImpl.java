@@ -41,6 +41,7 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         supplyEventRequestDTO.setSupplyId(supplyFromDb.getSupplyId());
         supplyEventRequestDTO.setEventType("STOCK_IN");
         supplyEventRequestDTO.setQuantityMoved(0);
+        supplyEventRequestDTO.setAddDate(OffsetDateTime.now());
 
         SupplyEvent supplyEvent = modelMapper.map(supplyEventRequestDTO, SupplyEvent.class);
         supplyEventRepository.save(supplyEvent);
@@ -86,8 +87,8 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         List<SupplyEvent> supplyEventsList = supplyEventRepository.findAllBySupplyId(supplyId);
 
         List<SupplyEventResponseDTO> response = supplyEventsList.stream()
-                .map( supply -> {
-                    return modelMapper.map(supply, SupplyEventResponseDTO.class);
+                .map( supplyEvent -> {
+                    return modelMapper.map(supplyEvent, SupplyEventResponseDTO.class);
                 }).toList();
 
         return response;
