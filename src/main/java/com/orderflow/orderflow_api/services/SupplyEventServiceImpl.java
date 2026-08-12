@@ -87,8 +87,8 @@ public class SupplyEventServiceImpl implements SupplyEventService {
         List<SupplyEvent> supplyEventsList = supplyEventRepository.findAllBySupplyId(supplyId);
 
         List<SupplyEventResponseDTO> response = supplyEventsList.stream()
-                .map( supply -> {
-                    return modelMapper.map(supply, SupplyEventResponseDTO.class);
+                .map( supplyEvent -> {
+                    return modelMapper.map(supplyEvent, SupplyEventResponseDTO.class);
                 }).toList();
 
         return response;
