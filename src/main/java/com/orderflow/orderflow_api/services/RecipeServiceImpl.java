@@ -10,6 +10,7 @@ import com.orderflow.orderflow_api.payload.RecipeSupplyDTO;
 import com.orderflow.orderflow_api.repositories.ItemRepository;
 import com.orderflow.orderflow_api.repositories.RecipeRepository;
 import com.orderflow.orderflow_api.repositories.RecipeSupplyRepository;
+import com.orderflow.orderflow_api.repositories.SupplyRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Autowired
     private RecipeSupplyRepository recipeSupplyRepository;
+
+    @Autowired
+    private SupplyRepository supplyRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -110,8 +114,8 @@ public class RecipeServiceImpl implements RecipeService {
         for(RecipeSupplyDTO recipeSupplyDTO : recipeList){
             Long supplyId = recipeSupplyDTO.getSupplyId();
 
-            Supply supplyFromDb = recipeSupplyRepository.findById(supplyId)
-                    .orElseThrow(()-> new ResourceNotFoundException("Supply", "supplyId", supplyId)).getSupply();
+            Supply supplyFromDb = supplyRepository.findById(supplyId)
+                    .orElseThrow(()-> new ResourceNotFoundException("Supply", "supplyId", supplyId));
         }
     }
 
