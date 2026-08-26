@@ -1,9 +1,8 @@
 package com.orderflow.orderflow_api.services;
 
-import com.orderflow.orderflow_api.models.Item;
-import com.orderflow.orderflow_api.models.Recipe;
-import com.orderflow.orderflow_api.models.RecipeSupply;
-import com.orderflow.orderflow_api.models.Supply;
+import com.orderflow.orderflow_api.exceptions.APIException;
+import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
+import com.orderflow.orderflow_api.models.*;
 import com.orderflow.orderflow_api.payload.ItemDTO;
 import com.orderflow.orderflow_api.payload.RecipeDTO;
 import com.orderflow.orderflow_api.payload.RecipeSupplyDTO;
@@ -27,10 +26,11 @@ import java.util.List;
 import java.util.Optional;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 public class RecipeServiceTest {
@@ -153,12 +153,54 @@ public class RecipeServiceTest {
                 .willReturn(recipeSupplyOne);
 
         // When/Act
-        RecipeDTO result = recipeService.registerRecipe(recipeOneDTO,1L , recipeSupplyList);
+        RecipeDTO result = recipeService.registerRecipe(recipeOneDTO,validItemId , recipeSupplyList);
 
         // Then/Assert
         assertNotNull(result);
         assertEquals("Recipe One", result.getRecipeName());
         assertEquals("Description One", result.getPreparationDescription());
         assertEquals(20, result.getTimeMinutesToPrepare());
+    }
+
+    @DisplayName("JUnit test for Given Recipe Object When Register Recipe With Invalid ItemId then Returns RecipeDto Object")
+    @Test
+    void testGivenRecipeObjectWhenRegisterRecipeWithInvalidItemIdThenReturnRecipeDtoObject() {
+        // Given/Arrange
+        recipeOne.setRecipeId(1L);
+        Long validItemId = 1L;
+        Long inValidItemId = 2L;
+        List<RecipeSupplyDTO> recipeSupplyList = List.of(recipeSupplyOneDTO, recipeSupplyTwoDTO);
+        recipeSupplyOneDTO.setSupplyId(1L);
+        recipeSupplyTwoDTO.setSupplyId(2L);
+        given(itemRepository.findById(validItemId)).willReturn(Optional.of(itemOne));
+
+        given(modelMapper.map(recipeSupplyOneDTO, RecipeSupply.class))
+                .willReturn(recipeSupplyOne);
+
+        given(modelMapper.map(recipeSupplyTwoDTO, RecipeSupply.class))
+                .willReturn(recipeSupplyTwo);
+
+        given(recipeRepository.save(any(Recipe.class)))
+                .willReturn(recipeOne);
+
+        given(modelMapper.map(any(Recipe.class), eq(RecipeDTO.class)))
+                .willReturn(recipeOneDTO);
+
+        given(recipeRepository.findById(anyLong()))
+                .willReturn(Optional.of(recipeOne));
+
+        given(supplyRepository.findById(anyLong())).willReturn(Optional.of(supplyOne));
+
+        given(modelMapper.map(any(RecipeSupplyDTO.class), eq(RecipeSupply.class)))
+                .willReturn(recipeSupplyOne);
+
+        // When/Act
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            recipeService.registerRecipe(recipeOneDTO,inValidItemId , recipeSupplyList);
+        });
+
+        // Then/Assert
+        verify(recipeRepository, never()).save(any(Recipe.class));
     }
 }
