@@ -1,5 +1,6 @@
 package com.orderflow.orderflow_api.services;
 
+import com.orderflow.orderflow_api.exceptions.APIException;
 import com.orderflow.orderflow_api.exceptions.ResourceNotFoundException;
 import com.orderflow.orderflow_api.models.Item;
 import com.orderflow.orderflow_api.models.Recipe;
@@ -12,6 +13,7 @@ import com.orderflow.orderflow_api.repositories.RecipeRepository;
 import com.orderflow.orderflow_api.repositories.RecipeSupplyRepository;
 import com.orderflow.orderflow_api.repositories.SupplyRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,10 @@ public class RecipeServiceImpl implements RecipeService {
     public RecipeDTO registerRecipe(RecipeDTO recipeDTO, Long itemId, List<RecipeSupplyDTO> recipeList) {
         Item itemFromDb = itemRepository.findById(itemId)
                 .orElseThrow(()-> new ResourceNotFoundException("Item", "itemId", itemId));
+
+        if(recipeList.isEmpty()){
+            throw new APIException("Recipe must be at least one item");
+        }
 
         validateRecipeSupplyList(recipeList);
 

@@ -162,9 +162,9 @@ public class RecipeServiceTest {
         assertEquals(20, result.getTimeMinutesToPrepare());
     }
 
-    @DisplayName("JUnit test for Given Recipe Object When Register Recipe With Invalid ItemId then Returns RecipeDto Object")
+    @DisplayName("JUnit test for Given Recipe Object When Register Recipe With Invalid ItemId then Throws Resource Not Found Exception")
     @Test
-    void testGivenRecipeObjectWhenRegisterRecipeWithInvalidItemIdThenReturnRecipeDtoObject() {
+    void testGivenRecipeObjectWhenRegisterRecipeWithInvalidItemIdThenThrowsResourceNotFoundException() {
         // Given/Arrange
         recipeOne.setRecipeId(1L);
         Long validItemId = 1L;
@@ -198,6 +198,47 @@ public class RecipeServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> {
             recipeService.registerRecipe(recipeOneDTO,inValidItemId , recipeSupplyList);
+        });
+
+        // Then/Assert
+        verify(recipeRepository, never()).save(any(Recipe.class));
+    }
+
+    @DisplayName("JUnit test for Given Recipe Object When Register Empty Recipe ItemId then Returns Api Exception")
+    @Test
+    void testGivenRecipeObjectWhenRegisterRecipeRegisterEmptyThenThrowsApiException() {
+        // Given/Arrange
+        recipeOne.setRecipeId(1L);
+        Long validItemId = 1L;
+        List<RecipeSupplyDTO> recipeSupplyList = List.of();
+        recipeSupplyOneDTO.setSupplyId(1L);
+        recipeSupplyTwoDTO.setSupplyId(2L);
+        given(itemRepository.findById(validItemId)).willReturn(Optional.of(itemOne));
+
+        given(modelMapper.map(recipeSupplyOneDTO, RecipeSupply.class))
+                .willReturn(recipeSupplyOne);
+
+        given(modelMapper.map(recipeSupplyTwoDTO, RecipeSupply.class))
+                .willReturn(recipeSupplyTwo);
+
+        given(recipeRepository.save(any(Recipe.class)))
+                .willReturn(recipeOne);
+
+        given(modelMapper.map(any(Recipe.class), eq(RecipeDTO.class)))
+                .willReturn(recipeOneDTO);
+
+        given(recipeRepository.findById(anyLong()))
+                .willReturn(Optional.of(recipeOne));
+
+        given(supplyRepository.findById(anyLong())).willReturn(Optional.of(supplyOne));
+
+        given(modelMapper.map(any(RecipeSupplyDTO.class), eq(RecipeSupply.class)))
+                .willReturn(recipeSupplyOne);
+
+        // When/Act
+
+        assertThrows(APIException.class, () -> {
+            recipeService.registerRecipe(recipeOneDTO,validItemId , recipeSupplyList);
         });
 
         // Then/Assert
